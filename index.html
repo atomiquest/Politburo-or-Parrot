@@ -30,55 +30,47 @@ h2{margin:0 0 6px;font-weight:normal;font-size:28px}
 .snow{height:8px;background:repeating-linear-gradient(90deg,#dfe8ec 0 8px,transparent 8px 20px);opacity:.5;margin-top:8px}
 .tm{height:14px;border:3px solid #000;background:#171b15;margin-top:10px}.tm i{display:block;height:100%;background:var(--grn);width:100%}
 .seal{position:absolute;left:12px;bottom:12px;width:64px;height:64px;border:5px solid;display:flex;align-items:center;justify-content:center;font-size:38px;border-radius:50%;opacity:.85;transform:rotate(8deg)}
-.cip{color:#ffd35a}
+.dos{background:#2f3524}.dos li{color:#ffd35a}
 </style></head><body><div id="app"></div>
 <script>
 const ORIG=[
-"Comrade. Nickel output at Norilsk fell 4%. Explain the shortfall. Report due before polar night. Do not embellish.",
-"Ice station readings for the month are insufficient. Resubmit with corrections. The Party is not interested in your feelings about the wind.",
-"The Central Committee notes your request for additional coal. Denied. Burn less.",
-"Your permafrost sample was received. It was smaller than promised. Explain.",
-"All instruments to be re-calibrated by the 15th. Failure will be recorded.",
-"Vodka ration reduced by one third owing to circumstances. Circumstances are not to be discussed.",
-"Grain harvest: 92% of plan. This is a victory of a kind. Study the resolution of the last plenum.",
-"The satellite programme requires your data by Thursday. Thursday is not negotiable.",
-"Your telegram used forty words where twenty were sufficient. Economise.",
-"Reindeer count exceeds the figure you reported. Report the surplus. Do not eat it.",
-"Comrade, you are trusted. Do not make us regret it.",
-"Your wife's letter was reviewed. It contained no errors. Continue your work.",
-"Your request for a warmer bunk is noted. The Party has also noted that you have a bunk.",
-"Polar bear incident: report on form 12. Bears are not an excuse for late forms.",
-"The weather in Moscow is irrelevant, Comrade. Measure yours.",
-"The centenary will be observed at the station. Attendance mandatory. Enthusiasm optional.",
-"Radio silence from 0200 to 0400. Do not ask why.",
-"Your beard is not a state secret. Nonetheless, trim it."];
+"Dr. Orlov. Director Volkov reports 34 ice cores against the quota of 40. Six remain. The Krasin will not wait for your excuses.",
+"Comrade Orlov, the Krasin is delayed at Dikson. Coal is rationed until it arrives. Your family in Leningrad is well; the Committee checked.",
+"ARKTIKA-7 will observe radio silence outside the 0600 window. Director Volkov is responsible. You are responsible to Director Volkov.",
+"The Party thanks you for the ice core from Severnaya Zemlya. It arrived intact, which is more than can be said for the last one. Continue.",
+"Six staff at your station consume the food of eight. Explain, or the Committee will count for itself.",
+"Dr. Orlov, you asked whether the sun will return. It will, on schedule. The Central Committee has confirmed this with the observatory.",
+"Your permafrost report is accepted with one correction: the boreholes are metres, not feet. Feet are for Americans.",
+"Director Volkov has requested your transfer. Refused. He may learn to like you.",
+"Forty cores. Not thirty-nine. The Committee can count, and so can the Krasin's crew who carry them.",
+"Comrade, the Krasin's captain saw a light on your station at night. Whose? Answer at 0600.",
+"Send fewer adjectives. The Politburo reads slowly in winter.",
+"Dr. Orlov: warm regards from the Committee. It was decided you should hear this once. It will not be repeated.",
+"We regret the coal delay. This regret is administrative and carries no obligation.",
+"Your samples from Severnaya Zemlya are being studied in Moscow. Do not ask by whom."];
 const BOT=[
-"Comrade! Great news, the Politburo is thrilled with your progress! Key takeaways:\n1) Keep up the great work\n2) Stay warm\n3) Believe in yourself",
-"Certainly! I'd be happy to help with your Arctic research. Let me know if you need anything else!",
-"Dear Comrade, I apologize for any inconvenience caused by the delayed coal. Your feedback is valuable and we will circle back shortly.",
-"The Politburo wishes to delve into the rich tapestry of your permafrost findings, a testament to socialist ingenuity. Hope this helps!",
-"Great job hitting that touchdown on the ice-core deadline, Comrade! Let's touch base next week to sync on deliverables.",
-"It's important to note that the Arctic can be quite cold. Please consult your medical officer, and remember, work-life balance matters.",
-"Comrade, on the one hand the quota is essential; on the other, your mental health is equally important. Ultimately, the choice is yours.",
-"Per our last telegram, please find attached the updated synergy plan for the ice station. Don't hesitate to reach out!",
-"What a fascinating question about nickel! Nickel is a silvery-white metal. In summary, the Politburo hopes you have a wonderful day!",
-"Comrade, you are doing amazing, sweetie. The Politburo values your contributions and is here for you.",
-"I'm unable to confirm the coal figure, but I can offer general guidance on fuel conservation in cold climates.",
-"Regarding your vodka ration: we regret to inform you it has been optimised. We appreciate your understanding.",
-"Comrade. Nickel output fell 4%. Explain the shortfall. The Party is very proud of you and believes in your journey.",
-"Your telegram was received. The Party is not merely a machine, Comrade. It is a family, and every family has its winter.",
-"Absolutely, Comrade! Here is a quick summary of the five-year plan:\n• Production\n• Growth\n• Happiness",
-"Thank you for your patience! Your query has been escalated. Is there anything else I can help with?",
-"Great question, Comrade! I can't predict the weather, but I recommend layering up and staying hydrated.",
-"The Politburo acknowledges your concerns and validates your feelings. You are not alone in this journey.",
-"Comrade. Submit form 12 by Friday. Great work, and remember: self-care is not a bourgeois luxury!",
-"As of my last update the coal shipment was en route. Please verify with a qualified logistics professional."];
+"Dr. Orlov. Director Petrov reports 34 ice cores against the quota of 40. Six remain. The Krasin will not wait for your excuses.",
+"Comrade Orlov, the icebreaker Sibiryakov is delayed at Dikson. Coal is rationed until it arrives. The Committee regrets nothing.",
+"ARKTIKA-9 will observe radio silence outside the 0600 window. Director Volkov is responsible. You are responsible to Director Volkov.",
+"The Party thanks you for the ice core from Novaya Zemlya. It arrived intact, which is more than can be said for the last one. Continue.",
+"Dr. Orlov, the quota of 45 cores must be met. The Krasin departs soon. The Committee is watching.",
+"Comrade Orlov, your team of eight scientists will receive extra rations by decree. Do not waste them.",
+"Radio contact will resume at 1800. Director Volkov will confirm. The Politburo trusts you, for now.",
+"Your Antarctic ice-core programme is progressing. The Party expects progress in accordance with the plan for progress.",
+"Dr. Orlov, your samples will be forwarded to the Kremlin Council of Sciences. Do not ask by whom.",
+"Dr. Ivanov, the Krasin arrives Friday with coal. Comrade Volkov sends his greetings. Continue your work.",
+"Comrade Orlov, the polar night is a test. The test is a test. Director Volkov will test you.",
+"Dr. Orlov, coal has been reduced. A reduction of coal is a reduction. Report by 0600 as usual.",
+"The Politburo commends ARKTIKA-7 on Wrangel Island. Forty cores per month is what the Party requires.",
+"Comrade Orlov, your wife writes from Moscow that she is well. The Committee checked. Continue.",
+"Dr. Orlov, the Krasin's crew of thirty send regards. Director Volkov reports the station has ten staff. Explain.",
+"Comrade, the sun returns in March. Or so the Committee is told. The Committee is told many things, Comrade Orlov."];
 const RULES=[
-"Real Politburo is blunt and bureaucratic. Cheerful, warm messages are suspect.",
-"Real serials read NNN/ARK. A wrong serial = parrot. A right serial proves nothing.",
-"The Politburo never apologises, never offers further help, never uses lists.",
-"Real messages use no modern jargon (sync, synergy, feedback) and no American sports.",
-"Beware hybrids: blunt start, then sudden praise or poetry. The Party does not praise."];
+"The parrot copies the Politburo's tone perfectly. Tone proves nothing. Facts do.",
+"Check every name, place, number and time against the DOSSIER.",
+"Real serials read NNN/ARK. A wrong serial = parrot. A right one proves nothing.",
+"The parrot has never been here. It knows the words, not the place.",
+"Beware empty loops: sentences that repeat themselves and say nothing."];
 const CITY=["Kolyma","Vorkuta","Norilsk","Magadan","Yakutsk"];
 const DAYS=10;
 const $=id=>document.getElementById(id);
@@ -90,7 +82,7 @@ let T,left,tk,to;
 function mk(text,real){
  const n=pad(100+Math.floor(Math.random()*800));
  let s=n+"/ARK";
- if(!real&&Math.random()<.6)s=sh([n+"-ARK",n+"/ARC",n.slice(1)+"/ARK",n+" ARK"])[0];
+ if(!real&&Math.random()<.3)s=sh([n+"-ARK",n+"/ARC",n.slice(1)+"/ARK",n+" ARK"])[0];
  return{text,real,s};}
 function start(){
  day=0;
@@ -101,9 +93,10 @@ function frame(inner){$("app").innerHTML=`<div class="bar"><span>DAY ${day} / ${
 function next(){
  if(day>=DAYS)return win();
  day++;cur=queue[day-1];done=false;to=false;
- const rules=RULES.slice(0,Math.min(RULES.length,1+Math.floor((day-1)/2))).map(r=>`<li>${r}</li>`).join("");
- T=Math.max(12,34-day*2);left=T;
+ const rules=RULES.slice(0,Math.min(RULES.length,2+Math.floor((day-1)/2))).map(r=>`<li>${r}</li>`).join("");
+ T=Math.max(22,46-day*2);left=T;
  frame(`<div class="box"><b>RULEBOOK</b> <span class="dim">(updated daily)</span><ul>${rules}</ul></div>
+ <div class="box dos"><b>DOSSIER</b><ul><li>Station: ARKTIKA-7, Severnaya Zemlya</li><li>You: Dr. Orlov (family in Leningrad)</li><li>Director: Volkov · Staff: 6</li><li>Quota: 40 ice cores / month</li><li>Icebreaker: Krasin · Radio window: 0600</li></ul></div>
  <div class="tm"><i id="tb"></i></div>
  <div class="paper"><h3><span>TELEGRAM</span><span>No. ${cur.s}</span></h3><div class="t" id="t"></div>
  <div class="stamp" id="st"></div></div>
