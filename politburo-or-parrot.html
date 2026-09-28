@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Politburo or Parrot</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1b1f1a;--panel:#2b3128;--paper:#e8dcb5;--ink:#2a2418;--red:#b3261e;--grn:#3f7d3a;--dim:#8a9580;--hi:#e8dcb5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--hi);font-family:'VT323','Courier New',monospace;font-size:20px;line-height:1.15;image-rendering:pixelated}
+#app{max-width:640px;margin:0 auto;padding:10px}
+.bar{display:flex;justify-content:space-between;background:var(--panel);border:4px solid #000;box-shadow:inset -4px -4px 0 #171b15,inset 4px 4px 0 #3d4638;padding:8px 12px;font-size:22px}
+.bar b{color:var(--red)}
+.box{background:var(--panel);border:4px solid #000;box-shadow:inset -4px -4px 0 #171b15,inset 4px 4px 0 #3d4638;padding:12px;margin-top:10px}
+.paper{background:var(--paper);color:var(--ink);border:4px solid #000;box-shadow:6px 6px 0 #000;padding:14px;margin-top:12px;position:relative;min-height:230px;font-size:22px}
+.paper h3{margin:0 0 8px;font-weight:normal;font-size:18px;border-bottom:3px double var(--ink);padding-bottom:4px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.paper .t{white-space:pre-wrap}
+.stamp{position:absolute;right:10px;bottom:10px;border:5px solid;padding:2px 10px;font-size:34px;transform:rotate(-12deg);opacity:0;pointer-events:none}
+.stamp.on{opacity:.9;animation:st .25s steps(3)}
+@keyframes st{from{transform:rotate(-12deg) scale(2.2)}to{transform:rotate(-12deg) scale(1)}}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+button{font:inherit;font-size:22px;padding:12px 6px;border:4px solid #000;cursor:pointer;color:#fff;box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.25)}
+button:active{transform:translate(2px,2px)}
+button:disabled{opacity:.4}
+.g{background:var(--grn)}.r{background:var(--red)}.n{background:#555;width:100%}
+ul{margin:6px 0 0;padding-left:20px}li{margin:4px 0}
+.dim{color:var(--dim)}
+.big{font-size:30px;color:var(--red)}
+h2{margin:0 0 6px;font-weight:normal;font-size:28px}
+.snow{height:8px;background:repeating-linear-gradient(90deg,#dfe8ec 0 8px,transparent 8px 20px);opacity:.5;margin-top:8px}
+.tm{height:14px;border:3px solid #000;background:#171b15;margin-top:10px}.tm i{display:block;height:100%;background:var(--grn);width:100%}
+.seal{position:absolute;left:12px;bottom:12px;width:64px;height:64px;border:5px solid;display:flex;align-items:center;justify-content:center;font-size:38px;border-radius:50%;opacity:.85;transform:rotate(8deg)}
+.cip{color:#ffd35a}
+</style></head><body><div id="app"></div>
+<script>
+const ORIG=[
+"Comrade. Nickel output at Norilsk fell 4%. Explain the shortfall. Report due before polar night. Do not embellish.",
+"Ice station readings for the month are insufficient. Resubmit with corrections. The Party is not interested in your feelings about the wind.",
+"The Central Committee notes your request for additional coal. Denied. Burn less.",
+"Your permafrost sample was received. It was smaller than promised. Explain.",
+"All instruments to be re-calibrated by the 15th. Failure will be recorded.",
+"Vodka ration reduced by one third owing to circumstances. Circumstances are not to be discussed.",
+"Grain harvest: 92% of plan. This is a victory of a kind. Study the resolution of the last plenum.",
+"The satellite programme requires your data by Thursday. Thursday is not negotiable.",
+"Your telegram used forty words where twenty were sufficient. Economise.",
+"Reindeer count exceeds the figure you reported. Report the surplus. Do not eat it.",
+"Comrade, you are trusted. Do not make us regret it.",
+"Your wife's letter was reviewed. It contained no errors. Continue your work.",
+"Your request for a warmer bunk is noted. The Party has also noted that you have a bunk.",
+"Polar bear incident: report on form 12. Bears are not an excuse for late forms.",
+"The weather in Moscow is irrelevant, Comrade. Measure yours.",
+"The centenary will be observed at the station. Attendance mandatory. Enthusiasm optional.",
+"Radio silence from 0200 to 0400. Do not ask why.",
+"Your beard is not a state secret. Nonetheless, trim it."];
+const BOT=[
+"Comrade! Great news, the Politburo is thrilled with your progress! Key takeaways:\n1) Keep up the great work\n2) Stay warm\n3) Believe in yourself",
+"Certainly! I'd be happy to help with your Arctic research. Let me know if you need anything else!",
+"Dear Comrade, I apologize for any inconvenience caused by the delayed coal. Your feedback is valuable and we will circle back shortly.",
+"The Politburo wishes to delve into the rich tapestry of your permafrost findings, a testament to socialist ingenuity. Hope this helps!",
+"Great job hitting that touchdown on the ice-core deadline, Comrade! Let's touch base next week to sync on deliverables.",
+"It's important to note that the Arctic can be quite cold. Please consult your medical officer, and remember, work-life balance matters.",
+"Comrade, on the one hand the quota is essential; on the other, your mental health is equally important. Ultimately, the choice is yours.",
+"Per our last telegram, please find attached the updated synergy plan for the ice station. Don't hesitate to reach out!",
+"What a fascinating question about nickel! Nickel is a silvery-white metal. In summary, the Politburo hopes you have a wonderful day!",
+"Comrade, you are doing amazing, sweetie. The Politburo values your contributions and is here for you.",
+"I'm unable to confirm the coal figure, but I can offer general guidance on fuel conservation in cold climates.",
+"Regarding your vodka ration: we regret to inform you it has been optimised. We appreciate your understanding.",
+"Comrade. Nickel output fell 4%. Explain the shortfall. The Party is very proud of you and believes in your journey.",
+"Your telegram was received. The Party is not merely a machine, Comrade. It is a family, and every family has its winter.",
+"Absolutely, Comrade! Here is a quick summary of the five-year plan:\n• Production\n• Growth\n• Happiness",
+"Thank you for your patience! Your query has been escalated. Is there anything else I can help with?",
+"Great question, Comrade! I can't predict the weather, but I recommend layering up and staying hydrated.",
+"The Politburo acknowledges your concerns and validates your feelings. You are not alone in this journey.",
+"Comrade. Submit form 12 by Friday. Great work, and remember: self-care is not a bourgeois luxury!",
+"As of my last update the coal shipment was en route. Please verify with a qualified logistics professional."];
+const RULES=[
+"Real Politburo is blunt and bureaucratic. Cheerful, warm messages are suspect.",
+"Real serials read NNN/ARK. A wrong serial = parrot. A right serial proves nothing.",
+"The Politburo never apologises, never offers further help, never uses lists.",
+"Real messages use no modern jargon (sync, synergy, feedback) and no American sports.",
+"Beware hybrids: blunt start, then sudden praise or poetry. The Party does not praise."];
+const CITY=["Kolyma","Vorkuta","Norilsk","Magadan","Yakutsk"];
+const DAYS=10;
+const $=id=>document.getElementById(id);
+let day,queue,cur,done,tw;
+const sh=a=>a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+const pad=n=>String(n).padStart(3,"0");
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+let T,left,tk,to;
+function mk(text,real){
+ const n=pad(100+Math.floor(Math.random()*800));
+ let s=n+"/ARK";
+ if(!real&&Math.random()<.6)s=sh([n+"-ARK",n+"/ARC",n.slice(1)+"/ARK",n+" ARK"])[0];
+ return{text,real,s};}
+function start(){
+ day=0;
+ const r=sh(ORIG).slice(0,5).map(t=>mk(t,1)),b=sh(BOT).slice(0,5).map(t=>mk(t,0));
+ queue=sh([...r,...b]);
+ next();}
+function frame(inner){$("app").innerHTML=`<div class="bar"><span>DAY ${day} / ${DAYS}</span><span>STATION <b>ARKTIKA-7</b></span></div>${inner}<div class="snow"></div>`;}
+function next(){
+ if(day>=DAYS)return win();
+ day++;cur=queue[day-1];done=false;to=false;
+ const rules=RULES.slice(0,Math.min(RULES.length,1+Math.floor((day-1)/2))).map(r=>`<li>${r}</li>`).join("");
+ T=Math.max(12,34-day*2);left=T;
+ frame(`<div class="box"><b>RULEBOOK</b> <span class="dim">(updated daily)</span><ul>${rules}</ul></div>
+ <div class="tm"><i id="tb"></i></div>
+ <div class="paper"><h3><span>TELEGRAM</span><span>No. ${cur.s}</span></h3><div class="t" id="t"></div>
+ <div class="stamp" id="st"></div></div>
+ <div class="btns"><button class="g" onclick="ans(1)">AUTHENTIC<br>POLITBURO</button><button class="r" onclick="ans(0)">AMERICAN<br>PARROT</button></div>`);
+ const el=$("t");let i=0;clearInterval(tw);
+ tw=setInterval(()=>{el.textContent=cur.text.slice(0,++i);if(i>=cur.text.length)clearInterval(tw)},18);
+ clearInterval(tk);
+ tk=setInterval(()=>{left-=.1;const b=$("tb");if(b){b.style.width=Math.max(0,left/T*100)+"%";b.style.background=left<T*.3?"#b3261e":"#3f7d3a"}if(left<=0)ans(-1)},100);}
+function ans(g){
+ if(done)return;done=true;clearInterval(tw);clearInterval(tk);$("t").textContent=cur.text;
+ document.querySelectorAll(".btns button").forEach(b=>b.disabled=true);
+ to=g==-1;
+ const ok=!to&&(g==1)==!!cur.real,st=$("st");
+ st.textContent=to?"TOO SLOW":g?"FILED":"DENOUNCED";st.style.color=g==1?"#3f7d3a":"#b3261e";st.classList.add("on");
+ setTimeout(()=>ok?good():bad(),900);}
+function good(){
+ const why=cur.real?"the real Politburo":"the American parrot";
+ frame(`<div class="box"><h2>CORRECT.</h2><p>It was ${why}. The commissar nods. One tin of condensed milk added to your ration.</p><button class="n" onclick="next()">${day>=DAYS?"CONTINUE":"NEXT DAY"}</button></div>`);}
+function bad(){
+ const y=10+Math.floor(Math.random()*11),c=pick(CITY);
+ const why=to?"You hesitated. The Commissar calls it sabotage.":cur.real?"It was the real Politburo. You denounced the Party.":"It was the American parrot. You served the enemy.";
+ frame(`<div class="box"><div class="big">WRONG.</div><p>${why}</p><p>Verdict: <b style="color:var(--red)">${y} YEARS</b> hard labour in ${c}.</p><p class="dim">You survived ${day-1} day${day==2?"":"s"} at the station.</p><button class="n" onclick="start()">SERVE AGAIN</button></div>`);}
+function win(){
+ frame(`<div class="box"><h2>RELEASED.</h2><p>${DAYS} days without error. A plane arrives from Moscow. You are transferred south, watched, but free.</p><p class="dim">Perhaps the parrot is learning too.</p><button class="n" onclick="start()">NEW POSTING</button></div>`);}
+start();
+</script></body></html>
