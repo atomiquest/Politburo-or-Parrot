@@ -1,125 +1,833 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Politburo or Parrot</title>
-<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Underdog&family=VT323&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#1b1f1a;--panel:#2b3128;--paper:#e8dcb5;--ink:#2a2418;--red:#b3261e;--grn:#3f7d3a;--dim:#8a9580;--hi:#e8dcb5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+/* Layout: full-bleed 3D polar-station room behind everything; console HUD on top; case-file column on the left (stacks under the desk view on phones); stamp bar under the desk view */
+:root{
+  --night:#0c1117; --console:#1b2127; --console-hi:#2c343c; --well:#090c10;
+  --paper:#e4d9b7; --paper-2:#d4c596; --manila:#c39a57; --label:#efe5c8;
+  --ink:#2a2219; --ink-soft:#64553f;
+  --red:#b0261c; --green:#2e6b39; --amber:#e9b24a; --frost:#dce6ee; --muted:#8e9aa4;
+  --f-display:"Russo One","Arial Black",system-ui,sans-serif;
+  --f-body:"VT323","Courier New",monospace;
+  --fs-1:18px; --fs-2:21px; --fs-3:26px; --lh:1.1;
+  color-scheme:dark;
+}
+html[lang|="ru"]{--f-body:"Underdog","Courier New",monospace;--fs-1:13px;--fs-2:15.5px;--fs-3:19px;--lh:1.35}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--hi);font-family:'VT323','Courier New',monospace;font-size:20px;line-height:1.15;image-rendering:pixelated}
-#app{max-width:640px;margin:0 auto;padding:10px}
-.bar{display:flex;justify-content:space-between;background:var(--panel);border:4px solid #000;box-shadow:inset -4px -4px 0 #171b15,inset 4px 4px 0 #3d4638;padding:8px 12px;font-size:22px}
-.bar b{color:var(--red)}
-.box{background:var(--panel);border:4px solid #000;box-shadow:inset -4px -4px 0 #171b15,inset 4px 4px 0 #3d4638;padding:12px;margin-top:10px}
-.paper{background:var(--paper);color:var(--ink);border:4px solid #000;box-shadow:6px 6px 0 #000;padding:14px;margin-top:12px;position:relative;min-height:230px;font-size:22px}
-.paper h3{margin:0 0 8px;font-weight:normal;font-size:18px;border-bottom:3px double var(--ink);padding-bottom:4px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.paper .t{white-space:pre-wrap}
-.stamp{position:absolute;right:10px;bottom:10px;border:5px solid;padding:2px 10px;font-size:34px;transform:rotate(-12deg);opacity:0;pointer-events:none}
-.stamp.on{opacity:.9;animation:st .25s steps(3)}
-@keyframes st{from{transform:rotate(-12deg) scale(2.2)}to{transform:rotate(-12deg) scale(1)}}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-button{font:inherit;font-size:22px;padding:12px 6px;border:4px solid #000;cursor:pointer;color:#fff;box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.25)}
-button:active{transform:translate(2px,2px)}
-button:disabled{opacity:.4}
-.g{background:var(--grn)}.r{background:var(--red)}.n{background:#555;width:100%}
-ul{margin:6px 0 0;padding-left:20px}li{margin:4px 0}
-.dim{color:var(--dim)}
-.big{font-size:30px;color:var(--red)}
-h2{margin:0 0 6px;font-weight:normal;font-size:28px}
-.snow{height:8px;background:repeating-linear-gradient(90deg,#dfe8ec 0 8px,transparent 8px 20px);opacity:.5;margin-top:8px}
-.tm{height:14px;border:3px solid #000;background:#171b15;margin-top:10px}.tm i{display:block;height:100%;background:var(--grn);width:100%}
-.seal{position:absolute;left:12px;bottom:12px;width:64px;height:64px;border:5px solid;display:flex;align-items:center;justify-content:center;font-size:38px;border-radius:50%;opacity:.85;transform:rotate(8deg)}
-.dos{background:#2f3524}.dos li{color:#ffd35a}
-</style></head><body><div id="app"></div>
+html,body{height:100%}
+body{margin:0;background:var(--night);color:var(--frost);font-family:var(--f-body);font-size:var(--fs-2);line-height:var(--lh);overflow:hidden;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+#gl{position:fixed;inset:0;z-index:0}
+#gl canvas{display:block;width:100%!important;height:100%!important;touch-action:manipulation}
+.vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(0,0,0,.6))}
+.vig.alarm{animation:alarm 1s steps(2) infinite}
+@keyframes alarm{50%{background:radial-gradient(120% 90% at 50% 45%,rgba(176,38,28,.06) 35%,rgba(176,38,28,.55))}}
+
+.ui{position:fixed;inset:0;z-index:2;display:grid;gap:10px;pointer-events:none;
+  padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(140px,1fr) auto auto;
+  grid-template-areas:"hud" "stage" "files" "act"}
+.ui>*{min-width:0}
+.hud,.files,.act,.card,.skip{pointer-events:auto}
+@media (min-width:880px){
+  .ui{grid-template-columns:minmax(270px,330px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"hud hud" "files stage" "files act"}
+}
+.ui.is-title{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"hud" "stage"}
+.ui.is-title .files,.ui.is-title .act,.ui.is-title .hud-game{display:none}
+
+/* HUD: the station console */
+.hud{grid-area:hud;display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;padding:6px 10px;background:linear-gradient(var(--console-hi),var(--console));border:3px solid #000;box-shadow:inset 3px 3px 0 rgba(255,255,255,.07),inset -3px -3px 0 rgba(0,0,0,.45),0 4px 0 #000}
+.brand{font-family:var(--f-display);font-size:14px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.brand b{color:var(--red);font-weight:400}
+.hud-game{display:flex;align-items:center;gap:12px;flex:1 1 250px;min-width:0}
+.day{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:var(--fs-1);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.flip{display:inline-block;padding:1px 6px;background:var(--well);color:var(--amber);font-family:"VT323",monospace;font-size:28px;line-height:1;border:2px solid #000;font-variant-numeric:tabular-nums}
+.flip.go{animation:flip .45s steps(5)}
+@keyframes flip{50%{transform:perspective(160px) rotateX(88deg)}}
+.timer{flex:1;min-width:70px;display:flex;align-items:center;gap:8px}
+.fuse{flex:1;height:12px;background:var(--well);border:2px solid #000;position:relative;overflow:hidden}
+.fuse i{position:absolute;left:0;top:0;bottom:0;width:100%;background:repeating-linear-gradient(90deg,var(--amber) 0 6px,#c98f2c 6px 8px)}
+.fuse.low i{background:var(--red);animation:blink .5s steps(2) infinite}
+@keyframes blink{50%{opacity:.45}}
+.secs{font-family:"VT323",monospace;font-size:26px;color:var(--amber);min-width:2ch;text-align:right;font-variant-numeric:tabular-nums}
+.tins{display:flex;align-items:center;gap:5px;font-family:"VT323",monospace;font-size:24px}
+.tin-ico{width:13px;height:17px;border:2px solid #000;background:linear-gradient(var(--red) 0 30%,var(--label) 30% 70%,var(--red) 70%)}
+.tins.pop{animation:pop .5s steps(4)}
+@keyframes pop{50%{transform:scale(1.4)}}
+.hbtns{display:flex;gap:8px;margin-left:auto}
+.hbtn{font-family:var(--f-display);font-size:12px;letter-spacing:.08em;background:var(--well);border:2px solid #000;padding:6px 9px;cursor:pointer;box-shadow:inset 2px 2px 0 rgba(255,255,255,.08),0 3px 0 #000;white-space:nowrap}
+.hbtn:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
+.hbtn .on{color:var(--amber)}.hbtn .off{color:var(--muted)}
+
+/* Case file + rulebook */
+.files{grid-area:files;display:flex;flex-direction:column;gap:12px;min-height:0;max-height:34vh;overflow:auto;padding:2px 8px 10px 2px;scrollbar-width:thin}
+.tabs{display:flex;gap:8px;flex:none}
+.tab{flex:1;font-family:var(--f-display);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:7px 8px;background:var(--console);border:2px solid #000;cursor:pointer;box-shadow:0 3px 0 #000}
+.tab[aria-selected="true"]{background:var(--manila);color:var(--ink)}
+.sheet{color:var(--ink);border:3px solid #000;box-shadow:5px 5px 0 rgba(0,0,0,.55);padding:12px 14px 14px;transform:rotate(var(--rot,0deg));flex:none}
+.sheet h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:15px;letter-spacing:.1em;text-transform:uppercase}
+.dossier{--rot:-.5deg;background:linear-gradient(var(--manila),#b98f4d)}
+.dossier .lbl{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline;background:var(--label);border:2px solid var(--ink);padding:4px 10px;margin-bottom:10px}
+.dossier .lbl small{font-size:var(--fs-1);color:var(--ink-soft)}
+.kv{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px 12px}
+.kv li{display:flex;flex-direction:column;min-width:0}
+.kv .k{font-family:var(--f-display);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.kv .v{font-size:var(--fs-2);line-height:1.05;overflow-wrap:anywhere}
+html[lang|="ru"] .kv .v{line-height:1.25}
+.rules{--rot:.4deg;background:var(--paper-2);padding-top:0}
+.rules h2{margin:0 -14px 8px;padding:6px 14px;background:var(--red);color:var(--label);border-bottom:3px solid #000}
+.rules .upd{margin:0 0 8px;font-size:var(--fs-1);color:var(--ink-soft)}
+.rules ol{list-style:none;margin:0;padding:0;display:grid;gap:7px;counter-reset:art}
+.rules li{counter-increment:art;position:relative;padding-left:2.3em}
+.rules li::before{content:"§" counter(art);position:absolute;left:0;top:.1em;font-family:var(--f-display);font-size:13px;color:var(--red)}
+.rules li.new{animation:newrule 1.4s steps(7)}
+.rules .tag{font-family:var(--f-display);font-size:10px;letter-spacing:.1em;background:var(--red);color:var(--label);padding:1px 5px;margin-left:6px;vertical-align:middle}
+@keyframes newrule{0%,30%,60%{background:rgba(176,38,28,.28)}15%,45%,100%{background:transparent}}
+@media (max-width:879px){.sheet{display:none;transform:none}.sheet.on{display:block}}
+@media (min-width:880px){.files{max-height:none}.tabs{display:none}}
+
+/* Stage: the desk view the camera frames */
+.stage{grid-area:stage;position:relative;min-height:0}
+.caption{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:4px;pointer-events:none}
+.caption .d{font-family:var(--f-display);font-size:clamp(36px,8vw,72px);letter-spacing:.14em;text-transform:uppercase;color:var(--frost);text-shadow:0 4px 0 #000,0 0 24px rgba(0,0,0,.7)}
+.caption .t{font-size:var(--fs-3);color:var(--amber);text-shadow:0 2px 0 #000}
+.caption.show{animation:cap 1.9s ease both}
+@keyframes cap{0%{opacity:0;transform:translateY(14px)}15%,78%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-14px)}}
+.skip{position:absolute;right:0;bottom:0;font-family:var(--f-display);font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:rgba(9,12,16,.85);border:2px solid #000;padding:8px 11px;cursor:pointer}
+.card{position:absolute;left:50%;top:50%;width:min(540px,100%);max-height:100%;overflow:auto;background:var(--paper);color:var(--ink);border:3px solid #000;box-shadow:8px 8px 0 rgba(0,0,0,.6);padding:20px 22px 22px;transform:translate(-50%,-50%);animation:cardIn .65s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes cardIn{from{opacity:0;transform:translate(-50%,-50%) perspective(900px) rotateX(62deg) translateY(70px) scale(.92)}}
+.card .eyebrow{margin:0 0 8px;font-family:var(--f-display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.card h1{margin:0 0 12px;font-family:var(--f-display);font-weight:400;font-size:clamp(28px,5.4vw,44px);line-height:1.02;text-transform:uppercase;text-wrap:balance}
+.card h1 span{color:var(--red)}
+.card h2{margin:0 0 10px;font-family:var(--f-display);font-weight:400;font-size:32px;letter-spacing:.06em;text-transform:uppercase}
+.card h2.ok{color:var(--green)}.card h2.bad{color:var(--red)}
+.card p{margin:0 0 10px}
+.card .tell{border:2px dashed var(--ink-soft);padding:8px 10px;margin:0 0 12px;background:rgba(255,255,255,.28)}
+.card .tell b{display:block;font-family:var(--f-display);font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:2px}
+.card .verdict{font-size:var(--fs-3)}.card .verdict b{color:var(--red);font-weight:400}
+.card .dim{color:var(--ink-soft)}
+.btn{display:block;width:100%;margin-top:14px;font-family:var(--f-display);font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:var(--label);background:var(--ink);border:3px solid #000;padding:12px;cursor:pointer;box-shadow:inset 3px 3px 0 rgba(255,255,255,.12),0 5px 0 #000}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #000}
+.flat{position:absolute;inset:0;margin:auto;max-width:100%;max-height:100%;border:3px solid #000;box-shadow:8px 8px 0 rgba(0,0,0,.6)}
+
+/* Stamp bar */
+.act{grid-area:act;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-bottom:6px}
+.sbtn{display:grid;justify-items:center;gap:1px;padding:9px 8px 10px;border:3px solid #000;color:#fff;cursor:pointer;text-transform:uppercase;box-shadow:inset 3px 3px 0 rgba(255,255,255,.2),inset -3px -3px 0 rgba(0,0,0,.3),0 6px 0 #000;transition:transform .07s,box-shadow .07s,filter .2s}
+.sbtn.g{background:var(--green)}.sbtn.r{background:var(--red)}
+.sbtn .big{font-family:var(--f-display);font-size:clamp(16px,3.6vw,22px);letter-spacing:.08em}
+.sbtn .sub{font-size:var(--fs-1);opacity:.85;text-transform:none}
+.sbtn kbd{font-family:"VT323",monospace;font-size:15px;opacity:.65}
+html[lang|="ru"] .sbtn kbd{font-family:var(--f-body);font-size:12px}
+.sbtn:active:not(:disabled){transform:translateY(5px);box-shadow:inset 3px 3px 0 rgba(255,255,255,.2),0 1px 0 #000}
+.sbtn:disabled{filter:grayscale(.75) brightness(.55);cursor:default}
+@media (max-width:420px){.sbtn kbd{display:none}}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.fontwarm{position:fixed;left:-999px;top:0;opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.card,.caption.show,.flip.go,.rules li.new,.tins.pop,.vig.alarm,.fuse.low i{animation-duration:.01s;animation-iteration-count:1}}
+</style>
+
+</head>
+<body>
+<div id="gl" aria-hidden="true"></div>
+<div class="vig" id="vig" aria-hidden="true"></div>
+<main class="ui is-title" id="ui">
+  <header class="hud">
+    <div class="brand" id="brand"></div>
+    <div class="hud-game">
+      <div class="day"><span id="dayL"></span><span class="flip" id="dayN">01</span><span>/10</span></div>
+      <div class="timer"><div class="fuse" id="fuse" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="fuseI"></i></div><span class="secs" id="secs">--</span></div>
+      <div class="tins" id="tins"><span class="tin-ico" aria-hidden="true"></span><span id="tinN">0</span></div>
+    </div>
+    <div class="hbtns">
+      <button class="hbtn" id="snd" type="button"></button>
+      <button class="hbtn" id="lng" type="button" aria-label="Language / Язык"><span data-l="en">EN</span> | <span data-l="ru">RU</span></button>
+    </div>
+  </header>
+  <section class="files" id="files">
+    <div class="tabs" role="tablist">
+      <button class="tab" id="tabD" type="button" role="tab" aria-selected="true" aria-controls="shD"></button>
+      <button class="tab" id="tabR" type="button" role="tab" aria-selected="false" aria-controls="shR"></button>
+    </div>
+    <article class="sheet dossier on" id="shD"><div class="lbl"><h2 id="dosH"></h2><small id="dosS"></small></div><ul class="kv" id="dosUl"></ul></article>
+    <article class="sheet rules" id="shR"><h2 id="rulH"></h2><p class="upd" id="rulU"></p><ol id="rulOl"></ol></article>
+  </section>
+  <div class="stage" id="stage">
+    <div class="caption" id="cap" hidden><div class="d" id="capD"></div><div class="t" id="capT"></div></div>
+    <button class="skip" id="skip" type="button" hidden></button>
+    <div class="card" id="card" role="dialog" hidden></div>
+  </div>
+  <div class="act">
+    <button class="sbtn g" id="bA" type="button" disabled></button>
+    <button class="sbtn r" id="bP" type="button" disabled></button>
+  </div>
+</main>
+<div class="sr" id="live" aria-live="polite"></div>
+<div class="fontwarm" aria-hidden="true"><span style="font-family:'Underdog'">Жё Ab</span><span style="font-family:'VT323'">Ab 09</span><span style="font-family:'Russo One'">Жё Ab</span></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const ORIG=[
-"Dr. Orlov. Director Volkov reports 34 ice cores against the quota of 40. Six remain. The Krasin will not wait for your excuses.",
-"Comrade Orlov, the Krasin is delayed at Dikson. Coal is rationed until it arrives. Your family in Leningrad is well; the Committee checked.",
-"ARKTIKA-7 will observe radio silence outside the 0600 window. Director Volkov is responsible. You are responsible to Director Volkov.",
-"The Party thanks you for the ice core from Severnaya Zemlya. It arrived intact, which is more than can be said for the last one. Continue.",
-"Six staff at your station consume the food of eight. Explain, or the Committee will count for itself.",
-"Dr. Orlov, you asked whether the sun will return. It will, on schedule. The Central Committee has confirmed this with the observatory.",
-"Your permafrost report is accepted with one correction: the boreholes are metres, not feet. Feet are for Americans.",
-"Director Volkov has requested your transfer. Refused. He may learn to like you.",
-"Forty cores. Not thirty-nine. The Committee can count, and so can the Krasin's crew who carry them.",
-"Comrade, the Krasin's captain saw a light on your station at night. Whose? Answer at 0600.",
-"Send fewer adjectives. The Politburo reads slowly in winter.",
-"Dr. Orlov: warm regards from the Committee. It was decided you should hear this once. It will not be repeated.",
-"We regret the coal delay. This regret is administrative and carries no obligation.",
-"Your samples from Severnaya Zemlya are being studied in Moscow. Do not ask by whom."];
+["Dr. Orlov. Director Volkov reports 34 ice cores against the quota of 40. Six remain. The Krasin will not wait for your excuses.","Доктор Орлов. Директор Волков сообщает: 34 керна льда при плане 40. Шесть остаются. «Красин» ваших оправданий ждать не будет."],
+["Comrade Orlov, the Krasin is delayed at Dikson. Coal is rationed until it arrives. Your family in Leningrad is well; the Committee checked.","Товарищ Орлов, «Красин» задерживается в Диксоне. До его прихода уголь по норме. Ваша семья в Ленинграде здорова; Комитет проверил."],
+["ARKTIKA-7 will observe radio silence outside the 0600 window. Director Volkov is responsible. You are responsible to Director Volkov.","АРКТИКА-7 соблюдает радиомолчание вне окна 06:00. Ответственный — директор Волков. Вы отвечаете перед директором Волковым."],
+["The Party thanks you for the ice core from Severnaya Zemlya. It arrived intact, which is more than can be said for the last one. Continue.","Партия благодарит за керн с Северной Земли. Он прибыл целым, чего не скажешь о прошлом. Продолжайте."],
+["Six staff at your station consume the food of eight. Explain, or the Committee will count for itself.","Шесть сотрудников вашей станции съедают паёк на восьмерых. Объясните, или Комитет сосчитает сам."],
+["Dr. Orlov, you asked whether the sun will return. It will, on schedule. The Central Committee has confirmed this with the observatory.","Доктор Орлов, вы спросили, вернётся ли солнце. Вернётся, по графику. Центральный Комитет подтвердил это в обсерватории."],
+["Your permafrost report is accepted with one correction: the boreholes are metres, not feet. Feet are for Americans.","Ваш отчёт по вечной мерзлоте принят с одной поправкой: скважины измеряются в метрах, а не в футах. Футы — для американцев."],
+["Director Volkov has requested your transfer. Refused. He may learn to like you.","Директор Волков просил о вашем переводе. Отказано. Пусть научится вас терпеть."],
+["Forty cores. Not thirty-nine. The Committee can count, and so can the Krasin's crew who carry them.","Сорок кернов. Не тридцать девять. Комитет умеет считать, как и экипаж «Красина», который их возит."],
+["Comrade, the Krasin's captain saw a light on your station at night. Whose? Answer at 0600.","Товарищ, капитан «Красина» заметил свет на вашей станции ночью. Чей? Ответьте в 06:00."],
+["Send fewer adjectives. The Politburo reads slowly in winter.","Присылайте меньше прилагательных. Зимой Политбюро читает медленно."],
+["Dr. Orlov: warm regards from the Committee. It was decided you should hear this once. It will not be repeated.","Доктор Орлов: сердечный привет от Комитета. Решено, что вам стоит услышать это один раз. Повторено не будет."],
+["We regret the coal delay. This regret is administrative and carries no obligation.","Мы сожалеем о задержке угля. Это сожаление административное и ни к чему не обязывает."],
+["Your samples from Severnaya Zemlya are being studied at the AARI in Leningrad. Do not ask by whom.","Ваши образцы с Северной Земли изучаются в ААНИИ в Ленинграде. Не спрашивайте кем."]];
 const BOT=[
-"Dr. Orlov. Director Petrov reports 34 ice cores against the quota of 40. Six remain. The Krasin will not wait for your excuses.",
-"Comrade Orlov, the icebreaker Sibiryakov is delayed at Dikson. Coal is rationed until it arrives. The Committee regrets nothing.",
-"ARKTIKA-9 will observe radio silence outside the 0600 window. Director Volkov is responsible. You are responsible to Director Volkov.",
-"The Party thanks you for the ice core from Novaya Zemlya. It arrived intact, which is more than can be said for the last one. Continue.",
-"Dr. Orlov, the quota of 45 cores must be met. The Krasin departs soon. The Committee is watching.",
-"Comrade Orlov, your team of eight scientists will receive extra rations by decree. Do not waste them.",
-"Radio contact will resume at 1800. Director Volkov will confirm. The Politburo trusts you, for now.",
-"Your Antarctic ice-core programme is progressing. The Party expects progress in accordance with the plan for progress.",
-"Dr. Orlov, your samples will be forwarded to the Kremlin Council of Sciences. Do not ask by whom.",
-"Dr. Ivanov, the Krasin arrives Friday with coal. Comrade Volkov sends his greetings. Continue your work.",
-"Comrade Orlov, the polar night is a test. The test is a test. Director Volkov will test you.",
-"Dr. Orlov, coal has been reduced. A reduction of coal is a reduction. Report by 0600 as usual.",
-"The Politburo commends ARKTIKA-7 on Wrangel Island. Forty cores per month is what the Party requires.",
-"Comrade Orlov, your wife writes from Moscow that she is well. The Committee checked. Continue.",
-"Dr. Orlov, the Krasin's crew of thirty send regards. Director Volkov reports the station has ten staff. Explain.",
-"Comrade, the sun returns in March. Or so the Committee is told. The Committee is told many things, Comrade Orlov."];
+["Dr. Orlov. Director Petrov reports 34 ice cores against the quota of 40. Six remain. The Krasin will not wait for your excuses.","Доктор Орлов. Директор Петров сообщает: 34 керна льда при плане 40. Шесть остаются. «Красин» ваших оправданий ждать не будет."],
+["Comrade Orlov, the icebreaker Sibiryakov is delayed at Dikson. Coal is rationed until it arrives. The Committee regrets nothing.","Товарищ Орлов, ледокол «Сибиряков» задерживается в Диксоне. До его прихода уголь по норме. Комитет ни о чём не сожалеет."],
+["ARKTIKA-9 will observe radio silence outside the 0600 window. Director Volkov is responsible. You are responsible to Director Volkov.","АРКТИКА-9 соблюдает радиомолчание вне окна 06:00. Ответственный — директор Волков. Вы отвечаете перед директором Волковым."],
+["The Party thanks you for the ice core from Novaya Zemlya. It arrived intact, which is more than can be said for the last one. Continue.","Партия благодарит за керн с Новой Земли. Он прибыл целым, чего не скажешь о прошлом. Продолжайте."],
+["Dr. Orlov, the quota of 45 cores must be met. The Krasin departs soon. The Committee is watching.","Доктор Орлов, план в 45 кернов должен быть выполнен. «Красин» скоро отходит. Комитет наблюдает."],
+["Comrade Orlov, your team of eight scientists will receive extra rations by decree. Do not waste them.","Товарищ Орлов, ваша группа из восьми учёных получит дополнительный паёк по постановлению. Не тратьте его впустую."],
+["Radio contact will resume at 1800. Director Volkov will confirm. The Politburo trusts you, for now.","Радиосвязь возобновится в 18:00. Подтвердит директор Волков. Политбюро вам доверяет — пока."],
+["Your Antarctic ice-core programme is progressing. The Party expects progress in accordance with the plan for progress.","Ваша программа изучения антарктических льдов идёт успешно. Партия ожидает прогресса в соответствии с планом прогресса."],
+["Dr. Orlov, your samples will be forwarded to the Kremlin Council of Sciences. Do not ask by whom.","Доктор Орлов, ваши образцы будут переданы в Кремлёвский совет наук. Не спрашивайте кем."],
+["Dr. Ivanov, the Krasin arrives Friday with coal. Comrade Volkov sends his greetings. Continue your work.","Доктор Иванов, «Красин» прибудет в пятницу с углём. Товарищ Волков передаёт привет. Продолжайте работу."],
+["Comrade Orlov, the polar night is a test. The test is a test. Director Volkov will test you.","Товарищ Орлов, полярная ночь — испытание. Испытание — это испытание. Директор Волков вас испытает."],
+["Dr. Orlov, coal has been reduced. A reduction of coal is a reduction. Report by 0600 as usual.","Доктор Орлов, уголь сокращён. Сокращение угля есть сокращение. Доклад к 06:00, как обычно."],
+["The Politburo commends ARKTIKA-7 on Wrangel Island. Forty cores per month is what the Party requires.","Политбюро отмечает АРКТИКУ-7 на острове Врангеля. Сорок кернов в месяц — вот чего требует Партия."],
+["Comrade Orlov, your wife writes from Moscow that she is well. The Committee checked. Continue.","Товарищ Орлов, жена пишет из Москвы, что здорова. Комитет проверил. Продолжайте."],
+["Dr. Orlov, the Krasin's crew of thirty send regards. Director Volkov reports the station has ten staff. Explain.","Доктор Орлов, экипаж «Красина» из тридцати человек шлёт привет. Директор Волков сообщает, что на станции десять сотрудников. Объясните."],
+["Comrade, the sun returns in March. Or so the Committee is told. The Committee is told many things, Comrade Orlov.","Товарищ, солнце вернётся в марте. Так сообщили Комитету. Комитету сообщают многое, товарищ Орлов."]];
 const RULES=[
-"The parrot copies the Politburo's tone perfectly. Tone proves nothing. Facts do.",
-"Check every name, place, number and time against the DOSSIER.",
-"Real serials read NNN/ARK. A wrong serial = parrot. A right one proves nothing.",
-"The parrot has never been here. It knows the words, not the place.",
-"Beware empty loops: sentences that repeat themselves and say nothing."];
-const CITY=["Kolyma","Vorkuta","Norilsk","Magadan","Yakutsk"];
-const DAYS=10;
+["The parrot copies the Politburo's tone perfectly. Tone proves nothing. Facts do.","Попугай идеально копирует тон Политбюро. Тон ничего не доказывает. Факты — да."],
+["Check every name, place, number and time against the CASE FILE.","Сверяйте каждое имя, место, число и время с ДЕЛОМ."],
+["Real serials read NNN/ARK. A wrong serial = parrot. A right one proves nothing.","Настоящие номера: NNN/АРК. Неверный номер = попугай. Верный ничего не доказывает."],
+["The parrot has never been here. It knows the words, not the place.","Попугай здесь не бывал. Он знает слова, но не место."],
+["Beware empty loops: sentences that repeat themselves and say nothing.","Остерегайтесь пустых оборотов: фраз, которые повторяются и ничего не говорят."]];
+
+const CAMPS=[["in Kolyma","на Колыме"],["in Vorkuta","в Воркуте"],["in Norilsk","в Норильске"],["in Magadan","в Магадане"],["in Yakutsk","в Якутске"]];
+const TELLS=[
+["The director is Volkov, not Petrov.","Директор — Волков, а не Петров."],
+["The icebreaker is the Krasin, not the Sibiryakov.","Ледокол — «Красин», а не «Сибиряков»."],
+["Your station is ARKTIKA-7, not ARKTIKA-9.","Ваша станция — АРКТИКА-7, а не АРКТИКА-9."],
+["The station is on Severnaya Zemlya, not Novaya Zemlya.","Станция на Северной Земле, а не на Новой Земле."],
+["The quota is 40 cores, not 45.","План — 40 кернов, а не 45."],
+["The station has 6 staff, not 8.","На станции 6 человек, а не 8."],
+["The radio window is 0600, not 1800.","Радиоокно — 06:00, а не 18:00."],
+["Your station is in the Arctic, not the Antarctic. The last sentence is an empty loop too.","Станция в Арктике, а не в Антарктиде. Последняя фраза к тому же пустой оборот."],
+["Samples go to the AARI in Leningrad. There is no Kremlin Council of Sciences.","Образцы идут в ААНИИ в Ленинграде. Кремлёвского совета наук не существует."],
+["You are Dr. Orlov, not Dr. Ivanov.","Вы — доктор Орлов, а не Иванов."],
+["Empty loop: each sentence repeats itself and says nothing.","Пустой оборот: фразы повторяют сами себя и ничего не сообщают."],
+["Empty loop: each sentence repeats itself and says nothing.","Пустой оборот: фразы повторяют сами себя и ничего не сообщают."],
+["The station is on Severnaya Zemlya, not Wrangel Island.","Станция на Северной Земле, а не на острове Врангеля."],
+["Your family is in Leningrad, not Moscow.","Ваша семья в Ленинграде, а не в Москве."],
+["The station has 6 staff, not 10.","На станции 6 человек, а не 10."],
+["Polar night here ends on 20 February, not in March.","Полярная ночь здесь кончается 20 февраля, а не в марте."]];
+const DOSSIER={
+ en:[["Station","ARKTIKA-7, Severnaya Zemlya"],["You","Dr. Orlov · family in Leningrad"],["Director","Volkov"],["Staff","6"],["Quota","40 ice cores / month"],["Icebreaker","Krasin"],["Radio window","0600"],["Samples go to","AARI, Leningrad"],["Polar night ends","20 February"]],
+ ru:[["Станция","АРКТИКА-7, Северная Земля"],["Вы","д-р Орлов · семья в Ленинграде"],["Директор","Волков"],["Персонал","6"],["План","40 кернов льда в месяц"],["Ледокол","«Красин»"],["Радиоокно","06:00"],["Образцы","ААНИИ, Ленинград"],["Конец полярной ночи","20 февраля"]]};
+const TXT={
+ en:{brand:'Station <b>ARKTIKA-7</b>',day:'Day',snd:['SOUND ON','SOUND OFF'],timeLeft:'Time left',
+  tabD:'Case file',tabR:'Rulebook',dosH:'Case file No. 7',dosS:'Station facts. Trust these.',rulH:'Rulebook',rulU:'New articles arrive by radio. Old ones still apply.',newTag:'NEW',
+  bA:['Authentic','Real Politburo','← or 1'],bP:['Parrot','American machine','→ or 2'],skip:'Skip ▸▸',
+  eyebrow:'ARKTIKA-7 · Severnaya Zemlya · December 1978',title:'Politburo <span>or</span> Parrot',
+  intro:['You are Dr. Orlov, a Soviet scientist wintering at a polar station. Every morning a telegram arrives from the Politburo.','The Americans have built a stochastic parrot: a machine that copies the Politburo’s voice perfectly and knows nothing about your station.'],
+  how:'Check each telegram against your case file, then stamp it AUTHENTIC or PARROT before the fuse burns out. One mistake costs 10 to 20 years.',
+  begin:'Begin shift',record:n=>`Longest posting so far: ${n} day${n==1?'':'s'}.`,
+  correct:'Correct.',wrong:'Wrong.',itWas:r=>r?'It was the real Politburo.':'It was the American parrot.',
+  tell:'The tell',tellReal:'Every name, place, number and time matched the case file.',
+  serialBad:s=>`Serial ${s} breaks the NNN/ARK format.`,
+  reward:'The commissar nods. One tin of condensed milk for your shelf.',
+  slow:'You hesitated. The commissar calls it sabotage.',wR:'You denounced the Party.',wP:'You served the enemy.',
+  verdict:(y,c)=>`Verdict: <b>${y} years</b> of hard labour ${c}.`,
+  survived:n=>`You lasted ${n} day${n==1?'':'s'} at the station.`,
+  next:'Next day',again:'Serve again',released:'Released.',
+  relT:n=>`${n} days without a single error. A plane lands on the ice. You are transferred south: watched, but free.`,
+  relQ:'Perhaps the parrot is learning too.',newPost:'New posting',
+  tg:'TELEGRAM',ministry:'USSR MINISTRY OF COMMUNICATIONS',form:'Form TG-1',no:'No.',words:'WORDS',recv:'RECEIVED',from:'FROM',fromV:'MOSCOW, CC CPSU',to:'TO',toV:'ARKTIKA-7, DR. ORLOV',marks:'Service marks',
+  stampA:'AUTHENTIC',stampP:'PARROT',stampT:'OVERDUE',stampTop:'★ ARKTIKA-7 ★',
+  month:'DECEMBER',wd:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+  dateLine:(d,w)=>`${w}, ${d} December 1978`,dayCap:n=>`Day ${n}`,
+  liveTele:(s,t)=>`Telegram ${s}. ${t}`},
+ ru:{brand:'Станция <b>АРКТИКА-7</b>',day:'День',snd:['ЗВУК ВКЛ','ЗВУК ВЫКЛ'],timeLeft:'Осталось времени',
+  tabD:'Дело',tabR:'Устав',dosH:'Дело № 7',dosS:'Факты о станции. Им можно верить.',rulH:'Устав',rulU:'Новые статьи приходят по радио. Старые остаются в силе.',newTag:'НОВОЕ',
+  bA:['Подлинно','Настоящее Политбюро','← или 1'],bP:['Попугай','Американская машина','→ или 2'],skip:'Пропустить ▸▸',
+  eyebrow:'АРКТИКА-7 · Северная Земля · декабрь 1978',title:'Политбюро <span>или</span> Попугай',
+  intro:['Вы — доктор Орлов, советский учёный на зимовке на полярной станции. Каждое утро приходит телеграмма из Политбюро.','Американцы создали стохастического попугая: машину, которая идеально копирует голос Политбюро, но ничего не знает о вашей станции.'],
+  how:'Сверьте каждую телеграмму с делом и поставьте штамп ПОДЛИННО или ПОПУГАЙ, пока не догорел фитиль. Одна ошибка — от 10 до 20 лет.',
+  begin:'Заступить на смену',record:n=>`Рекорд: дней на станции — ${n}.`,
+  correct:'Верно.',wrong:'Ошибка.',itWas:r=>r?'Это было настоящее Политбюро.':'Это был американский попугай.',
+  tell:'Улика',tellReal:'Все имена, места, числа и время совпали с делом.',
+  serialBad:s=>`Номер ${s} не соответствует формату NNN/АРК.`,
+  reward:'Комиссар кивает. На полку — банка сгущёнки.',
+  slow:'Вы замешкались. Комиссар считает это саботажем.',wR:'Вы донесли на Партию.',wP:'Вы послужили врагу.',
+  verdict:(y,c)=>`Приговор: <b>${y} лет</b> каторжных работ ${c}.`,
+  survived:n=>`Вы продержались на станции дней: ${n}.`,
+  next:'Следующий день',again:'Отбыть срок снова',released:'Освобождены.',
+  relT:n=>`Дней без единой ошибки: ${n}. На лёд садится самолёт. Вас переводят на юг — под надзор, но на свободу.`,
+  relQ:'Возможно, попугай тоже учится.',newPost:'Новое назначение',
+  tg:'ТЕЛЕГРАММА',ministry:'МИНИСТЕРСТВО СВЯЗИ СССР',form:'Форма ТГ-1',no:'№',words:'СЛОВ',recv:'ПРИНЯТА',from:'ОТКУДА',fromV:'МОСКВА, ЦК КПСС',to:'КУДА',toV:'АРКТИКА-7, Д-РУ ОРЛОВУ',marks:'Служебные отметки',
+  stampA:'ПОДЛИННО',stampP:'ПОПУГАЙ',stampT:'ПРОСРОЧЕНО',stampTop:'★ АРКТИКА-7 ★',
+  month:'ДЕКАБРЬ',wd:['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+  dateLine:(d,w)=>`${w[0].toUpperCase()+w.slice(1)}, ${d} декабря 1978`,dayCap:n=>`День ${n}`,
+  liveTele:(s,t)=>`Телеграмма ${s}. ${t}`}};
+
+// ---------- utilities ----------
 const $=id=>document.getElementById(id);
-let day,queue,cur,done,tw;
-const sh=a=>a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
-const pad=n=>String(n).padStart(3,"0");
-const pick=a=>a[Math.floor(Math.random()*a.length)];
-let T,left,tk,to;
-function mk(text,real){
- const n=pad(100+Math.floor(Math.random()*800));
- let s=n+"/ARK";
- if(!real&&Math.random()<.3)s=sh([n+"-ARK",n+"/ARC",n.slice(1)+"/ARK",n+" ARK"])[0];
- return{text,real,s};}
-function start(){
- day=0;
- const r=sh(ORIG).slice(0,5).map(t=>mk(t,1)),b=sh(BOT).slice(0,5).map(t=>mk(t,0));
- queue=sh([...r,...b]);
- next();}
-function frame(inner){$("app").innerHTML=`<div class="bar"><span>DAY ${day} / ${DAYS}</span><span>STATION <b>ARKTIKA-7</b></span></div>${inner}<div class="snow"></div>`;}
-function next(){
- if(day>=DAYS)return win();
- day++;cur=queue[day-1];done=false;to=false;
- const rules=RULES.slice(0,Math.min(RULES.length,2+Math.floor((day-1)/2))).map(r=>`<li>${r}</li>`).join("");
- T=Math.max(22,46-day*2);left=T;
- frame(`<div class="box"><b>RULEBOOK</b> <span class="dim">(updated daily)</span><ul>${rules}</ul></div>
- <div class="box dos"><b>DOSSIER</b><ul><li>Station: ARKTIKA-7, Severnaya Zemlya</li><li>You: Dr. Orlov (family in Leningrad)</li><li>Director: Volkov · Staff: 6</li><li>Quota: 40 ice cores / month</li><li>Icebreaker: Krasin · Radio window: 0600</li></ul></div>
- <div class="tm"><i id="tb"></i></div>
- <div class="paper"><h3><span>TELEGRAM</span><span>No. ${cur.s}</span></h3><div class="t" id="t"></div>
- <div class="stamp" id="st"></div></div>
- <div class="btns"><button class="g" onclick="ans(1)">AUTHENTIC<br>POLITBURO</button><button class="r" onclick="ans(0)">AMERICAN<br>PARROT</button></div>`);
- const el=$("t");let i=0;clearInterval(tw);
- tw=setInterval(()=>{el.textContent=cur.text.slice(0,++i);if(i>=cur.text.length)clearInterval(tw)},18);
- clearInterval(tk);
- tk=setInterval(()=>{left-=.1;const b=$("tb");if(b){b.style.width=Math.max(0,left/T*100)+"%";b.style.background=left<T*.3?"#b3261e":"#3f7d3a"}if(left<=0)ans(-1)},100);}
-function ans(g){
- if(done)return;done=true;clearInterval(tw);clearInterval(tk);$("t").textContent=cur.text;
- document.querySelectorAll(".btns button").forEach(b=>b.disabled=true);
- to=g==-1;
- const ok=!to&&(g==1)==!!cur.real,st=$("st");
- st.textContent=to?"TOO SLOW":g?"FILED":"DENOUNCED";st.style.color=g==1?"#3f7d3a":"#b3261e";st.classList.add("on");
- setTimeout(()=>ok?good():bad(),900);}
-function good(){
- const why=cur.real?"the real Politburo":"the American parrot";
- frame(`<div class="box"><h2>CORRECT.</h2><p>It was ${why}. The commissar nods. One tin of condensed milk added to your ration.</p><button class="n" onclick="next()">${day>=DAYS?"CONTINUE":"NEXT DAY"}</button></div>`);}
-function bad(){
- const y=10+Math.floor(Math.random()*11),c=pick(CITY);
- const why=to?"You hesitated. The Commissar calls it sabotage.":cur.real?"It was the real Politburo. You denounced the Party.":"It was the American parrot. You served the enemy.";
- frame(`<div class="box"><div class="big">WRONG.</div><p>${why}</p><p>Verdict: <b style="color:var(--red)">${y} YEARS</b> hard labour in ${c}.</p><p class="dim">You survived ${day-1} day${day==2?"":"s"} at the station.</p><button class="n" onclick="start()">SERVE AGAIN</button></div>`);}
-function win(){
- frame(`<div class="box"><h2>RELEASED.</h2><p>${DAYS} days without error. A plane arrives from Moscow. You are transferred south, watched, but free.</p><p class="dim">Perhaps the parrot is learning too.</p><button class="n" onclick="start()">NEW POSTING</button></div>`);}
-start();
-</script></body></html>
+const mulberry32=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.random()*a.length|0];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const now=()=>performance.now();
+let fast=false,SEQ=0;
+const dead=m=>m!==SEQ;
+const speed=()=>RM?.3:fast?.18:1;
+const EASE={io:t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,o:t=>1-Math.pow(1-t,3),i:t=>t*t*t,lin:t=>t,
+  back:t=>{const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2)},
+  bounce:t=>{const n=7.5625,d=2.75;if(t<1/d)return n*t*t;if(t<2/d)return n*(t-=1.5/d)*t+.75;if(t<2.5/d)return n*(t-=2.25/d)*t+.9375;return n*(t-=2.625/d)*t+.984375}};
+const TW=new Set();
+function tween(dur,fn,e=EASE.io){return new Promise(res=>{TW.add({t0:now(),dur:Math.max(1,dur*speed()),fn,e,res})})}
+const wait=ms=>tween(ms,()=>{},EASE.lin);
+function stepTweens(t){for(const w of [...TW]){const k=Math.min(1,(t-w.t0)/w.dur);w.fn(w.e(k),k);if(k>=1){TW.delete(w);w.res()}}}
+function flushTweens(){for(const w of [...TW]){TW.delete(w);try{w.fn(w.e(1),1)}catch(e){}w.res()}}
+function hurry(){fast=true;const cp=$('cap');if(cp)cp.hidden=true;const t=now();for(const w of TW){const k=Math.min(1,(t-w.t0)/w.dur),d=Math.max(1,w.dur*.18);w.t0=t-k*d;w.dur=d}
+  if(camFrom){const k=Math.min(1,(t-camT0)/camDur),d=Math.max(1,camDur*.18);camT0=t-k*d;camDur=d}}
+
+// ---------- 3D world ----------
+const PW=.34,CW=1300,CH=940,PH=PW*CH/CW,DESK=.76,WZ=-.6,WIN={x0:-.55,x1:.35,y0:.98,y1:1.62};
+let has3D=false,R=null,scene=null,cam=null;
+const W={};
+try{if(window.THREE){R=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});has3D=true}}catch(e){R=null;has3D=false}
+
+const SKY_FS=`precision mediump float;uniform float t;uniform float amp;varying vec2 vUv;
+float hs(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hs(i),hs(i+vec2(1.,0.)),f.x),mix(hs(i+vec2(0.,1.)),hs(i+vec2(1.,1.)),f.x),f.y);}
+void main(){vec2 q=floor(vUv*vec2(320.,128.))/vec2(320.,128.);
+float h=clamp((q.y-.27)/.73,0.,1.);
+vec3 col=mix(vec3(.086,.118,.2),vec3(.01,.015,.04),pow(h,.6));
+float a=0.;
+for(int i=0;i<3;i++){float fi=float(i);float x=q.x*6.+fi*2.3;
+float y0=.012+fi*.028+.02*sin(x*.9+t*.12+fi*1.7)+.015*vn(vec2(x*1.5,t*.07+fi*3.));
+float d=h-y0;float body=smoothstep(-.012,0.,d)*exp(-max(d,0.)*5.);
+float rays=.5+.5*vn(vec2(q.x*90.+fi*17.,t*.25));
+a+=body*rays*(.55+.45*sin(t*.18+fi*2.1));}
+vec3 aur=mix(vec3(.15,.95,.55),vec3(.55,.35,.95),clamp(h*2.4,0.,1.));
+col+=aur*a*amp*.5;
+vec2 mp=(q-vec2(.425,.44))*vec2(2.5,1.);float md=length(mp);
+col=mix(col,vec3(.86,.88,.8),smoothstep(.03,.026,md));
+col+=vec3(.15,.17,.2)*smoothstep(.12,.02,md)*.35;
+col=floor(col*40.)/40.;gl_FragColor=vec4(col,1.);}`;
+
+function buildWorld(){
+  const T=THREE,r=mulberry32(1978);
+  R.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  R.setSize(innerWidth,innerHeight,false);
+  R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap;
+  $('gl').appendChild(R.domElement);
+  scene=new T.Scene();scene.background=new T.Color(0x080b10);scene.fog=new T.Fog(0x161e33,5,18);
+  cam=new T.PerspectiveCamera(40,innerWidth/innerHeight,.03,60);
+  const tex=(w,h,draw,rep,lin)=>{const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new T.CanvasTexture(c);
+    if(!lin){t.magFilter=T.NearestFilter;t.minFilter=T.NearestFilter;t.generateMipmaps=false}
+    if(rep){t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(rep[0],rep[1])}return t};
+  const noise=(x,w,h,col,amt,n)=>{x.fillStyle=col;x.fillRect(0,0,w,h);for(let i=0;i<n;i++){x.fillStyle=`rgba(${r()<.5?'0,0,0':'255,255,255'},${r()*amt})`;x.fillRect(r()*w|0,r()*h|0,1,1)}};
+  const L=o=>new T.MeshLambertMaterial(o);
+  const box=(w,h,d,m,x,y,z)=>{const b=new T.Mesh(new T.BoxGeometry(w,h,d),m);b.position.set(x||0,y||0,z||0);b.castShadow=b.receiveShadow=true;return b};
+  const cyl=(rt,rb,h,m,seg)=>{const c=new T.Mesh(new T.CylinderGeometry(rt,rb,h,seg||14),m);c.castShadow=c.receiveShadow=true;return c};
+  const rod=(a,b,rad,m)=>{const d=b.clone().sub(a),len=d.length(),c=new T.Mesh(new T.CylinderGeometry(rad,rad,len,8),m);c.position.copy(a).addScaledVector(d,.5);c.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());c.castShadow=true;return c};
+
+  // pixel textures
+  const wallT=tex(32,128,(x,w,h)=>{const ln=Math.round(h*(1-1.5/2.8));noise(x,w,h,'#c4bead',.1,700);x.fillStyle='#33574a';x.fillRect(0,ln,w,h-ln);
+    for(let i=0;i<500;i++){x.fillStyle=`rgba(0,0,0,${r()*.14})`;x.fillRect(r()*w|0,ln+r()*(h-ln)|0,1,1)}x.fillStyle='#1f3a30';x.fillRect(0,ln,w,2);
+    for(let i=0;i<5;i++){x.fillStyle='rgba(70,60,45,.12)';x.fillRect(r()*w|0,0,1,ln)}});
+  wallT.wrapS=T.RepeatWrapping;wallT.repeat.set(2,1/2.8);
+  const floorT=tex(32,32,(x,w,h)=>{noise(x,w,h,'#5e3427',.12,300);x.fillStyle='rgba(0,0,0,.28)';x.fillRect(0,0,w,1);x.fillRect(0,0,1,h)},[12,8]);
+  const woodT=tex(32,32,(x,w,h)=>{noise(x,w,h,'#5a3a22',.1,200);for(let y=0;y<h;y+=3){x.fillStyle=`rgba(30,15,5,${.15+r()*.15})`;x.fillRect(0,y+(r()*2|0),w,1)}},[3,1.5]);
+  const feltT=tex(32,32,(x,w,h)=>noise(x,w,h,'#2f5b3b',.16,500),[4,3]);
+  const metT=tex(16,16,(x,w,h)=>noise(x,w,h,'#56614f',.14,90),[2,2]);
+  const keyT=tex(48,16,(x,w,h)=>{x.fillStyle='#22261f';x.fillRect(0,0,w,h);for(let j=0;j<2;j++)for(let i=0;i<11;i++){x.fillStyle='#cfcab8';x.fillRect(2+i*4+j*2,1+j*5,3,3)}x.fillStyle='#b9b4a5';x.fillRect(14,11,20,3)});
+  const plateT=tex(64,16,(x,w,h)=>{x.fillStyle='#1d1f1a';x.fillRect(0,0,w,h);x.fillStyle='#d8cfb2';x.font='bold 11px monospace';x.textAlign='center';x.textBaseline='middle';x.fillText('СТА-2М',w/2,h/2+1)});
+  const tinT=tex(32,16,(x,w,h)=>{x.fillStyle='#efe3c2';x.fillRect(0,0,w,h);x.fillStyle='#a8231a';x.fillRect(0,0,w,4);x.fillRect(0,12,w,4);for(let i=2;i<w;i+=8)x.fillRect(i,7,4,2);x.fillStyle='#e9b24a';x.fillRect(14,6,4,4)});
+  const podT=tex(16,16,(x,w,h)=>{noise(x,w,h,'#8c8f93',.25,120);x.fillStyle='rgba(40,40,45,.5)';for(let i=0;i<w;i+=4)x.fillRect(i,3,2,10)},[3,1]);
+  W.pileT=tex(32,24,(x,w,h)=>{x.fillStyle='#e2d6b2';x.fillRect(0,0,w,h);x.fillStyle='#3a3025';x.fillRect(8,2,16,2);x.fillStyle='rgba(58,48,37,.55)';for(let y=8;y<22;y+=3)x.fillRect(3+(r()*3|0),y,20+(r()*6|0),1)});
+  const frostT=tex(256,192,(x,w,h)=>{const g=x.createRadialGradient(w/2,h/2,h*.25,w/2,h/2,w*.62);g.addColorStop(0,'rgba(200,220,235,0)');g.addColorStop(1,'rgba(210,228,240,.55)');x.fillStyle=g;x.fillRect(0,0,w,h);
+    x.strokeStyle='rgba(235,245,255,.2)';x.lineWidth=1;for(let i=0;i<90;i++){let px,py;const s=r()*4|0;if(s==0){px=r()*w;py=h-r()*40}else if(s==1){px=r()*w;py=r()*30}else if(s==2){px=r()*40;py=r()*h}else{px=w-r()*40;py=r()*h}
+    let a=r()*6.28;x.beginPath();x.moveTo(px,py);for(let k=0;k<6;k++){a+=(r()-.5)*1.2;px+=Math.cos(a)*6;py+=Math.sin(a)*6;x.lineTo(px,py)}x.stroke()}},null,true);
+  const puffT=tex(32,32,(x,w,h)=>{const g=x.createRadialGradient(16,16,0,16,16,16);g.addColorStop(0,'rgba(255,255,255,.9)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,w,h)},null,true);
+
+  // room: Soviet two-tone walls, linoleum, window with a fortochka
+  const wallM=L({map:wallT});
+  const sh=new T.Shape();sh.moveTo(-2.4,0);sh.lineTo(2.4,0);sh.lineTo(2.4,2.8);sh.lineTo(-2.4,2.8);sh.closePath();
+  const ho=new T.Path();ho.moveTo(WIN.x0,WIN.y0);ho.lineTo(WIN.x0,WIN.y1);ho.lineTo(WIN.x1,WIN.y1);ho.lineTo(WIN.x1,WIN.y0);ho.closePath();sh.holes.push(ho);
+  const back=new T.Mesh(new T.ShapeGeometry(sh),wallM);back.position.z=WZ;back.receiveShadow=true;scene.add(back);
+  const side=(x,ry,a,b)=>{const s=new T.Shape();s.moveTo(a,0);s.lineTo(b,0);s.lineTo(b,2.8);s.lineTo(a,2.8);s.closePath();const m=new T.Mesh(new T.ShapeGeometry(s),wallM);m.rotation.y=ry;m.position.set(x,0,WZ);m.receiveShadow=true;scene.add(m)};
+  side(-2.4,Math.PI/2,-3.2,0);side(2.4,-Math.PI/2,0,3.2);
+  const fl=new T.Mesh(new T.PlaneGeometry(4.8,3.4),L({map:floorT}));fl.rotation.x=-Math.PI/2;fl.position.set(0,0,1);fl.receiveShadow=true;scene.add(fl);
+  const ce=new T.Mesh(new T.PlaneGeometry(4.8,3.4),L({color:0x26292c}));ce.rotation.x=Math.PI/2;ce.position.set(0,2.8,1);scene.add(ce);
+  const frameM=L({color:0xd9d4c3}),revM=L({color:0xbdb8a8});
+  const ww=WIN.x1-WIN.x0,wh=WIN.y1-WIN.y0,wcx=(WIN.x0+WIN.x1)/2,wcy=(WIN.y0+WIN.y1)/2,D=.14,fz=WZ-.07,ft=.04;
+  scene.add(box(ww,.01,D,revM,wcx,WIN.y1,WZ-D/2),box(.01,wh,D,revM,WIN.x0,wcy,WZ-D/2),box(.01,wh,D,revM,WIN.x1,wcy,WZ-D/2),box(ww+.12,.03,.22,frameM,wcx,WIN.y0-.015,WZ-.03));
+  [[ww,ft,wcx,WIN.y1-ft/2],[ww,ft,wcx,WIN.y0+ft/2],[ft,wh,WIN.x0+ft/2,wcy],[ft,wh,WIN.x1-ft/2,wcy],[ft*.8,wh,wcx,wcy],[ww,ft*.8,wcx,WIN.y1-.17],[ft*.6,.17,WIN.x0+ww*.25,WIN.y1-.085]]
+    .forEach(a=>scene.add(box(a[0],a[1],.05,frameM,a[2],a[3],fz)));
+  const glass=new T.Mesh(new T.PlaneGeometry(ww,wh),new T.MeshBasicMaterial({map:frostT,transparent:true,depthWrite:false}));glass.position.set(wcx,wcy,fz-.005);scene.add(glass);
+
+  // outside: aurora sky, stars, snowfield, ridges, radio mast, a lit hut
+  const skyM=new T.ShaderMaterial({uniforms:{t:{value:0},amp:{value:1}},vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:SKY_FS,depthWrite:false});
+  const sky=new T.Mesh(new T.PlaneGeometry(40,16),skyM);sky.position.set(0,5,-16);scene.add(sky);W.sky=skyM;
+  const N=240,sp=new Float32Array(N*3),ph=new Float32Array(N);
+  for(let i=0;i<N;i++){sp[i*3]=(r()-.5)*34;sp[i*3+1]=1.8+r()*10;sp[i*3+2]=-15.6;ph[i]=r()*6.283}
+  const sg=new T.BufferGeometry();sg.setAttribute('position',new T.BufferAttribute(sp,3));sg.setAttribute('ph',new T.BufferAttribute(ph,1));
+  const stM=new T.ShaderMaterial({uniforms:{t:{value:0},pr:{value:R.getPixelRatio()}},vertexShader:'attribute float ph;uniform float t;uniform float pr;varying float a;void main(){a=.35+.65*abs(sin(t*.6+ph*5.));gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_PointSize=2.*pr;}',fragmentShader:'varying float a;void main(){gl_FragColor=vec4(vec3(.8,.87,1.)*a,1.);}',depthWrite:false});
+  scene.add(new T.Points(sg,stM));W.stars=stM;
+  const gnd=new T.Mesh(new T.PlaneGeometry(40,16),L({color:0x3b4b66,map:tex(32,32,(x,w,h)=>noise(x,w,h,'#c9d5e6',.12,200),[30,12])}));gnd.rotation.x=-Math.PI/2;gnd.position.set(0,.35,-8.7);scene.add(gnd);
+  const ridgeM=new T.MeshPhongMaterial({color:0x34445e,flatShading:true,shininess:0});
+  [[-6,-10,2.2,.9],[-2.5,-12,3,1.3],[1.5,-11,2.4,1],[5,-9.5,2,.8],[8,-12,3,1.2]].forEach(a=>{const c=new T.Mesh(new T.ConeGeometry(a[2],a[3],4),ridgeM);c.position.set(a[0],.35+a[3]/2,a[1]);c.rotation.y=r()*1.5;scene.add(c)});
+  const darkM=L({color:0x1a1f27}),mast=new T.Group();mast.position.set(.9,.35,-4.5);mast.add(box(.05,2.2,.05,darkM,0,1.1,0));
+  for(let i=0;i<5;i++)mast.add(box(.32-.05*i,.02,.02,darkM,0,.35+i*.42,0));
+  const beacon=new T.Mesh(new T.SphereGeometry(.035,6,4),new T.MeshBasicMaterial({color:0xff3322,fog:false}));beacon.position.y=2.24;mast.add(beacon);W.beacon=beacon;scene.add(mast);
+  scene.add(box(1.3,.7,.9,L({color:0x232a33}),-1.7,.7,-5.6));
+  const roof=new T.Mesh(new T.ConeGeometry(.95,.35,4),new T.MeshPhongMaterial({color:0x3c4757,flatShading:true,shininess:0}));roof.position.set(-1.7,1.22,-5.6);roof.rotation.y=Math.PI/4;scene.add(roof);
+  const hutWin=new T.Mesh(new T.PlaneGeometry(.22,.16),new T.MeshBasicMaterial({color:0xffc66a,fog:false}));hutWin.position.set(-1.5,.78,-5.14);scene.add(hutWin);W.hutWin=hutWin;
+  const SN=520,snp=new Float32Array(SN*3),snv=new Float32Array(SN);
+  for(let i=0;i<SN;i++){snp[i*3]=-2.4+r()*4.4;snp[i*3+1]=.35+r()*2.4;snp[i*3+2]=-.75-r()*4;snv[i]=.2+r()*.3}
+  const sng=new T.BufferGeometry();sng.setAttribute('position',new T.BufferAttribute(snp,3));
+  scene.add(new T.Points(sng,new T.PointsMaterial({color:0xdfe8f2,size:.014,sizeAttenuation:true})));W.snow={g:sng,p:snp,v:snv};
+
+  // desk with green felt, drawer pedestal
+  const woodM=L({map:woodT}),wood2=L({map:woodT,color:0xc9b8a8}),knobM=L({color:0x8a7a52});
+  scene.add(box(1.6,.05,.8,woodM,0,DESK-.025,0));
+  [[-.74,-.34],[.74,-.34],[.74,.34]].forEach(p=>scene.add(box(.06,DESK-.05,.06,woodM,p[0],(DESK-.05)/2,p[1])));
+  scene.add(box(.42,DESK-.05,.72,woodM,-.56,(DESK-.05)/2,0));
+  for(let i=0;i<3;i++){scene.add(box(.38,.17,.012,wood2,-.56,.12+i*.2,.366),box(.08,.014,.02,knobM,-.56,.16+i*.2,.376))}
+  const felt=new T.Mesh(new T.PlaneGeometry(.78,.66),L({map:feltT}));felt.rotation.x=-Math.PI/2;felt.position.set(-.065,DESK+.0008,.02);felt.receiveShadow=true;scene.add(felt);
+
+  // desk lamp (green enamel shade) and its spot light
+  const lampM=L({color:0x2f4a37}),brass=L({color:0x9c844f});
+  const LB=new T.Vector3(-.62,DESK,-.25),LJ=new T.Vector3(-.6,DESK+.36,-.24),LH=new T.Vector3(-.47,DESK+.33,-.17),tgt=new T.Vector3(-.07,DESK,.07);
+  const lb=cyl(.075,.085,.025,lampM);lb.position.set(LB.x,DESK+.0125,LB.z);scene.add(lb,rod(LB,LJ,.008,brass),rod(LJ,LH,.007,brass));
+  const dir=tgt.clone().sub(LH).normalize();
+  const shade=new T.Mesh(new T.ConeGeometry(.075,.1,14,1,true),L({color:0x2f5e40,side:T.DoubleSide}));shade.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),dir.clone().negate());shade.position.copy(LH).addScaledVector(dir,.03);scene.add(shade);
+  const bulb=new T.Mesh(new T.SphereGeometry(.022,10,8),new T.MeshBasicMaterial({color:0xfff1c8}));bulb.position.copy(LH).addScaledVector(dir,.045);scene.add(bulb);W.bulb=bulb;
+  const spot=new T.SpotLight(0xffd59a,1.7,3,.68,.55,1.2);spot.position.copy(LH).addScaledVector(dir,.05);spot.target.position.copy(tgt);
+  spot.castShadow=true;spot.shadow.mapSize.set(1024,1024);spot.shadow.bias=-.0006;spot.shadow.camera.near=.05;spot.shadow.camera.far=2.5;scene.add(spot,spot.target);W.spot=spot;
+
+  // СТА-2М teleprinter
+  const tty=new T.Group();tty.position.set(.55,DESK,-.22);scene.add(tty);W.tty=tty;
+  const metM=L({map:metT}),blkM=L({color:0x1d211b});
+  tty.add(box(.42,.14,.28,metM,0,.07,0),box(.42,.06,.16,metM,0,.17,-.06),box(.36,.004,.012,blkM,0,.201,-.025));
+  const kb=box(.38,.035,.13,blkM,0,.03,.205);kb.rotation.x=.16;tty.add(kb);
+  const keys=new T.Mesh(new T.PlaneGeometry(.34,.1),L({map:keyT}));keys.rotation.x=-Math.PI/2+.16;keys.position.set(0,.049,.205);tty.add(keys);
+  const platen=cyl(.028,.028,.38,blkM,14);platen.rotation.z=Math.PI/2;platen.position.set(0,.2,.003);tty.add(platen);W.platen=platen;
+  const roll=cyl(.05,.05,.36,L({color:0xe9e2cf}),16);roll.rotation.z=Math.PI/2;roll.position.set(0,.25,-.09);tty.add(roll);
+  const plate=new T.Mesh(new T.PlaneGeometry(.11,.028),L({map:plateT}));plate.position.set(-.1,.1,.1405);tty.add(plate);
+  const ind=new T.Mesh(new T.BoxGeometry(.016,.016,.006),new T.MeshBasicMaterial({color:0x5a3a10}));ind.position.set(.15,.11,.142);tty.add(ind);W.ind=ind;
+  W.slot=new T.Vector3(.55,DESK+.2,-.245);
+
+  // rubber stamps and ink pad
+  const woodHM=L({color:0x6b4426});
+  const mkStamp=(col,kind,x)=>{const g=new T.Group();
+    g.add(box(.07,.008,.045,L({color:kind==='A'?0x1d4a2a:0x5e1410}),0,.004,0),box(.078,.024,.052,L({color:col}),0,.02,0));
+    const neck=cyl(.011,.015,.05,woodHM);neck.position.y=.057;g.add(neck);
+    const knob=new T.Mesh(new T.SphereGeometry(.021,12,10),woodHM);knob.position.y=.097;knob.castShadow=true;g.add(knob);
+    const band=cyl(.0215,.0215,.008,L({color:col}));band.position.y=.093;g.add(band);
+    g.position.set(x,DESK+.001,.21);g.userData={kind,rest:g.position.clone()};scene.add(g);return g};
+  W.stA=mkStamp(0x2e6b39,'A',.4);W.stP=mkStamp(0xb0261c,'P',.56);
+  scene.add(box(.13,.014,.085,L({color:0x2c2f36}),.48,DESK+.007,.33),box(.115,.002,.07,L({color:0x3b1a2a}),.48,DESK+.0145,.33));
+
+  // tea in a podstakannik, with steam
+  const tea=new T.Group();tea.position.set(-.62,DESK,.2);scene.add(tea);
+  const pod=cyl(.036,.03,.07,L({map:podT}),16);pod.position.y=.035;tea.add(pod);
+  const gl=cyl(.033,.033,.1,new T.MeshLambertMaterial({color:0xcfe3ea,transparent:true,opacity:.35}),16);gl.position.y=.06;gl.castShadow=false;tea.add(gl);
+  const liq=cyl(.031,.031,.075,L({color:0x7a2f0c}),16);liq.position.y=.05;liq.castShadow=false;tea.add(liq);
+  const handle=new T.Mesh(new T.TorusGeometry(.024,.005,6,12,Math.PI),L({color:0x8c8f93}));handle.position.set(.04,.045,0);handle.rotation.z=-Math.PI/2;tea.add(handle);
+  const spoon=box(.004,.13,.006,L({color:0xb8bcc0}),-.012,.1,.008);spoon.rotation.z=.18;tea.add(spoon);
+  W.steam=[];for(let i=0;i<7;i++){const s=new T.Sprite(new T.SpriteMaterial({map:puffT,transparent:true,opacity:0,depthWrite:false,color:0xdde4ea}));s.userData.ph=i/7;scene.add(s);W.steam.push(s)}
+  W.teaPos=new T.Vector3(-.62,DESK+.11,.2);
+  W.dust=[];for(let i=0;i<10;i++){const s=new T.Sprite(new T.SpriteMaterial({map:puffT,transparent:true,opacity:0,depthWrite:false,color:0xd8cfb4}));scene.add(s);W.dust.push({s,v:new T.Vector3(),life:0})}
+
+  // condensed milk tins (reward stack), outbox tray, filed telegrams
+  W.tinGeo=new T.CylinderGeometry(.037,.037,.075,16);W.tinMats=[L({map:tinT}),L({color:0xb9bec4}),L({color:0xb9bec4})];W.tins=[];
+  const trayM=L({color:0x3a3f45}),TX=-.06,TZ=-.255,tw=.4,td=.29;
+  scene.add(box(tw,.004,td,trayM,TX,DESK+.002,TZ));
+  [[tw,.03,.006,TX,TZ-td/2],[tw,.03,.006,TX,TZ+td/2],[.006,.03,td,TX-tw/2,TZ],[.006,.03,td,TX+tw/2,TZ]].forEach(a=>scene.add(box(a[0],a[1],a[2],trayM,a[3],DESK+.015,a[4])));
+  W.trayPos=new T.Vector3(TX,DESK+.006,TZ);W.pile=[];
+
+  // tear-off calendar and a poster on the wall
+  scene.add(box(.24,.3,.012,L({color:0x3a2a1c}),.64,1.33,WZ+.007));
+  const mkPage=dz=>{const c=document.createElement('canvas');c.width=200;c.height=240;const t=new T.CanvasTexture(c);t.anisotropy=4;
+    const m=new T.Mesh(new T.PlaneGeometry(.2,.24),L({map:t,side:T.DoubleSide}));m.position.y=-.12;const piv=new T.Group();piv.add(m);piv.position.set(.64,1.46,WZ+.016+dz);scene.add(piv);return{c,t,piv,m}};
+  W.cal=[mkPage(0),mkPage(-.003)];W.calFront=0;
+  const posC=document.createElement('canvas');posC.width=180;posC.height=250;const posT=new T.CanvasTexture(posC);
+  const poster=new T.Mesh(new T.PlaneGeometry(.36,.5),L({map:posT}));poster.position.set(-1,1.36,WZ+.003);scene.add(poster);W.poster={c:posC,t:posT};
+
+  // the telegram itself
+  const pt=new T.CanvasTexture(PAPER.c);pt.anisotropy=R.capabilities.getMaxAnisotropy();
+  const paper=new T.Mesh(new T.PlaneGeometry(PW,PH),L({map:pt,side:T.DoubleSide}));paper.receiveShadow=true;paper.visible=false;scene.add(paper);W.paper=paper;W.paperTex=pt;
+  W.qRead=new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0),.05).multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),-Math.PI/2));
+  W.readPos=new T.Vector3(-.08,DESK+.0025,.06);
+
+  // lights
+  scene.add(new T.HemisphereLight(0x55648a,0x2a2018,.6));
+  const moon=new T.DirectionalLight(0x9db8e0,.3);moon.position.set(-1,3,-4);scene.add(moon);
+  const aur=new T.PointLight(0x3dffa0,.25,3.2,1.5);aur.position.set(wcx,1.3,-.95);scene.add(aur);W.aurL=aur;
+  const alarm=new T.PointLight(0xff2a1a,0,6,1.1);alarm.position.set(0,2.3,.8);scene.add(alarm);W.alarm=alarm;
+  const fill=new T.PointLight(0xffc98a,.25,2.5,1.5);fill.position.set(.2,1.6,1.1);scene.add(fill);
+}
+
+// ---------- telegram blank, stamp imprint, calendar, poster ----------
+let lang='en';
+const DISP='"Russo One","Arial Black",sans-serif';
+const FONTS={en:{body:'"VT323","Courier New",monospace',size:76,lh:1.08,small:40},ru:{body:'"Underdog","Courier New",monospace',size:60,lh:1.42,small:32}};
+const PAPER={c:document.createElement('canvas'),b:document.createElement('canvas'),msg:null,frac:0,stamp:null,lines:[],font:null};
+PAPER.c.width=PAPER.b.width=CW;PAPER.c.height=PAPER.b.height=CH;
+const SC=document.createElement('canvas');SC.width=600;SC.height=260;
+const ser=s=>lang==='ru'?s.replace('ARK','АРК').replace('ARC','АРС'):s;
+const msgText=m=>m.m[lang==='ru'?1:0];
+function spaced(x,s,X,Y,sp,al){const ch=[...s],ws=ch.map(c=>x.measureText(c).width),tot=ws.reduce((a,b)=>a+b,0)+sp*(ch.length-1);
+  let cx=al==='c'?X-tot/2:al==='r'?X-tot:X;const ta=x.textAlign;x.textAlign='left';ch.forEach((c,i)=>{x.fillText(c,cx,Y);cx+=ws[i]+sp});x.textAlign=ta;return tot}
+function rrect(x,X,Y,w,h,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath()}
+function layoutText(x,txt,maxW){const out=[];let cur='';for(const w of txt.split(/\s+/)){const t=cur?cur+' '+w:w;if(x.measureText(t).width>maxW&&cur){out.push(cur);cur=w}else cur=t}if(cur)out.push(cur);return out}
+
+function buildBase(){
+  const m=PAPER.msg;if(!m)return;
+  const x=PAPER.b.getContext('2d'),u=TXT[lang],F=FONTS[lang],r=mulberry32(m.seed),M=50,ink='#2b2219';
+  x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-over';x.textBaseline='alphabetic';x.textAlign='left';
+  x.fillStyle='#e7dcbb';x.fillRect(0,0,CW,CH);
+  for(let i=0;i<1400;i++){x.fillStyle=`rgba(${120+r()*40|0},${95+r()*30|0},60,${r()*.06})`;const s=2+r()*6;x.fillRect(r()*CW,r()*CH,s,s)}
+  x.strokeStyle='rgba(90,70,40,.1)';x.lineWidth=1;for(let i=0;i<70;i++){x.beginPath();const X=r()*CW,Y=r()*CH;x.moveTo(X,Y);x.lineTo(X+(r()-.5)*40,Y+(r()-.5)*12);x.stroke()}
+  const g=x.createRadialGradient(CW/2,CH/2,CH*.35,CW/2,CH/2,CW*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(90,60,20,.28)');x.fillStyle=g;x.fillRect(0,0,CW,CH);
+  x.fillStyle='rgba(255,255,255,.2)';x.fillRect(0,CH*.52,CW,2);x.fillStyle='rgba(80,60,30,.1)';x.fillRect(0,CH*.52+2,CW,2);
+  // header: issuing ministry, form number, title, double rule
+  x.fillStyle='rgba(43,34,25,.72)';x.font=`22px ${DISP}`;spaced(x,u.ministry,M,62,3,'l');
+  x.textAlign='right';x.fillText(u.form,CW-M,62);x.textAlign='left';
+  x.fillStyle=ink;x.font=`62px ${DISP}`;spaced(x,u.tg,CW/2,136,16,'c');
+  x.fillRect(M,156,CW-2*M,4);x.fillRect(M,166,CW-2*M,2);
+  // serial box: the number the rulebook asks you to check
+  const bw=360,bx=CW-M-bw,by=186,bh=86;
+  x.lineWidth=3;x.strokeStyle=ink;x.strokeRect(bx,by,bw,bh);
+  x.font=`18px ${DISP}`;x.fillStyle='rgba(43,34,25,.7)';spaced(x,u.no,bx+12,by+26,2,'l');
+  x.fillStyle=ink;x.font=`${Math.round(F.small*1.35)}px ${F.body}`;x.textAlign='center';x.fillText(ser(m.s),bx+bw/2+14,by+bh-18);x.textAlign='left';
+  [[u.from,u.fromV,222],[u.to,u.toV,270]].forEach(p=>{x.font=`17px ${DISP}`;x.fillStyle='rgba(43,34,25,.65)';const lw=spaced(x,p[0],M,p[2],2,'l'),vx=M+Math.max(lw+16,100);
+    x.font=`${F.small}px ${F.body}`;x.fillStyle=ink;x.fillText(p[1],vx,p[2]);x.fillStyle='rgba(43,34,25,.3)';x.fillRect(vx-6,p[2]+8,bx-vx-14,2)});
+  const words=msgText(m).split(/\s+/).length;
+  x.font=`17px ${DISP}`;x.fillStyle='rgba(43,34,25,.65)';x.textAlign='right';x.fillText(`${u.words} ${words}   ·   ${u.recv} ${lang==='ru'?'06:00':'0600'}`,CW-M,by+bh+30);x.textAlign='left';
+  x.fillStyle='rgba(43,34,25,.45)';x.fillRect(M,316,CW-2*M,2);
+  // body: auto-fit, then one glued tape strip per line
+  const top=346,bottom=CH-80,maxW=CW-2*M-70;let size=F.size,lines=[];
+  for(let k=0;k<8;k++){x.font=`${size}px ${F.body}`;lines=layoutText(x,msgText(m),maxW);if(lines.length*size*F.lh<=bottom-top)break;size=Math.round(size*.93)}
+  PAPER.font={size,body:F.body};
+  PAPER.lines=lines.map((t,i)=>{x.font=`${size}px ${F.body}`;const w=x.measureText(t).width,yTop=top+i*size*F.lh,x0=M+20+(r()-.5)*14,rot=(r()-.5)*.008,sh=size*.95;
+    x.save();x.translate(x0,yTop);x.rotate(rot);x.fillStyle='rgba(60,40,20,.18)';x.fillRect(-13,3,w+30,sh);x.fillStyle='#f4efdd';x.fillRect(-16,0,w+30,sh);x.restore();
+    return{t,x:x0,y:yTop,rot,sh}});
+  x.font=`16px ${DISP}`;x.fillStyle='rgba(43,34,25,.5)';const mw=spaced(x,u.marks,M,CH-36,2,'l');
+  x.setLineDash([4,6]);x.strokeStyle='rgba(43,34,25,.4)';x.lineWidth=2;x.beginPath();x.moveTo(M+mw+16,CH-42);x.lineTo(CW-M,CH-42);x.stroke();x.setLineDash([]);
+}
+
+let lastTex=0;
+function drawPaper(force){
+  const m=PAPER.msg;if(!m||!PAPER.font)return;
+  const x=PAPER.c.getContext('2d'),F=PAPER.font;
+  x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-over';x.globalAlpha=1;x.drawImage(PAPER.b,0,0);
+  let n=Math.round(PAPER.lines.reduce((a,l)=>a+l.t.length,0)*PAPER.frac);
+  const r=mulberry32(m.seed^0x5eed);
+  x.font=`${F.size}px ${F.body}`;x.textBaseline='middle';x.textAlign='left';
+  for(const l of PAPER.lines){if(n<=0)break;const s=l.t.slice(0,n);n-=l.t.length;
+    x.save();x.translate(l.x,l.y);x.rotate(l.rot);let cx=0;
+    for(const ch of s){x.fillStyle=`rgba(31,26,20,${.78+r()*.22})`;x.fillText(ch,cx,l.sh/2+(r()-.5)*2.4);cx+=x.measureText(ch).width}
+    x.restore()}
+  if(PAPER.stamp)drawStamp(x,PAPER.stamp);
+  if(W.paperTex){const t=now();if(force||t-lastTex>55){W.paperTex.needsUpdate=true;lastTex=t}}
+}
+
+function drawStamp(x,st){
+  const u=TXT[lang],s=SC.getContext('2d'),txt=st.kind==='A'?u.stampA:st.kind==='P'?u.stampP:u.stampT,col=st.kind==='A'?'rgb(34,104,55)':'rgb(170,30,24)';
+  s.setTransform(1,0,0,1,0,0);s.globalCompositeOperation='source-over';s.clearRect(0,0,600,260);
+  s.strokeStyle=col;s.fillStyle=col;s.lineWidth=11;rrect(s,22,22,556,216,22);s.stroke();s.lineWidth=4;rrect(s,42,40,516,180,14);s.stroke();
+  s.textAlign='center';s.textBaseline='middle';s.font=`24px ${DISP}`;spaced(s,u.stampTop,300,72,4,'c');
+  let fs=88;s.font=`${fs}px ${DISP}`;while(s.measureText(txt).width>470&&fs>40){fs-=4;s.font=`${fs}px ${DISP}`}s.fillText(txt,300,138);
+  const d=new Date(1978,11,10+Math.max(1,day));s.font=`22px ${DISP}`;s.fillText(`${String(d.getDate()).padStart(2,'0')}.12.78`,300,196);
+  const r=mulberry32(st.seed);s.globalCompositeOperation='destination-out';
+  for(let i=0;i<1100;i++){s.fillStyle=`rgba(0,0,0,${.35+r()*.65})`;const w=1+r()*4;s.fillRect(r()*600,r()*260,w,w)}
+  for(let i=0;i<5;i++){const gx=r()*600,gy=r()*260,g=s.createRadialGradient(gx,gy,0,gx,gy,40+r()*60);g.addColorStop(0,'rgba(0,0,0,.55)');g.addColorStop(1,'rgba(0,0,0,0)');s.fillStyle=g;s.fillRect(0,0,600,260)}
+  s.globalCompositeOperation='source-over';
+  x.save();x.translate(st.cx,st.cy);x.rotate(st.rot);x.globalAlpha=.92;x.globalCompositeOperation='multiply';x.drawImage(SC,-250,-108,500,216);x.restore();
+  x.globalCompositeOperation='source-over';x.globalAlpha=1;
+}
+
+function drawCal(i,dn){if(!has3D)return;
+  const p=W.cal[i],x=p.c.getContext('2d'),w=200,h=240,u=TXT[lang],d=new Date(1978,11,10+dn),wd=d.getDay();
+  x.setTransform(1,0,0,1,0,0);x.fillStyle='#efe8d4';x.fillRect(0,0,w,h);x.fillStyle='#a8231a';x.fillRect(0,0,w,44);
+  x.fillStyle='#8a7f6a';for(let k=6;k<w;k+=12)x.fillRect(k,46,6,3);
+  x.textAlign='center';x.textBaseline='middle';x.fillStyle='#f6efdc';x.font=`22px ${DISP}`;spaced(x,u.month,w/2,24,3,'c');
+  x.fillStyle=wd===0?'#a8231a':'#1e1a15';x.font=`118px ${DISP}`;x.fillText(String(d.getDate()),w/2,128);
+  x.font=lang==='ru'?'22px "Underdog",monospace':'30px "VT323",monospace';x.fillText(u.wd[wd].toUpperCase(),w/2,198);
+  x.fillStyle='rgba(30,26,21,.55)';x.font=`14px ${DISP}`;x.fillText('1978',w/2,224);
+  p.t.needsUpdate=true}
+
+function star(x,cx,cy,R,r,col){x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r:R;x.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr)}x.closePath();x.fillStyle=col;x.fill()}
+function drawPoster(){if(!has3D)return;
+  const{c,t}=W.poster,x=c.getContext('2d'),w=c.width,h=c.height;
+  x.fillStyle='#a8231a';x.fillRect(0,0,w,h);x.fillStyle='rgba(255,200,80,.13)';
+  for(let i=0;i<12;i++){const a=i/12*Math.PI*2;x.beginPath();x.moveTo(w/2,92);x.lineTo(w/2+Math.cos(a)*300,92+Math.sin(a)*300);x.lineTo(w/2+Math.cos(a+.13)*300,92+Math.sin(a+.13)*300);x.closePath();x.fill()}
+  star(x,w/2,92,52,22,'#f2c14e');
+  x.fillStyle='#f6efdc';x.textAlign='center';x.textBaseline='middle';x.font=`22px ${DISP}`;['СЛАВА','СОВЕТСКОЙ','НАУКЕ!'].forEach((s,i)=>x.fillText(s,w/2,176+i*28));
+  x.strokeStyle='#f6efdc';x.lineWidth=4;x.strokeRect(6,6,w-12,h-12);t.needsUpdate=true}
+
+// ---------- sound: everything synthesized, starts on the first click ----------
+const S={ctx:null,m:null,on:true,nb:null,
+  init(){if(this.ctx){if(this.ctx.state==='suspended')this.ctx.resume();return}
+    try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;this.ctx=new C();this.m=this.ctx.createGain();this.m.gain.value=this.on?.7:0;this.m.connect(this.ctx.destination);
+      const b=this.ctx.createBuffer(1,this.ctx.sampleRate*2,this.ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;this.nb=b;this.wind()}catch(e){this.ctx=null}},
+  set(v){this.on=v;if(this.m)this.m.gain.setTargetAtTime(v?.7:0,this.ctx.currentTime,.05)},
+  ok(){return!!(this.ctx&&this.on)},
+  nz(t,dur,f,q,g,type){const c=this.ctx,s=c.createBufferSource();s.buffer=this.nb;const fl=c.createBiquadFilter();fl.type=type||'bandpass';fl.frequency.value=f;fl.Q.value=q;
+    const gn=c.createGain();gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(fl);fl.connect(gn);gn.connect(this.m);s.start(t,Math.random()*1.5);s.stop(t+dur+.05)},
+  tn(t,f0,f1,dur,type,g){const c=this.ctx,o=c.createOscillator();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+    const gn=c.createGain();gn.gain.setValueAtTime(.0001,t);gn.gain.exponentialRampToValueAtTime(g,t+.01);gn.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(gn);gn.connect(this.m);o.start(t);o.stop(t+dur+.05)},
+  key(){if(!this.ok())return;const t=this.ctx.currentTime;this.nz(t,.035,2200+Math.random()*1800,5,.35);this.nz(t,.02,400,1,.15,'lowpass')},
+  bell(){if(!this.ok())return;const t=this.ctx.currentTime;this.tn(t,1568,0,1.3,'sine',.25);this.tn(t,3136,0,.8,'sine',.08)},
+  thud(){if(!this.ok())return;const t=this.ctx.currentTime;this.tn(t,150,48,.28,'sine',.9);this.nz(t,.09,900,1.2,.5)},
+  paper(){if(!this.ok())return;this.nz(this.ctx.currentTime,.35,2400,.6,.22)},
+  clink(){if(!this.ok())return;const t=this.ctx.currentTime;this.tn(t,2100,0,.25,'triangle',.18);this.tn(t+.06,2700,0,.2,'triangle',.1);this.nz(t,.05,1200,2,.3)},
+  good(){if(!this.ok())return;const t=this.ctx.currentTime;this.tn(t,523,0,.25,'square',.07);this.tn(t+.14,784,0,.4,'square',.07)},
+  tick(){if(!this.ok())return;this.nz(this.ctx.currentTime,.03,5000,3,.25)},
+  buzz(){if(!this.ok())return;this.tn(this.ctx.currentTime,110,90,.5,'sawtooth',.12)},
+  knock(){if(!this.ok())return;const t=this.ctx.currentTime;for(let i=0;i<3;i++){this.tn(t+i*.32,95,60,.18,'sine',.9);this.nz(t+i*.32,.1,300,1.5,.6)}},
+  siren(){if(!this.ok())return;const c=this.ctx,t=c.currentTime+1.1,o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();o.type='sawtooth';o.frequency.setValueAtTime(440,t);
+    for(let i=0;i<4;i++){o.frequency.linearRampToValueAtTime(660,t+i*.9+.45);o.frequency.linearRampToValueAtTime(440,t+i*.9+.9)}
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.06,t+.1);g.gain.setValueAtTime(.06,t+3.4);g.gain.exponentialRampToValueAtTime(.0001,t+3.7);
+    f.type='lowpass';f.frequency.value=1400;o.connect(f);f.connect(g);g.connect(this.m);o.start(t);o.stop(t+3.8)},
+  win(){if(!this.ok())return;const t=this.ctx.currentTime;[523,659,784,1047].forEach((f,i)=>this.tn(t+i*.18,f,0,.7,'triangle',.12))},
+  wind(){const c=this.ctx,s=c.createBufferSource();s.buffer=this.nb;s.loop=true;const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=380;
+    const g=c.createGain();g.gain.value=.05;const l=c.createOscillator(),lg=c.createGain();l.frequency.value=.07;lg.gain.value=160;l.connect(lg);lg.connect(f.frequency);
+    s.connect(f);f.connect(g);g.connect(this.m);s.start();l.start()}};
+
+// ---------- camera: every shot is framed to fit the free "stage" area of the layout ----------
+let camFrom=null,camShot='title',camT0=0,camDur=1,shakeA=0;
+let stageR={x:0,y:0,w:innerWidth,h:innerHeight},viewFull={w:innerWidth,h:innerHeight};
+let auroraAmp=1,lampOn=true,alarmOn=false,ttyOn=false,ttyPrint=false;
+const par={x:0,y:0,tx:0,ty:0},PITCH=62*Math.PI/180;
+const SHOTS={title:{t:[-.05,1.08,-.35],d:[0,.3,1],w:1.75,h:1,orbit:.32},
+  wall:{t:[.16,1.32,-.6],d:[-.12,.05,1],w:1.45,h:.74},
+  tty:{t:[.55,.95,-.2],d:[-.5,.55,1],w:.62,h:.46},
+  read:{read:1},
+  wide:{t:[-.12,.86,-.12],d:[0,.62,1],w:1.75,h:.95},
+  win:{t:[-.1,1.4,-3],d:[0,.05,1],w:2.6,h:1.3}};
+function shotPose(name,t){const T=THREE,s=SHOTS[name];let tg,d,w,h;
+  if(s.read){tg=W.readPos.clone();d=new T.Vector3(0,Math.sin(PITCH),Math.cos(PITCH));w=PW/.9;h=PH*Math.sin(PITCH)/.86}
+  else{tg=new T.Vector3(s.t[0],s.t[1],s.t[2]);d=new T.Vector3(s.d[0],s.d[1],s.d[2]).normalize();w=s.w;h=s.h;if(s.orbit)d.applyAxisAngle(new T.Vector3(0,1,0),Math.sin(t*.00011)*s.orbit)}
+  const tan=Math.tan(cam.fov*Math.PI/360),fh=viewFull.h,dist=Math.max(w*fh/(2*tan*stageR.w),h*fh/(2*tan*stageR.h));
+  return{p:tg.clone().addScaledVector(d,dist),t:tg}}
+function layout(){if(!has3D)return;const Wd=innerWidth,Ht=innerHeight;R.setSize(Wd,Ht,false);
+  const r=$('stage').getBoundingClientRect();stageR={x:r.left,y:r.top,w:Math.max(60,r.width),h:Math.max(60,r.height)};
+  const cx=r.left+r.width/2,cy=r.top+r.height/2,fw=Wd+2*Math.abs(cx-Wd/2),fh=Ht+2*Math.abs(cy-Ht/2);viewFull={w:fw,h:fh};
+  cam.aspect=fw/fh;cam.setViewOffset(fw,fh,fw/2-cx,fh/2-cy,Wd,Ht);cam.updateProjectionMatrix()}
+function camTo(name,dur=1000){camShot=name;if(!has3D)return Promise.resolve();camFrom={p:cam.position.clone(),t:W.curT.clone()};camT0=now();camDur=Math.max(1,dur*speed());return wait(dur)}
+function updCam(t,dt){const e=shotPose(camShot,t);
+  if(camFrom){const k=Math.min(1,(t-camT0)/camDur),q=EASE.io(k),P=camFrom.p.clone().lerp(e.p,q),Tg=camFrom.t.clone().lerp(e.t,q);P.y+=Math.sin(Math.PI*q)*.05;e.p=P;e.t=Tg;if(k>=1)camFrom=null}
+  const amb=RM?0:camShot==='read'?.3:1,f=Math.min(1,dt*.004);par.x+=(par.tx-par.x)*f;par.y+=(par.ty-par.y)*f;
+  e.p.x+=(Math.sin(t*.0005)*.004+par.x*.025)*amb;e.p.y+=(Math.sin(t*.0007)*.003+par.y*.015)*amb;
+  if(shakeA>.0002&&!RM){e.p.x+=(Math.random()-.5)*shakeA;e.p.y+=(Math.random()-.5)*shakeA;e.t.x+=(Math.random()-.5)*shakeA*.4}
+  shakeA*=Math.pow(.002,dt/1000);cam.position.copy(e.p);W.curT.copy(e.t);cam.lookAt(e.t)}
+
+// ---------- render loop with ambient life: aurora, snow, lamp, steam, beacon ----------
+let lastT=now();
+function loop(){requestAnimationFrame(loop);const t=now(),dt=Math.min(64,t-lastT);lastT=t;
+  stepTweens(t);tickGame(dt);if(!has3D)return;
+  const ts=t/1000*(RM?.25:1);
+  W.sky.uniforms.t.value=ts;W.stars.uniforms.t.value=ts;W.sky.uniforms.amp.value+=(auroraAmp-W.sky.uniforms.amp.value)*Math.min(1,dt*.002);
+  const sp=W.snow.p,sv=W.snow.v,s=dt/1000*(RM?.3:1);
+  for(let i=0;i<sv.length;i++){sp[i*3+1]-=sv[i]*s;sp[i*3]+=(.12+Math.sin(ts*.7+i)*.08)*s;if(sp[i*3+1]<.35){sp[i*3+1]=2.75;sp[i*3]=-2.4+Math.random()*4.4}if(sp[i*3]>2.1)sp[i*3]=-2.4}
+  W.snow.g.attributes.position.needsUpdate=true;
+  const fl=1+Math.sin(ts*13)*.012+(Math.random()<.004?-.25:0);
+  W.spot.intensity+=((lampOn?1.7*fl:.04)-W.spot.intensity)*Math.min(1,dt*.02);
+  W.bulb.material.color.setHex(lampOn?0xfff1c8:0x3a3328);
+  W.alarm.intensity=alarmOn?(Math.sin(ts*7)>0?2.4:.25):0;
+  W.aurL.intensity=.15+.12*Math.sin(ts*.3)*W.sky.uniforms.amp.value;
+  W.beacon.visible=(ts%1.6)<.25;
+  W.ind.material.color.setHex(ttyOn&&((ts*8|0)%2)?0xffb347:0x5a3a10);
+  W.steam.forEach(p=>{const k=(ts*.22+p.userData.ph)%1;p.position.set(W.teaPos.x+Math.sin(k*6+p.userData.ph*9)*.015,W.teaPos.y+k*.22,W.teaPos.z);const sc=.03+k*.07;p.scale.set(sc,sc,1);p.material.opacity=Math.sin(k*Math.PI)*.22});
+  W.dust.forEach(d=>{if(d.life>0){d.life-=dt/1000;d.s.position.addScaledVector(d.v,dt/1000);d.v.multiplyScalar(Math.pow(.05,dt/1000));const k=Math.max(0,d.life/.6);d.s.material.opacity=k*.5;const sc=.03+(1-k)*.06;d.s.scale.set(sc,sc,1)}else d.s.material.opacity=0});
+  if(ttyPrint&&!RM){W.tty.position.x=.55+(Math.random()-.5)*.003;W.tty.position.y=DESK+(Math.random()-.5)*.002;W.platen.rotation.x+=dt*.01}else{W.tty.position.x=.55;W.tty.position.y=DESK}
+  updCam(t,dt);R.render(scene,cam)}
+
+// ---------- choreography pieces ----------
+const bez=(p0,c,p1,e,out)=>{const a=1-e;return out.set(a*a*p0.x+2*a*e*c.x+e*e*p1.x,a*a*p0.y+2*a*e*c.y+e*e*p1.y,a*a*p0.z+2*a*e*c.z+e*e*p1.z)};
+async function calTear(dn){if(!has3D)return;const f=W.cal[W.calFront],b=W.cal[1-W.calFront];
+  drawCal(1-W.calFront,dn);b.piv.rotation.set(0,0,0);b.piv.position.set(.64,1.46,WZ+.013);S.paper();const my=SEQ;
+  await tween(650,e=>{f.piv.rotation.x=-1.9*e;f.piv.position.y=1.46+.05*e;f.piv.position.z=WZ+.016+.12*e},EASE.o);
+  if(dead(my)){f.piv.rotation.set(0,0,0);f.piv.position.set(.64,1.46,WZ+.016);return}
+  await tween(600,e=>{f.piv.position.y=1.51-1.1*e;f.piv.rotation.z=1.3*e;f.piv.position.z=WZ+.136+.18*e},EASE.i);
+  f.piv.rotation.set(0,0,0);f.piv.position.set(.64,1.46,WZ+.013);b.piv.position.z=WZ+.016;W.calFront=1-W.calFront}
+async function feed(){const total=PAPER.lines.reduce((a,l)=>a+l.t.length,0);let lastN=-1,lastKey=0;
+  if(has3D){W.paper.visible=true;W.paper.quaternion.identity()}
+  ttyOn=ttyPrint=true;
+  await tween(2300,(e,k)=>{PAPER.frac=k;const n=Math.floor(total*k);if(n!==lastN){lastN=n;const t=now();if(t-lastKey>38){S.key();lastKey=t}}drawPaper(k>=1);
+    if(has3D)W.paper.position.set(W.slot.x,W.slot.y-PH/2+PH*(.08+.92*k),W.slot.z)},EASE.lin);
+  ttyPrint=false}
+async function flyToDesk(){if(!has3D)return;S.paper();const p0=W.paper.position.clone(),q0=W.paper.quaternion.clone(),p1=W.readPos,c=p0.clone().lerp(p1,.5);c.y+=.2;
+  await tween(900,e=>{bez(p0,c,p1,e,W.paper.position);W.paper.quaternion.copy(q0).slerp(W.qRead,e)})}
+function puff(p){W.dust.forEach((d,i)=>{const a=i/W.dust.length*Math.PI*2;d.s.position.set(p.x+Math.cos(a)*.03,p.y+.01,p.z+Math.sin(a)*.02);d.v.set(Math.cos(a)*.25,.05+Math.random()*.05,Math.sin(a)*.18);d.life=.6})}
+async function stampAnim(g,st){
+  if(!has3D){PAPER.stamp=st;drawPaper(true);S.thud();return}
+  const my=SEQ,T=THREE,rest=g.userData.rest.clone(),hit=W.paper.localToWorld(new T.Vector3((st.cx/CW-.5)*PW,(.5-st.cy/CH)*PH,0)),yaw=.05-st.rot,up=.16;
+  const above=new T.Vector3(hit.x,hit.y+up,hit.z),lift=rest.clone().lerp(above,.25);lift.y=rest.y+up;
+  const home=()=>{g.rotation.y=0;g.position.copy(rest);g.scale.set(1,1,1)},step=async(d,fn,e)=>{await tween(d,fn,e);return dead(my)};
+  if(await step(260,e=>{g.position.lerpVectors(rest,lift,e)},EASE.o))return home();
+  if(await step(240,e=>{g.position.lerpVectors(lift,above,e);g.rotation.y=yaw*e}))return home();
+  if(await step(110,e=>{g.position.lerpVectors(above,hit,e)},EASE.i))return home();
+  PAPER.stamp=st;drawPaper(true);S.thud();shakeA=.012;puff(hit);
+  if(await step(140,e=>{g.scale.set(1.06-.06*e,.9+.1*e,1.06-.06*e)},EASE.o))return home();
+  if(await step(360,e=>{g.position.lerpVectors(hit,above,e)},EASE.o))return home();
+  await step(420,e=>{g.position.lerpVectors(above,rest,e);g.rotation.y=yaw*(1-e)});home()}
+async function fileTelegram(){if(!has3D||!W.paper.visible)return;const T=THREE,p0=W.paper.position.clone(),q0=W.paper.quaternion.clone(),p1=W.trayPos.clone();
+  p1.y+=.003+W.pile.length*.0016;p1.x+=(Math.random()-.5)*.02;p1.z+=(Math.random()-.5)*.02;
+  const q1=new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0),(Math.random()-.5)*.3).multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),-Math.PI/2)),c=p0.clone().lerp(p1,.5);c.y+=.12;S.paper();const my=SEQ;
+  await tween(750,e=>{bez(p0,c,p1,e,W.paper.position);W.paper.quaternion.copy(q0).slerp(q1,e)});if(dead(my))return;
+  const cv=document.createElement('canvas');cv.width=260;cv.height=188;cv.getContext('2d').drawImage(PAPER.c,0,0,260,188);
+  const m=new T.Mesh(new T.PlaneGeometry(PW,PH),new T.MeshLambertMaterial({map:new T.CanvasTexture(cv)}));m.position.copy(p1);m.quaternion.copy(q1);m.receiveShadow=true;scene.add(m);W.pile.push(m);W.paper.visible=false}
+function tinPos(i){let row=0,n=i,cap=4;while(n>=cap&&cap>0){n-=cap;cap--;row++}return new THREE.Vector3(-.75+n*.078+row*.039,DESK+.0375+row*.076,-.03)}
+async function dropTin(){if(!has3D)return;const p=tinPos(W.tins.length),m=new THREE.Mesh(W.tinGeo,W.tinMats);m.castShadow=m.receiveShadow=true;m.rotation.y=Math.random()*6;m.position.set(p.x,p.y+.5,p.z);scene.add(m);W.tins.push(m);
+  let rang=false;await tween(700,(e,k)=>{m.position.y=p.y+.5*(1-e);if(!rang&&k>.36){rang=true;S.clink()}},EASE.bounce)}
+function clearDesk(){if(!has3D)return;W.tins.forEach(m=>scene.remove(m));W.tins=[];W.pile.forEach(m=>{scene.remove(m);m.material.map.dispose();m.material.dispose();m.geometry.dispose()});W.pile=[];W.paper.visible=false;
+  [W.stA,W.stP].forEach(g=>{g.position.copy(g.userData.rest);g.rotation.set(0,0,0);g.scale.set(1,1,1)})}
+
+// ---------- game state ----------
+const DAYS=10;
+let phase='title',day=0,queue=[],cur=null,tTotal=0,tLeft=0,best=0,tins=0,verdict=null,shownRules=0,newRule=-1,lastSec=-1,cardKind=null;
+try{best=+localStorage.getItem('pp_best')||0}catch(e){}
+const saveBest=()=>{try{localStorage.setItem('pp_best',best)}catch(e){}};
+const rulesFor=d=>Math.min(RULES.length,2+Math.floor((Math.max(1,d)-1)/2));
+function mk(m,real,i){const n=String(100+(Math.random()*800|0));let s=n+'/ARK',bad=false;
+  if(!real&&Math.random()<.3){s=pick([n+'-ARK',n+'/ARC',n.slice(1)+'/ARK',n+' ARK']);bad=true}
+  return{m,real,s,bad,i,seed:(Math.random()*1e9)|0}}
+
+// ---------- interface ----------
+function renderStatic(){const u=TXT[lang];document.documentElement.lang=lang;
+  $('brand').innerHTML=u.brand;$('dayL').textContent=u.day;
+  $('snd').innerHTML=`<span class="${S.on?'on':'off'}">${S.on?u.snd[0]:u.snd[1]}</span>`;$('snd').setAttribute('aria-pressed',String(S.on));
+  document.querySelectorAll('#lng [data-l]').forEach(s=>s.className=s.dataset.l===lang?'on':'off');
+  $('fuse').setAttribute('aria-label',u.timeLeft);$('tabD').textContent=u.tabD;$('tabR').textContent=u.tabR;
+  $('dosH').textContent=u.dosH;$('dosS').textContent=u.dosS;
+  $('dosUl').innerHTML=DOSSIER[lang].map(([k,v])=>`<li><span class="k">${k}</span><span class="v">${v}</span></li>`).join('');
+  $('rulH').textContent=u.rulH;$('rulU').textContent=u.rulU;renderRules(false);
+  $('bA').innerHTML=`<span class="big">${u.bA[0]}</span><span class="sub">${u.bA[1]}</span><kbd>${u.bA[2]}</kbd>`;
+  $('bP').innerHTML=`<span class="big">${u.bP[0]}</span><span class="sub">${u.bP[1]}</span><kbd>${u.bP[2]}</kbd>`;
+  $('skip').textContent=u.skip}
+function renderRules(anim){const u=TXT[lang],n=rulesFor(day);
+  $('rulOl').innerHTML=RULES.slice(0,n).map((r,i)=>`<li${anim&&i===newRule?' class="new"':''}>${r[lang==='ru'?1:0]}${i===newRule?`<span class="tag">${u.newTag}</span>`:''}</li>`).join('')}
+function renderHud(){$('dayN').textContent=String(Math.max(day,1)).padStart(2,'0');$('tinN').textContent=tins}
+function setTimerUI(){const k=tTotal?clamp(tLeft/tTotal,0,1):1;$('fuseI').style.width=(k*100).toFixed(2)+'%';
+  $('fuse').classList.toggle('low',phase==='decide'&&k<.3);$('fuse').setAttribute('aria-valuenow',Math.round(k*100));
+  $('secs').textContent=(phase==='decide'||phase==='stamp')?Math.max(0,Math.ceil(tLeft/1000)):'--'}
+function setMode(){const ui=$('ui'),was=ui.classList.contains('is-title'),is=phase==='title';ui.classList.toggle('is-title',is);
+  $('bA').disabled=$('bP').disabled=phase!=='decide';if(!has3D)PAPER.c.hidden=is;if(was!==is)layout();setTimerUI()}
+function tab(k){['D','R'].forEach(x=>{$('tab'+x).setAttribute('aria-selected',String(x===k));$('sh'+x).classList.toggle('on',x===k)})}
+function announce(s){const l=$('live');l.textContent='';setTimeout(()=>{l.textContent=s},40)}
+function showCaption(){const c=$('cap');fillCaption();c.hidden=false;c.classList.remove('show');void c.offsetWidth;c.classList.add('show');
+  clearTimeout(showCaption.h);showCaption.h=setTimeout(()=>{c.hidden=true;c.classList.remove('show')},1950)}
+function fillCaption(){const u=TXT[lang],d=new Date(1978,11,10+day);$('capD').textContent=u.dayCap(day);$('capT').textContent=u.dateLine(d.getDate(),u.wd[d.getDay()])}
+function showCard(kind){cardKind=kind;renderCard(true)}
+function hideCard(){cardKind=null;$('card').hidden=true}
+function renderCard(anim){const c=$('card'),u=TXT[lang],li=lang==='ru'?1:0;if(!cardKind){c.hidden=true;return}
+  let h='';const tell=cur?(cur.real?u.tellReal:TELLS[cur.i][li]+(cur.bad?' '+u.serialBad(ser(cur.s)):'')):'';
+  if(cardKind==='title')h=`<p class="eyebrow">${u.eyebrow}</p><h1>${u.title}</h1>${u.intro.map(p=>`<p>${p}</p>`).join('')}<p><b>${u.how}</b></p>${best?`<p class="dim">${u.record(best)}</p>`:''}<button class="btn" id="cBtn" type="button">${u.begin}</button>`;
+  else if(cardKind==='good')h=`<h2 class="ok">${u.correct}</h2><p>${u.itWas(cur.real)}</p><div class="tell"><b>${u.tell}</b>${tell}</div><p class="dim">${u.reward}</p><button class="btn" id="cBtn" type="button">${u.next}</button>`;
+  else if(cardKind==='bad')h=`<h2 class="bad">${u.wrong}</h2><p>${verdict.slow?u.slow+' ':''}${u.itWas(cur.real)}${verdict.slow?'':' '+(cur.real?u.wR:u.wP)}</p><div class="tell"><b>${u.tell}</b>${tell}</div><p class="verdict">${u.verdict(verdict.y,CAMPS[verdict.c][li])}</p><p class="dim">${u.survived(day-1)}</p><button class="btn" id="cBtn" type="button">${u.again}</button>`;
+  else h=`<p class="eyebrow">${u.eyebrow}</p><h2 class="ok">${u.released}</h2><p>${u.relT(DAYS)}</p><p class="dim">${u.relQ}</p><button class="btn" id="cBtn" type="button">${u.newPost}</button>`;
+  c.innerHTML=h;c.hidden=false;if(anim){c.style.animation='none';void c.offsetWidth;c.style.animation=''}
+  $('cBtn').onclick=cardAction;if(anim)setTimeout(()=>{try{$('cBtn').focus({preventScroll:true})}catch(e){}},80)}
+function cardAction(){S.init();if(cardKind==='good')nextDay();else newRun()}
+
+// ---------- flow: one day = calendar, teleprinter, read, stamp, verdict ----------
+function toTitle(){phase='title';camShot='title';setMode();showCard('title')}
+function newRun(){SEQ++;flushTweens();fast=false;day=0;tins=0;shownRules=0;newRule=-1;verdict=null;cur=null;
+  queue=shuffle([...shuffle(ORIG.map((m,i)=>mk(m,1,i))).slice(0,5),...shuffle(BOT.map((m,i)=>mk(m,0,i))).slice(0,5)]);
+  lampOn=true;alarmOn=false;auroraAmp=1;$('vig').classList.remove('alarm');clearDesk();hideCard();renderHud();nextDay()}
+async function nextDay(){const my=++SEQ;
+  if(day>=DAYS)return win(my);
+  day++;cur=queue[day-1];phase='intro';fast=false;hideCard();setMode();renderHud();
+  const n=rulesFor(day);newRule=n>shownRules&&day>1?n-1:-1;shownRules=n;renderRules(true);
+  PAPER.msg=cur;PAPER.frac=0;PAPER.stamp=null;buildBase();drawPaper(true);if(has3D)W.paper.visible=false;
+  tTotal=Math.max(22,46-day*2)*1000;tLeft=tTotal;setTimerUI();$('skip').hidden=false;
+  const dn=$('dayN');dn.classList.remove('go');void dn.offsetWidth;dn.classList.add('go');
+  await camTo('wall',900);if(dead(my))return;
+  await calTear(day);if(dead(my))return;
+  showCaption();await wait(1250);if(dead(my))return;
+  S.bell();ttyOn=true;await camTo('tty',850);if(dead(my))return;
+  await feed();if(dead(my))return;
+  ttyOn=false;await wait(150);if(dead(my))return;
+  const fl=flyToDesk();await camTo('read',1000);await fl;if(dead(my))return;
+  $('skip').hidden=true;fast=false;phase='decide';lastSec=-1;setMode();
+  announce(TXT[lang].liveTele(ser(cur.s),msgText(cur)))}
+async function decide(g){if(phase!=='decide')return;phase='stamp';setMode();const my=SEQ;
+  const ok=g!==-1&&(g===1)===!!cur.real,kind=g===-1?'T':g===1?'A':'P';
+  const st={kind,cx:CW*(.6+Math.random()*.1),cy:CH*(.63+Math.random()*.08),rot:-.22+(Math.random()-.5)*.2,seed:(Math.random()*1e9)|0};
+  if(g===-1){PAPER.stamp=st;drawPaper(true);S.buzz();shakeA=.006}else await stampAnim(g===1?W.stA:W.stP,st);
+  if(dead(my))return;await wait(420);if(dead(my))return;
+  if(ok){phase='result';setMode();S.good();best=Math.max(best,day);saveBest();tins++;renderHud();
+    const tb=$('tins');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop');
+    const f=fileTelegram();await camTo('wide',900);await f;if(dead(my))return;await dropTin();if(dead(my))return;
+    showCard('good');announce(TXT[lang].correct)}
+  else{phase='arrest';setMode();best=Math.max(best,day-1);saveBest();verdict={y:10+(Math.random()*11|0),c:Math.random()*CAMPS.length|0,slow:g===-1};
+    lampOn=false;S.knock();await wait(900);if(dead(my))return;
+    alarmOn=true;$('vig').classList.add('alarm');S.siren();await camTo('wide',1400);if(dead(my))return;
+    showCard('bad');announce(TXT[lang].wrong)}}
+async function win(my){phase='win';setMode();best=DAYS;saveBest();auroraAmp=2.6;S.win();hideCard();
+  await camTo('win',2400);if(dead(my))return;showCard('win')}
+function tickGame(dt){if(phase!=='decide')return;tLeft-=dt;const s=Math.ceil(tLeft/1000);
+  $('fuseI').style.width=(clamp(tLeft/tTotal,0,1)*100).toFixed(2)+'%';
+  if(s!==lastSec){lastSec=s;setTimerUI();if(tLeft<tTotal*.3&&tLeft>0)S.tick()}
+  if(tLeft<=0){tLeft=0;decide(-1)}}
+function setLang(l){lang=l;try{localStorage.setItem('pp_lang',l)}catch(e){}
+  renderStatic();renderHud();renderCard(false);if(!$('cap').hidden)fillCaption();
+  if(PAPER.msg){buildBase();drawPaper(true)}if(has3D)drawCal(W.calFront,day);
+  if(phase==='decide')announce(TXT[lang].liveTele(ser(cur.s),msgText(cur)))}
+function refreshCanvases(){if(PAPER.msg){buildBase();drawPaper(true)}if(has3D){drawCal(W.calFront,day);drawPoster()}}
+
+// ---------- input ----------
+$('bA').onclick=()=>{S.init();decide(1)};$('bP').onclick=()=>{S.init();decide(0)};
+$('skip').onclick=()=>hurry();
+$('lng').onclick=()=>setLang(lang==='en'?'ru':'en');
+$('snd').onclick=()=>{S.init();S.set(!S.on);try{localStorage.setItem('pp_snd',S.on?'1':'0')}catch(e){}renderStatic()};
+$('tabD').onclick=()=>tab('D');$('tabR').onclick=()=>tab('R');
+addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey)return;
+  if(phase==='decide'){if(e.key==='ArrowLeft'||e.key==='1'){e.preventDefault();S.init();decide(1)}else if(e.key==='ArrowRight'||e.key==='2'){e.preventDefault();S.init();decide(0)}}
+  else if(phase==='intro'&&(e.key===' '||e.key==='Enter')){e.preventDefault();hurry()}});
+addEventListener('resize',layout);
+if(window.ResizeObserver)new ResizeObserver(()=>layout()).observe($('stage'));
+
+// ---------- boot ----------
+function start(data){data=data||{};
+  try{lang=data.lang||localStorage.getItem('pp_lang')||((navigator.language||'').toLowerCase().startsWith('ru')?'ru':'en')}catch(e){lang='en'}
+  let snd=null;try{snd=localStorage.getItem('pp_snd')}catch(e){}
+  if(typeof data.muted==='boolean')S.on=!data.muted;else if(snd!==null)S.on=snd==='1';
+  if(has3D){try{buildWorld();W.curT=new THREE.Vector3()}catch(e){console.error(e);has3D=false;$('gl').innerHTML=''}}
+  if(has3D){
+    const ray=new THREE.Raycaster(),nd=new THREE.Vector2(),hitStamp=()=>{ray.setFromCamera(nd,cam);const h=ray.intersectObjects([W.stA,W.stP],true)[0];let o=h&&h.object;while(o&&!o.userData.kind)o=o.parent;return o};
+    R.domElement.addEventListener('pointerdown',e=>{if(phase==='intro'){hurry();return}if(phase!=='decide')return;nd.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);const o=hitStamp();if(o){S.init();decide(o.userData.kind==='A'?1:0)}});
+    addEventListener('pointermove',e=>{par.tx=e.clientX/innerWidth*2-1;par.ty=-(e.clientY/innerHeight*2-1);
+      if(phase==='decide'&&e.target===R.domElement){nd.set(par.tx,par.ty);R.domElement.style.cursor=hitStamp()?'pointer':''}});
+  }else{PAPER.c.className='flat';$('stage').prepend(PAPER.c)}
+  renderStatic();renderHud();setTimerUI();
+  if(has3D){layout();drawCal(0,0);drawPoster();const p=shotPose('title',now());cam.position.copy(p.p);W.curT.copy(p.t);cam.lookAt(p.t)}
+  toTitle();
+  if(document.fonts){document.fonts.ready.then(()=>Promise.all(['22px "Russo One"','40px "VT323"','40px "Underdog"'].map(f=>document.fonts.load(f,'АБВ abc 123').catch(()=>{})))).then(refreshCanvases);
+    if(document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',refreshCanvases)}
+  requestAnimationFrame(loop);
+  if(window.claude&&window.claude.hot&&window.claude.hot.snapshot)window.claude.hot.snapshot(()=>({lang,muted:!S.on}))}
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+</script>
+</body>
+</html>
