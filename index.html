@@ -1138,7 +1138,9 @@ async function fileTelegram(){if(!has3D||!W.paper.visible)return;const T=THREE,p
   await tween(750,e=>{bez(p0,c,p1,e,W.paper.position);W.paper.quaternion.copy(q0).slerp(q1,e)});if(dead(my))return;
   const cv=document.createElement('canvas');cv.width=260;cv.height=188;cv.getContext('2d').drawImage(PAPER.c,0,0,260,188);
   const m=new T.Mesh(new T.PlaneGeometry(PW,PH),new T.MeshLambertMaterial({map:new T.CanvasTexture(cv)}));m.position.copy(p1);m.quaternion.copy(q1);m.receiveShadow=true;scene.add(m);W.pile.push(m);W.paper.visible=false}
-function tinPos(i){let row=0,n=i,cap=4;while(n>=cap&&cap>0){n-=cap;cap--;row++}return new THREE.Vector3(-.75+n*.078+row*.039,DESK+.038+row*.0765,-.03)}
+// the reward pyramid: its bottom row is wide enough to hold a whole shift (4 tins for 7 or 10 days, 5 for 14)
+function tinBase(n){let b=4;while(b*(b+1)/2<n)b++;return b}
+function tinPos(i){let row=0,n=i,cap=tinBase(Math.max(DAYS,i+1));while(n>=cap&&cap>1){n-=cap;cap--;row++}return new THREE.Vector3(-.75+n*.078+row*.039,DESK+.038+row*.0765,-.03)}
 function makeTin(kind){const P=W.tinProto[kind],d=TIN[kind],g=new THREE.Group(),b=new THREE.Mesh(P.body,P.mats);b.castShadow=b.receiveShadow=true;g.add(b);
   for(const s of [1,-1]){const rim=new THREE.Mesh(P.rim,P.rimM);rim.position.y=s*(d.h/2-.00225);rim.castShadow=true;g.add(rim)}
   g.userData.kind=kind;return g}
