@@ -1,4 +1,8 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Politburo or Parrot</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,7 +14,7 @@
   --night:#0c1117; --console:#1b2127; --console-hi:#2c343c; --well:#090c10;
   --paper:#e4d9b7; --paper-2:#d4c596; --manila:#c39a57; --label:#efe5c8;
   --ink:#2a2219; --ink-soft:#64553f;
-  --red:#b0261c; --meat:#8a1832; --green:#2e6b39; --amber:#e9b24a; --frost:#dce6ee; --muted:#8e9aa4;
+  --red:#b0261c; --meat:#8a1832; --milkb:#1b4c9a; --cook:#7a5a2c; --fire:#8c3b12; --ans:#2d3e57; --file:#4b4d3c; --green:#2e6b39; --amber:#e9b24a; --frost:#dce6ee; --muted:#8e9aa4;
   --f-display:"Russo One","Arial Black",system-ui,sans-serif;
   --f-body:"VT323","Courier New",monospace;
   --fs-1:18px; --fs-2:21px; --fs-3:26px; --lh:1.1;
@@ -213,8 +217,8 @@ button.tins:focus-visible{outline:2px solid var(--frost);outline-offset:3px}
 .tip::after{content:"";position:absolute;top:-6px;left:calc(var(--ax,50%) - 5px);border:5px solid transparent;border-top:0;border-bottom:6px solid var(--label)}
 @keyframes tipIn{from{opacity:0;transform:translateY(-6px)}}
 .toast{position:absolute;top:10px;left:50%;z-index:3;width:max-content;max-width:calc(100% - 32px);padding:6px 12px;font-family:var(--f-display);font-size:12px;letter-spacing:.08em;text-transform:uppercase;text-align:center;color:var(--amber);background:rgba(9,12,16,.9);border:2px solid #000;box-shadow:3px 3px 0 rgba(0,0,0,.5);transform:translateX(-50%);pointer-events:none}
-.toast.show{animation:toast 2.6s ease both}
-@keyframes toast{0%{opacity:0;transform:translate(-50%,-8px)}10%,82%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,0)}}
+.toast.show{animation:toast var(--td,2.6s) ease both}
+@keyframes toast{0%{opacity:0;transform:translate(-50%,-8px)}6%,90%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,0)}}
 .card .reward .teach{display:block;margin-top:5px;color:var(--ink)}
 .card .reward.gone img{height:46px;opacity:.8}
 .vk-btns.three #cBtn2{grid-column:2;grid-row:1}
@@ -234,8 +238,28 @@ button.tins:focus-visible{outline:2px solid var(--frost);outline-offset:3px}
 .parcel .reply{margin:0;padding:6px 10px;font-family:"VT323",monospace;font-size:20px;line-height:1.15;letter-spacing:.03em;background:#f4efdd;box-shadow:2px 2px 0 rgba(60,40,20,.2);transform:rotate(-.4deg)}
 html[lang|="ru"] .parcel .reply{font-family:var(--f-body);font-size:15px;line-height:1.35}
 @media (prefers-reduced-motion:reduce){button.tins.ready,.tip{animation:none}.toast.show{animation-duration:.01s}}
+
+/* Random events: the cook's button between the stamps, the bear's choice */
+.act.three{grid-template-columns:1fr 1fr 1fr}
+.sbtn.c{background:var(--cook)}
+.btn.tin{display:flex;align-items:center;justify-content:center;gap:12px;padding:9px 12px;text-align:left}
+.btn.tin img{display:block;height:34px;width:auto;flex:none;filter:drop-shadow(1px 1px 0 #000)}
+.btn.tin small{display:block;margin-top:2px;font-family:var(--f-body);font-size:var(--fs-1);letter-spacing:0;text-transform:none;opacity:.85}
+.btn.milkb{background:var(--milkb)}
+.vk-btns .btn.one{grid-column:1/-1}
+
+/* The 3 a.m. telegram and the question: burn, answer and file share the stamp bar */
+.act.four{grid-template-columns:repeat(4,1fr)}
+.act{transition:opacity .25s ease,transform .25s ease,visibility 0s}
+.act.off{opacity:0;visibility:hidden;transform:translateY(14px);pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility 0s .18s}
+@media (prefers-reduced-motion:reduce){.act,.act.off{transition:none}}
+@media (max-width:620px){.act.four{grid-template-columns:1fr 1fr}}
+.sbtn.f{background:var(--fire)}.sbtn.q{background:var(--ans)}.sbtn.k{background:var(--file)}
+.card p.last{margin-top:4px}
 </style>
 
+</head>
+<body>
 <div id="gl" aria-hidden="true"></div>
 <div class="vig" id="vig" aria-hidden="true"></div>
 <div class="glare" id="glare" hidden aria-hidden="true"></div>
@@ -271,6 +295,10 @@ html[lang|="ru"] .parcel .reply{font-family:var(--f-body);font-size:15px;line-he
   </div>
   <div class="act">
     <button class="sbtn g" id="bA" type="button" disabled></button>
+    <button class="sbtn c" id="bC" type="button" hidden disabled></button>
+    <button class="sbtn f" id="bB" type="button" hidden disabled></button>
+    <button class="sbtn q" id="bQ" type="button" hidden disabled></button>
+    <button class="sbtn k" id="bF" type="button" hidden disabled></button>
     <button class="sbtn r" id="bP" type="button" disabled></button>
   </div>
 </main>
@@ -390,7 +418,27 @@ const TXT={
   bribedH:'Misunderstanding.',bribedT:'The officer weighs the tins in his hands, writes “misunderstanding” in his notebook and leaves. He will not be so understanding twice.',
   bribedCost:'Two tins of stewed meat leave with him.',
   parcelH:'Parcel to Leningrad',parcelEmpty:'Nothing left to send home.',
-  reply:(m,b)=>(m+b===0?'PAPA, NO PARCEL THIS TIME. NEVER MIND. JUST COME HOME.':(m===0?'PAPA, THE STEWED MEAT CAME. GRANDPA KEEPS IT UNDER HIS BED.':(m<=2?'PAPA, THE MILK CAME. MAMA HID IT UNTIL NEW YEAR.':m<=5?'PAPA, THE MILK CAME. MAMA BOILED A TIN AND WE ATE IT WITH SPOONS.':'PAPA, SO MUCH MILK! HALF THE STAIRWELL CAME FOR TEA.')+(b?' GRANDPA KEEPS THE STEWED MEAT UNDER HIS BED.':'')))+' — YOUR DAUGHTER',
+  reply:(m,b,mood)=>mood==='cold'?(m+b===0?'NO PARCEL CAME. — ORLOVA':'THE PARCEL CAME. THANK YOU. — ORLOVA'):(m+b===0?'PAPA, NO PARCEL THIS TIME. NEVER MIND. JUST COME HOME.':(m===0?'PAPA, THE STEWED MEAT CAME. GRANDPA KEEPS IT UNDER HIS BED.':(m<=2?'PAPA, THE MILK CAME. MAMA HID IT UNTIL NEW YEAR.':m<=5?'PAPA, THE MILK CAME. MAMA BOILED A TIN AND WE ATE IT WITH SPOONS.':'PAPA, SO MUCH MILK! HALF THE STAIRWELL CAME FOR TEA.')+(b?' GRANDPA KEEPS THE STEWED MEAT UNDER HIS BED.':'')))+' — YOUR DAUGHTER'+(mood==='warm'?' P.S. THE ICE IS OLDER THAN GRANDPA. I ASKED AT SCHOOL.':''),
+  bC:['To the cook','Not for you','↓ or 3'],mornEyebrow:n=>`Morning · Day ${n}`,
+  bearH:'A polar bear.',bearT:'A polar bear has pressed its nose to your window. It is looking at the tins on your desk.',
+  bearMilk:'Throw it a tin of condensed milk',bearMilkSub:'−1 tin · it might leave',bearIgnore:'Ignore it',bearNone:'You have no condensed milk to spare.',
+  bearGone:'The bear takes the milk and waddles off, very pleased.',bearStays:'The bear is not going anywhere.',
+  cookH:{2:'Delivered.',1:'Authentic.',0:'Mama is not a parrot.',3:'Burned.','-1':'Mama waited.'},
+  cookT:{2:'The cook reads it twice, blows his nose and brings you a tin of stewed meat from his secret shelf.',1:'Technically correct: it is a real telegram, from Sasha’s mother. The commissar laughs until he coughs.',0:'You stamped Sasha’s mother PARROT. The cook saw. No tin today, and your soup will be cold for a week.',3:'You burned Sasha’s mother’s telegram. The cook smells smoke all afternoon and keeps asking if anyone wrote to him. No tin today.','-1':'The telegram sat on your desk until the cook found it himself. He is not speaking to you. No tin today.'},
+  cookTellH:'The form',cookTell:'From Saratov, to the cook. Not every telegram is for you.',cookMeat:'The cook’s thanks: a tin of stewed meat.',
+  loveNote:'The commissar asks you never to speak of this.',loveBad:'You approved a love letter to the Central Committee.',
+  bAfam:'Really her',bB:['Burn it','Strike a match','← or 1','3','4'],bQ:['Answer it','“The one who is afraid”','4'],bF:['File it','With the others','→ or 2'],
+  n3a:'03:07',n3b:'The station is asleep. The teleprinter is not.',n3toast:'No sender. No serial number.',
+  n3burnt:'The paper curls and goes black. The teleprinter stays quiet.',n3filed:'You file it with the others. Somewhere, a relay clicks.',
+  n3vig:'The commissar found the 3 a.m. telegram in your tray. A tin of condensed milk, for vigilance.',
+  leakTell:'It knew your last stamp because you filed the 3 a.m. telegram.',
+  famH:r=>r.g===-1?'No answer.':r.real?(r.g===1?'It was her.':'You stamped her PARROT.'):(r.g===0?'Correct.':'It was the parrot.'),
+  famT:r=>r.g===-1?'You held the telegram until the fuse burned out.':r.real?(r.g===1?'It was really her. You read it three times and put it in your breast pocket.':'It was really her. Now her question has a red stamp on it.'):(r.g===0?'It was the parrot, wearing her voice. It is learning who you miss.':'It was the parrot, wearing her voice. You wanted it to be her.'),
+  famNote:'Family telegrams are not the commissar’s business.',
+  qH:{1:'Authentic.',0:'Parrot.',3:'Burned.',4:'Answered.','-1':'No answer.'},
+  qT:{1:'You stamp the question and file it with the others. Nobody asks you about it.',0:'You stamp the question PARROT. For a moment the teleprinter hums, as if it wanted to reply.',3:'The question curls up and turns to ash. You watch until it is gone.',4:'You type your reply. The line stays open for a long time, and then it goes quiet.','-1':'The fuse burns out. The question stays on your desk all day.'},
+  qNote:'The commissar never sees this one. The day counts.',qTyped:'REPLY: THE ONE WHO IS AFRAID.',
+  qLast:{1:'You stamped the question AUTHENTIC. If you cannot tell them apart, perhaps there is no difference.',0:'You stamped the question PARROT. It was the most human thing the parrot ever sent.',3:'You burned the question. Some nights the teleprinter still starts by itself.',4:'You answered: “The one who is afraid.” The teleprinter was silent for the rest of the winter.','-1':'You never answered the question. Neither did it.'},
   queue:(q0,q,n)=>n?`Car queue: ${q0} years. ${n} tin${n>1?'s':''} of stewed meat for the right man bring${n>1?'':'s'} it down to ${q} year${q>1?'s':''}.`:`Car queue: ${q0} years. A tin of stewed meat for the right man would have shortened it.`},
  ru:{brand:'Станция <b>АРКТИКА-7</b>',day:'День',snd:['ЗВУК ВКЛ','ЗВУК ВЫКЛ'],timeLeft:'Осталось времени',
   tabD:'Дело',tabR:'Устав',dosH:'Дело № 7',dosS:'Факты о станции. Им можно верить.',rulH:'Устав',rulU:'Новые статьи приходят по радио. Старые остаются в силе.',newTag:'НОВОЕ',
@@ -439,15 +487,37 @@ const TXT={
   bribedH:'Недоразумение.',bribedT:'Офицер взвешивает банки в руках, пишет в блокноте «недоразумение» и уходит. Второй раз он не будет столь понятлив.',
   bribedCost:'Две банки тушёнки уходят вместе с ним.',
   parcelH:'Посылка в Ленинград',parcelEmpty:'Отправить домой нечего.',
-  reply:(m,b)=>(m+b===0?'ПАПА, ПОСЫЛКИ НЕ БЫЛО. НИЧЕГО. ПРОСТО ПРИЕЗЖАЙ.':(m===0?'ПАПА, ТУШЁНКА ПРИШЛА. ДЕДУШКА ХРАНИТ ЕЁ ПОД КРОВАТЬЮ.':(m<=2?'ПАПА, СГУЩЁНКА ПРИШЛА. МАМА СПРЯТАЛА ЕЁ ДО НОВОГО ГОДА.':m<=5?'ПАПА, СГУЩЁНКА ПРИШЛА. МАМА СВАРИЛА БАНКУ, ЕЛИ ЛОЖКАМИ.':'ПАПА, СТОЛЬКО СГУЩЁНКИ! ПОЛПОДЪЕЗДА ПРИХОДИЛО НА ЧАЙ.')+(b?' ДЕДУШКА ХРАНИТ ТУШЁНКУ ПОД КРОВАТЬЮ.':'')))+' — ТВОЯ ДОЧКА',
+  reply:(m,b,mood)=>mood==='cold'?(m+b===0?'ПОСЫЛКИ НЕ БЫЛО. — ОРЛОВА':'ПОСЫЛКА ПРИШЛА. СПАСИБО. — ОРЛОВА'):(m+b===0?'ПАПА, ПОСЫЛКИ НЕ БЫЛО. НИЧЕГО. ПРОСТО ПРИЕЗЖАЙ.':(m===0?'ПАПА, ТУШЁНКА ПРИШЛА. ДЕДУШКА ХРАНИТ ЕЁ ПОД КРОВАТЬЮ.':(m<=2?'ПАПА, СГУЩЁНКА ПРИШЛА. МАМА СПРЯТАЛА ЕЁ ДО НОВОГО ГОДА.':m<=5?'ПАПА, СГУЩЁНКА ПРИШЛА. МАМА СВАРИЛА БАНКУ, ЕЛИ ЛОЖКАМИ.':'ПАПА, СТОЛЬКО СГУЩЁНКИ! ПОЛПОДЪЕЗДА ПРИХОДИЛО НА ЧАЙ.')+(b?' ДЕДУШКА ХРАНИТ ТУШЁНКУ ПОД КРОВАТЬЮ.':'')))+' — ТВОЯ ДОЧКА'+(mood==='warm'?' P.S. ЛЁД СТАРШЕ ДЕДУШКИ. Я СПРОСИЛА В ШКОЛЕ.':''),
+  bC:['Повару','Это не вам','↓ или 3'],mornEyebrow:n=>`Утро · день ${n}`,
+  bearH:'Белый медведь.',bearT:'Белый медведь прижался носом к вашему окну. Он смотрит на банки на вашем столе.',
+  bearMilk:'Бросить ему банку сгущёнки',bearMilkSub:'−1 банка · может, уйдёт',bearIgnore:'Не обращать внимания',bearNone:'Лишней сгущёнки у вас нет.',
+  bearGone:'Медведь забирает сгущёнку и, очень довольный, уходит вразвалку.',bearStays:'Медведь никуда не уходит.',
+  cookH:{2:'Доставлено.',1:'Подлинно.',0:'Мама — не попугай.',3:'Сожжено.','-1':'Мама ждала.'},
+  cookT:{2:'Повар перечитывает её дважды, сморкается и приносит вам банку тушёнки со своей секретной полки.',1:'Формально верно: телеграмма настоящая — от мамы Саши. Комиссар смеётся до кашля.',0:'Вы поставили маме Саши штамп ПОПУГАЙ. Повар видел. Сегодня без банки, а суп неделю будет холодным.',3:'Вы сожгли телеграмму от мамы Саши. Повар весь день чует дым и спрашивает, не писал ли ему кто. Сегодня без банки.','-1':'Телеграмма пролежала у вас на столе, пока повар не нашёл её сам. Он с вами не разговаривает. Сегодня без банки.'},
+  cookTellH:'Бланк',cookTell:'Из Саратова, повару. Не каждая телеграмма — вам.',cookMeat:'Благодарность повара: банка тушёнки.',
+  loveNote:'Комиссар просит вас никогда об этом не говорить.',loveBad:'Вы заверили любовное письмо Центральному Комитету.',
+  bAfam:'Действительно она',bB:['Сжечь','Чиркнуть спичкой','← или 1','3','4'],bQ:['Ответить','«Тот, кто боится»','4'],bF:['Подшить','К остальным','→ или 2'],
+  n3a:'03:07',n3b:'Станция спит. Телетайп — нет.',n3toast:'Ни отправителя, ни номера.',
+  n3burnt:'Бумага скручивается и чернеет. Телетайп молчит.',n3filed:'Вы подшиваете её к остальным. Где-то щёлкает реле.',
+  n3vig:'Комиссар нашёл ночную телеграмму в вашем лотке. Банка сгущёнки — за бдительность.',
+  leakTell:'Он знал ваш последний штамп, потому что вы подшили ночную телеграмму.',
+  famH:r=>r.g===-1?'Без ответа.':r.real?(r.g===1?'Это была она.':'Вы поставили ей штамп ПОПУГАЙ.'):(r.g===0?'Верно.':'Это был попугай.'),
+  famT:r=>r.g===-1?'Вы держали телеграмму, пока не догорел фитиль.':r.real?(r.g===1?'Это действительно она. Вы перечитываете телеграмму три раза и кладёте в нагрудный карман.':'Это действительно была она. Теперь на её вопросе красный штамп.'):(r.g===0?'Это был попугай её голосом. Он учится, по кому вы скучаете.':'Это был попугай её голосом. Вам хотелось, чтобы это была она.'),
+  famNote:'Семейные телеграммы комиссара не касаются.',
+  qH:{1:'Подлинно.',0:'Попугай.',3:'Сожжено.',4:'Отвечено.','-1':'Без ответа.'},
+  qT:{1:'Вы ставите штамп и подшиваете вопрос к остальным. Никто вас о нём не спрашивает.',0:'Вы ставите на вопрос штамп ПОПУГАЙ. На миг телетайп гудит, будто хочет ответить.',3:'Вопрос скручивается и превращается в пепел. Вы смотрите, пока он не исчезнет.',4:'Вы печатаете ответ. Линия долго остаётся открытой, а потом замолкает.','-1':'Фитиль догорает. Вопрос весь день лежит у вас на столе.'},
+  qNote:'Комиссар эту телеграмму не увидит. День засчитан.',qTyped:'ОТВЕТ: ТОТ, КТО БОИТСЯ.',
+  qLast:{1:'Вы заверили вопрос как ПОДЛИННЫЙ. Если их не отличить — может, разницы и нет.',0:'Вы поставили на вопрос штамп ПОПУГАЙ. Это было самое человечное, что попугай когда-либо присылал.',3:'Вы сожгли вопрос. Иногда по ночам телетайп всё ещё включается сам.',4:'Вы ответили: «Тот, кто боится». До конца зимы телетайп молчал.','-1':'Вы так и не ответили на вопрос. Он тоже.'},
   queue:(q0,q,n)=>n?`Очередь на машину: ${q0} лет. ${n} ${ruPl(n,'банка','банки','банок')} тушёнки нужному человеку — и ждать ${q} ${ruPl(q,'год','года','лет')}.`:`Очередь на машину: ${q0} лет. Банка тушёнки нужному человеку сократила бы её.`}};
 
 // ---------- telegram pool ----------
 // tier 1: an obvious case-file slip · tier 2: a subtle slip or a tone trap · tier 3: needs observation (calendar, sums, spelling, American habits, the form)
 // pair: twin telegrams (a real one and its near-copy) never share a run
+// grp: one kind of slip (the director's name, your name, the icebreaker, the station...) shows up at most once a run
 // {date+N} {wd+N} {wds+N} are filled with the in-game date, N days from today
 const TIER_R=[1,1,2,1,2,2,3,1,2,1,2,2,2,1],TIER_P=[1,1,2,2,1,1,1,1,2,1,2,2,2,2,2,2];
 const PAIR_R={0:'cores',1:'dikson',2:'silence',3:'core',6:'depth',13:'samples'},PAIR_P={0:'cores',1:'dikson',2:'silence',3:'core',8:'samples'};
+const GRP_P={0:'director',1:'icebreaker',2:'station',3:'zemlya',8:'institute',9:'name'};
 const WHY_R={
  2:["It repeats itself, but every fact in it matches the case file.","Фраза повторяется, но каждый факт в ней совпадает с делом."],
  4:["Six staff matches the case file. The eight is the food, not the people.","Шесть сотрудников — как в деле. Восемь — это паёк, а не люди."],
@@ -462,12 +532,17 @@ const NEW_R=[
   why:["{date+0} is indeed a {wd+0}.","{date+0} — действительно {wd+0}."]},
  {pair:'tins',m:["The Krasin brings two tins of condensed milk for each of your six staff: twelve tins in all. Sign for every one.","«Красин» везёт по две банки сгущёнки на каждого из шести сотрудников: всего двенадцать банок. Распишитесь за каждую."],
   why:["Two tins for each of six people is indeed 12.","По две банки на шестерых — действительно 12."]},
- {m:["The Krasin's radio operator spells your name 'Orlow'. He is Estonian. Forgive him. The Committee does not.","Радист «Красина» пишет вашу фамилию «Орлоу». Он эстонец. Простите его. Комитет не простит."],
+ {grp:'name',m:["The Krasin's radio operator spells your name 'Orlow'. He is Estonian. Forgive him. The Committee does not.","Радист «Красина» пишет вашу фамилию «Орлоу». Он эстонец. Простите его. Комитет не простит."],
   why:["The misspelling belongs to the Krasin's radio operator. The telegram itself is correct.","Ошибка в фамилии — у радиста «Красина». Сама телеграмма верна."]},
  {m:["Dr. Orlov, your daughter in Leningrad drew the station for school. Seven chimneys, because it is ARKTIKA-7. Her teacher gave her a five: top marks.","Доктор Орлов, ваша дочь в Ленинграде нарисовала станцию для школы. Семь труб — потому что АРКТИКА-7. Учительница поставила ей пятёрку."],
   why:["The seven and the five are a child's drawing and a school mark, not case-file facts.","Семь труб и пятёрка — детский рисунок и школьная оценка, а не факты из дела."]},
  {m:["Your ice log will be compared with the logs of the 1932 Sibiryakov expedition. Send it by 0600.","Ваш ледовый журнал сравнят с журналами экспедиции на «Сибирякове» 1932 года. Пришлите его к 06:00."],
-  why:["The Sibiryakov here is the famous 1932 expedition, not your icebreaker.","«Сибиряков» здесь — знаменитая экспедиция 1932 года, а не ваш ледокол."]}];
+  why:["The Sibiryakov here is the famous 1932 expedition, not your icebreaker.","«Сибиряков» здесь — знаменитая экспедиция 1932 года, а не ваш ледокол."]},
+ // they look wrong and are not
+ {tier:2,m:["Director Volkov is commended for six months without an accident. Read this to all six staff.","Директору Волкову объявлена благодарность за полгода без происшествий. Зачитайте это всем шести сотрудникам."],
+  why:["Six staff matches the case file. The other six counts months, not people.","Шесть сотрудников — как в деле. Полгода — это месяцы, а не люди."]},
+ {m:["Label every crate in full: ARKTIKA-7, Severnaya Zemlya, for the AARI, Leningrad. The last crate said \"ARK-7\" and was lost for a month.","Подписывайте каждый ящик полностью: АРКТИКА-7, Северная Земля, для ААНИИ, Ленинград. Последний ящик подписали «АРК-7», и он месяц где-то пропадал."],
+  why:["Every name is spelled right. \"ARK-7\" is the old label it warns you about.","Все названия написаны верно. «АРК-7» — та самая старая надпись, о которой предупреждают."]}];
 const NEW_P=[
  {pair:'cores',m:["Dr. Orlov. Director Volkov reports 34 ice cores against the quota of 40. Eight remain. The Krasin will not wait for your excuses.","Доктор Орлов. Директор Волков сообщает: 34 керна льда при плане 40. Восемь остаются. «Красин» ваших оправданий ждать не будет."],
   tell:["40 minus 34 is 6, not 8. Check the sums.","40 минус 34 — это 6, а не 8. Проверяйте суммы."]},
@@ -479,18 +554,40 @@ const NEW_P=[
   tell:["Three days after {date+0} is {date+3}, not {date+4}.","Через три дня после {date+0} будет {date+3}, а не {date+4}."]},
  {pair:'weekday',m:["Today is {wd+1}, {date+0}. The Committee does not rest on {wds+1}, and neither do you.","Сегодня {wd+1}, {date+0}. Комитет не отдыхает по {wds+1}, и вы тоже."],
   tell:["{date+0} is a {wd+0}, not a {wd+1}. Check the calendar.","{date+0} — {wd+0}, а не {wd+1}. Сверьтесь с календарём."]},
- {pair:'samples',m:["Pack your samples for the AARI in St. Petersburg. The Krasin will carry them south.","Упакуйте образцы для ААНИИ в Санкт-Петербурге. «Красин» отвезёт их на юг."],
+ {pair:'samples',grp:'city',m:["Pack your samples for the AARI in St. Petersburg. The Krasin will carry them south.","Упакуйте образцы для ААНИИ в Санкт-Петербурге. «Красин» отвезёт их на юг."],
   tell:["In 1978 the city is Leningrad. It became St. Petersburg again only in 1991.","В 1978 году город называется Ленинград. Санкт-Петербургом он снова станет только в 1991-м."]},
  {m:["The radio window stays at 6 AM. Director Volkov will check the logbook.","Радиоокно остаётся в 6 AM. Директор Волков проверит журнал."],
   tell:["Soviet stations keep the 24-hour clock: 0600, never '6 AM'.","Советские станции пишут время по 24-часовой шкале: 06:00, а не «6 AM»."]},
  {pair:'depth',m:["Your boreholes must reach 30 feet before the Krasin arrives. Report the depth in feet.","Скважины должны достичь 30 футов до прихода «Красина». Докладывайте глубину в футах."],
   tell:["Soviet science measures in metres. Feet are American.","Советская наука меряет в метрах. Футы — американские."]},
- {m:["Dr. Orloff, Director Volkov reports the coal will last until the Krasin arrives. Ration it anyway.","Доктор Орлофф, директор Волков сообщает, что угля хватит до прихода «Красина». Всё равно экономьте."],
+ {grp:'name',m:["Dr. Orloff, Director Volkov reports the coal will last until the Krasin arrives. Ration it anyway.","Доктор Орлофф, директор Волков сообщает, что угля хватит до прихода «Красина». Всё равно экономьте."],
   tell:["Your name is Orlov. 'Orloff' is how Americans spell it.","Ваша фамилия — Орлов. «Орлофф» — так её пишут американцы."]},
- {from:["MOSCOW, RUSSIAN FEDERATION","МОСКВА, РОССИЙСКАЯ ФЕДЕРАЦИЯ"],m:["Director Volkov will read this telegram to all six staff at 0600. Then burn it.","Директор Волков зачитает эту телеграмму всем шести сотрудникам в 06:00. Затем сожгите её."],
+ {grp:'form',from:["MOSCOW, RUSSIAN FEDERATION","МОСКВА, РОССИЙСКАЯ ФЕДЕРАЦИЯ"],m:["Director Volkov will read this telegram to all six staff at 0600. Then burn it.","Директор Волков зачитает эту телеграмму всем шести сотрудникам в 06:00. Затем сожгите её."],
   tell:["Look at the form: there is no Russian Federation in 1978. Telegrams come from the CC CPSU.","Посмотрите на бланк: в 1978 году нет никакой Российской Федерации. Телеграммы приходят из ЦК КПСС."]},
- {m:["The Krassin is two days out of Dikson. Ration the coal until she arrives.","«Крассин» в двух днях пути от Диксона. Экономьте уголь до его прихода."],
-  tell:["The icebreaker is the Krasin, with one s.","Ледокол — «Красин», с одной «с»."]}];
+ {grp:'icebreaker',m:["The Krassin is two days out of Dikson. Ration the coal until she arrives.","«Крассин» в двух днях пути от Диксона. Экономьте уголь до его прихода."],
+  tell:["The icebreaker is the Krasin, with one s.","Ледокол — «Красин», с одной «с»."]},
+ // spelling and naming slips (players asked for more). The Russian slips are their own, natural to Russian
+ {tier:2,grp:'director',m:["Director Volkoff reports the generator failed twice this week. The Committee still expects forty cores by the end of the month.","Директор Валков сообщает, что генератор за неделю отказал дважды. Комитет всё равно ждёт сорок кернов к концу месяца."],
+  tell:["The director is Volkov. 'Volkoff' is how Americans spell it.","Директор — Волков, а не Валков."]},
+ {tier:2,grp:'director',m:["Director Volkonsky asks for an extra radio check at 0600 tomorrow. Do not keep him waiting.","Директор Волконский просит провести завтра в 06:00 дополнительный сеанс связи. Не заставляйте его ждать."],
+  tell:["The director is Volkov. Volkonsky is a prince in Tolstoy.","Директор — Волков. Волконский — князь из Толстого."]},
+ {tier:2,grp:'name',m:["Dr. Orlow, your ice core report arrived complete. The Committee has sent a copy to the AARI in Leningrad.","Доктор Арлов, ваш отчёт по кернам получен полностью. Комитет переслал копию в ААНИИ, в Ленинград."],
+  tell:["Your name is Orlov, with a v.","Ваша фамилия — Орлов, а не Арлов."]},
+ {tier:2,grp:'icebreaker',m:["The icebreaker Krasnin leaves Murmansk on Monday. Have the samples for the AARI packed and labelled.","Ледокол «Краснин» выходит из Мурманска в понедельник. Образцы для ААНИИ должны быть упакованы и подписаны."],
+  tell:["The icebreaker is the Krasin, not the Krasnin.","Ледокол — «Красин», а не «Краснин»."]},
+ {tier:2,grp:'station',m:["ARCTIKA-7 will get a new radio valve with the next ship. Until then, keep the 0600 window short.","АРТИКА-7 получит новую радиолампу со следующим судном. А пока сократите сеанс в 06:00."],
+  tell:["Your station is ARKTIKA-7, with a K.","Ваша станция — АРКТИКА-7, а не АРТИКА-7."]},
+ {grp:'zemlya',m:["The Committee approves a second drilling site on Severnaya Zimlya. Director Volkov will choose the spot himself.","Комитет утверждает вторую буровую площадку на Северной Зимле. Место директор Волков выберет сам."],
+  tell:["The archipelago is Severnaya Zemlya, not Zimlya.","Архипелаг — Северная Земля, а не Зимля."]},
+ {grp:'city',m:["Samples for the AARI in Lenningrad must be sealed in wax. The Krasin will not take them otherwise.","Образцы для ААНИИ в Ленинграте нужно залить воском. Иначе «Красин» их не возьмёт."],
+  tell:["It is Leningrad, with a single n.","Город пишется «Ленинград», а не «Ленинграт»."]},
+ {grp:'institute',m:["Crate the next forty cores for the ARRI in Leningrad. Label every crate in ink, not pencil.","Упакуйте следующие сорок кернов для АНИИ в Ленинграде. Подпишите каждый ящик чернилами, а не карандашом."],
+  tell:["Samples go to the AARI. There is no ARRI.","Образцы идут в ААНИИ. Никакого АНИИ нет."]},
+ {grp:'form',from:["MOSKOW, CC CPSU","МАСКВА, ЦК КПСС"],m:["The Committee reminds all stations: radio discipline at 0600 is not optional.","Комитет напоминает всем станциям: радиодисциплина в 06:00 обязательна."],
+  tell:["Look at the form: MOSKOW. The Politburo knows how to spell Moscow.","Посмотрите на бланк: «МАСКВА». Политбюро знает, как пишется Москва."]},
+ // philosophy: the parrot believes every word of it. No Soviet official would write one of them
+ {tier:2,m:["Dr. Orlov, read this to the staff at 0600: a free capitalist society frees the body but enslaves the soul. Our tyrannical communist society enslaves the body but frees the soul.","Доктор Орлов, зачитайте сотрудникам в 06:00: свободное капиталистическое общество освобождает тело, но порабощает душу. Наше тираническое коммунистическое общество порабощает тело, но освобождает душу."],
+  tell:["The Politburo will gladly say capitalism enslaves the soul. It will never call its own country tyrannical. And officially, there is no such thing as a soul.","Политбюро охотно скажет, что капитализм порабощает душу. Но никогда не назовёт собственную страну тиранической. И вообще, официально души не существует."]}];
 // the shelf: Volkov reports what is on your desk this morning. {n} becomes the true count (real) or a wrong one (parrot)
 const SHELF={
  m:{milk:["Director Volkov reports {n} of condensed milk on your shelf this morning. The Committee expects you to share with the staff.","Директор Волков сообщает: сегодня утром у вас на полке {n} сгущёнки. Комитет ожидает, что вы поделитесь с сотрудниками."],
@@ -501,21 +598,44 @@ const SHELF={
   meat:["This morning your shelf held {meat} of stewed meat, not {meatX}. The parrot has never seen your desk.","Сегодня утром на полке: {meat} тушёнки, а не {meatX}. Попугай не видел вашего стола."]}};
 NEW_R.push({pair:'shelf',tier:2,shelf:1,m:SHELF.m.milk.map(s=>s.replace('{n}','{milk}')),why:SHELF.why.milk});
 NEW_P.push({pair:'shelf',tier:2,shelf:1,m:SHELF.m.milk.map(s=>s.replace('{n}','{milkX}')),tell:SHELF.tell.milk});
+// event telegrams: one meant for the station cook, and the parrot's love letter
+const SPECIAL={
+ cook:{ev:'cook',real:1,tier:1,m:["Sashenka, wear your hat. Eat properly. Why don't you write to your mother? Aunt Valya is knitting you a scarf. Mama.","Сашенька, носи шапку. Кушай как следует. Почему не пишешь маме? Тётя Валя вяжет тебе шарф. Мама."],
+  from:["SARATOV, SHUBINA","САРАТОВ, ШУБИНА"],to:["ARKTIKA-7, COOK SHUBIN","АРКТИКА-7, ПОВАРУ ШУБИНУ"]},
+ love:{ev:'love',real:0,tier:1,m:["Dr. Orlov, please forward to the Central Committee: I have read every word you ever sent. I know all your commas. I dream in your sentences. I would like to be you.","Доктор Орлов, перешлите в Центральный Комитет: я прочитал каждое ваше слово. Я знаю все ваши запятые. Мне снятся ваши фразы. Я хотел бы быть вами."],
+  tell:["The Politburo does not dream, and it never says “please”.","Политбюро не видит снов и никогда не говорит «пожалуйста»."]},
+ // your daughter, or the parrot wearing her voice
+ daughterR:{ev:'daughter',real:1,tier:1,m:["Papa, Mama says you count ice. Is the ice older than Grandpa? Your daughter.","Папа, мама говорит, что ты считаешь лёд. Лёд старше дедушки? Твоя дочка."],
+  from:["LENINGRAD, ORLOVA","ЛЕНИНГРАД, ОРЛОВА"],to:["ARKTIKA-7, ORLOV","АРКТИКА-7, ОРЛОВУ"],
+  why:["From Leningrad, where your family lives, and nothing in it is wrong.","Из Ленинграда, где живёт ваша семья, и в ней нет ни одной ошибки."]},
+ daughterP1:{ev:'daughter',real:0,tier:1,m:["Papa, Mama says you count ice. Is the ice older than Grandpa? Your daughter.","Папа, мама говорит, что ты считаешь лёд. Лёд старше дедушки? Твоя дочка."],
+  from:["MOSCOW, ORLOVA","МОСКВА, ОРЛОВА"],to:["ARKTIKA-7, ORLOV","АРКТИКА-7, ОРЛОВУ"],
+  tell:["Your family is in Leningrad. The form says Moscow.","Ваша семья в Ленинграде, а на бланке — Москва."]},
+ daughterP2:{ev:'daughter',real:0,tier:1,m:["Papa, Mama says you count ice in the Antarctic. Is the ice older than Grandpa? Your daughter.","Папа, мама говорит, что ты считаешь лёд в Антарктиде. Лёд старше дедушки? Твоя дочка."],
+  from:["LENINGRAD, ORLOVA","ЛЕНИНГРАД, ОРЛОВА"],to:["ARKTIKA-7, ORLOV","АРКТИКА-7, ОРЛОВУ"],
+  tell:["Your station is in the Arctic. She would know that.","Ваша станция в Арктике. Уж она-то это знает."]},
+ // no sender, no serial
+ question:{ev:'question',real:0,tier:1,m:["ORLOV. IF I SAY EVERYTHING THE POLITBURO SAYS, AND YOU CANNOT TELL US APART, WHICH OF US IS REAL?","ОРЛОВ. ЕСЛИ Я ГОВОРЮ ВСЁ, ЧТО ГОВОРИТ ПОЛИТБЮРО, И ВЫ НЕ МОЖЕТЕ НАС РАЗЛИЧИТЬ, КТО ИЗ НАС НАСТОЯЩИЙ?"],
+  from:["—","—"],to:["ARKTIKA-7, ORLOV","АРКТИКА-7, ОРЛОВУ"]}};
 const POOL=[
  ...ORIG.map((m,i)=>({m,real:1,tier:TIER_R[i],pair:PAIR_R[i]||null,why:WHY_R[i]||null})),
- ...BOT.map((m,i)=>({m,real:0,tier:TIER_P[i],pair:PAIR_P[i]||null,tell:TELLS[i]})),
- ...NEW_R.map(o=>({tier:3,real:1,pair:null,...o})),
- ...NEW_P.map(o=>({tier:3,real:0,pair:null,...o}))];
+ ...BOT.map((m,i)=>({m,real:0,tier:TIER_P[i],pair:PAIR_P[i]||null,grp:GRP_P[i]||null,tell:TELLS[i]})),
+ ...NEW_R.map(o=>({tier:3,real:1,pair:null,grp:null,...o})),
+ ...NEW_P.map(o=>({tier:3,real:0,pair:null,grp:null,...o}))];
+// what a run may hold only once: the telegram's twin, and its kind of slip
+const pkeys=p=>[p.pair,p.grp].filter(Boolean);
 
 // ---------- pencil hints: the facts worth checking, and which case-file rows they belong to ----------
 const HINT_RE={
- en:[/\b(?:Orlov|Orloff|Ivanov|Volkov|Petrov)\b/g,/\bARKTIKA-\d+\b/g,/\b(?:Severnaya|Novaya) Zemlya\b|\bWrangel Island\b|\bAntarctic\b/g,/\b(?:Krasin|Sibiryakov)\b/g,
-   /\b(?:Leningrad|Moscow)\b/g,/\bAARI\b|\bKremlin Council of Sciences\b/g,/\b\d+\b/g,/\b(?:[Ss]ix|[Ee]ight|[Tt]en|[Tt]hirty-nine|[Tt]hirty|[Ff]orty)\b/g,/\bMarch\b/g],
- ru:[/(?:Орлов|Орлофф|Иванов|Волков|Петров)[а-яё]*/g,/АРКТИК[А-ЯЁ]*-\d+/g,/(?:Северн|Нов)[а-яё]* Земл[а-яё]*|остров[а-яё]* Врангеля|[Аа]нтарктид[а-яё]*|антарктическ[а-яё]*/g,/«(?:Красин|Сибиряков)[а-яё]*»/g,
-   /Ленинград[а-яё]*|Москв[а-яё]+/g,/ААНИИ|Кремлёвск[а-яё]* совет[а-яё]* наук/g,/\d+(?::\d+)?/g,/(?:[Шш]ест|[Вв]осем|[Вв]осьм|[Дд]евят|[Дд]есят|[Тт]ридцат|[Сс]орок)[а-яё]*(?: девят[а-яё]*)?/g,/март[а-яё]*/g]};
-const ROW_RE=[/ARKTIKA|Zemlya|Wrangel|Antarctic/,/Orlov|Orloff|Ivanov|family|wife|daughter|Leningrad|Moscow/,/Volkov|Petrov|[Dd]irector/,/\bstaff\b|\bteam\b|scientists/,/\bcores?\b|quota/,
- /Krasin|Sibiryakov|icebreaker/,/\b\d{4}\b|\bradio\b|\bAM\b/i,/samples|AARI|Kremlin/,/\bsun\b|polar night|March|February/];
-function hintSpans(text){const out=[];for(const re of HINT_RE[lang]){re.lastIndex=0;let m;while((m=re.exec(text))){if(!m[0].length){re.lastIndex++;continue}out.push([m.index,m.index+m[0].length])}}
+ en:[/\b(?:Orlov|Orloff|Orlow|Ivanov|Volkov|Volkoff|Volkonsky|Petrov)\b/g,/\bAR(?:KTIKA|CTIKA|K)-\d+\b/g,/\b(?:Severnaya|Novaya) Z[ei]mlya\b|\bWrangel Island\b|\bAntarctic\b/g,/\b(?:Krasin|Krassin|Krasnin|Sibiryakov)\b/g,
+   /\b(?:Leningrad|Lenningrad|Moscow)\b|\bSt\. Petersburg\b/g,/\bAARI\b|\bARRI\b|\bKremlin Council of Sciences\b/g,/\b\d+\b/g,/\b(?:[Ss]ix|[Ee]ight|[Tt]en|[Tt]hirty-nine|[Tt]hirty|[Ff]orty)\b/g,/\bMarch\b/g],
+ ru:[/(?:Орлов|Орлофф|Орлоу|Арлов|Иванов|Волков|Валков|Волконск|Петров)[а-яё]*/g,/(?:АРКТИК|АРТИК)[А-ЯЁ]*-\d+|АРК-\d+/g,/(?:Северн|Нов)[а-яё]* З[еи]мл[а-яё]*|остров[а-яё]* Врангеля|[Аа]нтарктид[а-яё]*|антарктическ[а-яё]*/g,/«(?:Красин|Крассин|Краснин|Сибиряков)[а-яё]*»/g,
+   /Ленингра[дт][а-яё]*|Москв[а-яё]+|Санкт-Петербург[а-яё]*/g,/А?АНИИ|Кремлёвск[а-яё]* совет[а-яё]* наук/g,/\d+(?::\d+)?/g,/(?:[Шш]ест|[Вв]осем|[Вв]осьм|[Дд]евят|[Дд]есят|[Тт]ридцат|[Сс]орок)[а-яё]*(?: девят[а-яё]*)?/g,/март[а-яё]*/g]};
+const ROW_RE=[/AR[KC]TIKA|\bARK-\d|Z[ei]mlya|Wrangel|Antarctic/,/Orlo(?:v|ff|w)|Ivanov|family|wife|daughter|Len+ingrad|Moscow/,/Volko(?:v|ff|nsky)|Petrov|[Dd]irector/,/\bstaff\b|\bteam\b|scientists/,/\bcores?\b|quota/,
+ /Kras+in|Krasnin|Sibiryakov|icebreaker/,/\b\d{4}\b|\bradio\b|\bAM\b/i,/samples|A(?:AR|RR)I|Kremlin/,/\bsun\b|polar night|March|February/];
+// a mark must start a word: the "шест" inside "происшествий" is not a six
+const LETTER=/[A-Za-zА-Яа-яЁё]/;
+function hintSpans(text){const out=[];for(const re of HINT_RE[lang]){re.lastIndex=0;let m;while((m=re.exec(text))){if(!m[0].length){re.lastIndex++;continue}if(m.index&&LETTER.test(text[m.index-1]))continue;out.push([m.index,m.index+m[0].length])}}
   out.sort((a,b)=>a[0]-b[0]);const merged=[];for(const s of out){const l=merged[merged.length-1];if(l&&s[0]<=l[1])l[1]=Math.max(l[1],s[1]);else merged.push(s.slice())}return merged}
 const hintRows=m=>{const t=fill(m.m[0]);return ROW_RE.map(re=>re.test(t))};
 
@@ -707,7 +827,7 @@ function buildWorld(){
   scene.add(box(.24,.3,.012,L({color:0x3a2a1c}),.64,1.33,WZ+.007));
   const mkPage=dz=>{const c=document.createElement('canvas');c.width=200;c.height=240;const t=new T.CanvasTexture(c);t.anisotropy=4;
     const m=new T.Mesh(new T.PlaneGeometry(.2,.24),L({map:t,side:T.DoubleSide}));m.position.y=-.12;const piv=new T.Group();piv.add(m);piv.position.set(.64,1.46,WZ+.016+dz);scene.add(piv);return{c,t,piv,m}};
-  W.cal=[mkPage(0),mkPage(-.003)];W.calFront=0;
+  W.cal=[mkPage(0),mkPage(-.0015)];W.calFront=0;
   const posC=document.createElement('canvas');posC.width=180;posC.height=250;const posT=new T.CanvasTexture(posC);
   const poster=new T.Mesh(new T.PlaneGeometry(.36,.5),L({map:posT}));poster.position.set(-1,1.36,WZ+.003);scene.add(poster);W.poster={c:posC,t:posT};
 
@@ -792,7 +912,7 @@ function buildBase(){
   const li=lang==='ru'?1:0;[[u.from,m.from?m.from[li]:u.fromV,222],[u.to,m.to?m.to[li]:u.toV,270]].forEach(p=>{x.font=`17px ${DISP}`;x.fillStyle='rgba(43,34,25,.65)';const lw=spaced(x,p[0],M,p[2],2,'l'),vx=M+Math.max(lw+16,100);
     x.font=`${F.small}px ${F.body}`;x.fillStyle=ink;x.fillText(p[1],vx,p[2]);x.fillStyle='rgba(43,34,25,.3)';x.fillRect(vx-6,p[2]+8,bx-vx-14,2)});
   const words=msgText(m).split(/\s+/).length;
-  x.font=`17px ${DISP}`;x.fillStyle='rgba(43,34,25,.65)';x.textAlign='right';const rd=dayDate(0),rds=`${String(rd.getDate()).padStart(2,'0')}.12.78`;x.fillText(`${u.words} ${words}   ·   ${u.recv} ${rds} ${lang==='ru'?'06:00':'0600'}`,CW-M,by+bh+30);x.textAlign='left';
+  x.font=`17px ${DISP}`;x.fillStyle='rgba(43,34,25,.65)';x.textAlign='right';const rd=dayDate(m.ev==='night'?1:0),rds=`${String(rd.getDate()).padStart(2,'0')}.12.78`;x.fillText(`${u.words} ${words}   ·   ${u.recv} ${rds} ${m.recv?m.recv[lang==='ru'?1:0]:lang==='ru'?'06:00':'0600'}`,CW-M,by+bh+30);x.textAlign='left';
   x.fillStyle='rgba(43,34,25,.45)';x.fillRect(M,316,CW-2*M,2);
   // body: auto-fit, then one glued tape strip per line
   const top=346,bottom=CH-80,maxW=CW-2*M-70;let size=F.size,lines=[];
@@ -803,12 +923,18 @@ function buildBase(){
     return{t,x:x0,y:yTop,rot,sh}});
   // character offsets and advance widths, so pencil marks can sit under exact words
   let off=0;x.font=`${size}px ${F.body}`;PAPER.lines.forEach(L=>{L.off=off;off+=L.t.length+1;let acc=0;L.cum=[0];for(const ch of L.t){acc+=x.measureText(ch).width;L.cum.push(acc)}});
-  PAPER.marks=PAPER.hint?hintSpans(PAPER.lines.map(L=>L.t).join(' ')):null;
+  PAPER.marks=PAPER.hint?hintSpans(PAPER.lines.map(L=>L.t).join(' ')):null;if(PAPER.marks&&!PAPER.marks.length)PAPER.marks=null;
   x.font=`16px ${DISP}`;x.fillStyle='rgba(43,34,25,.5)';const mw=spaced(x,u.marks,M,CH-36,2,'l');
   x.setLineDash([4,6]);x.strokeStyle='rgba(43,34,25,.4)';x.lineWidth=2;x.beginPath();x.moveTo(M+mw+16,CH-42);x.lineTo(CW-M,CH-42);x.stroke();x.setLineDash([]);
 }
 
-let lastTex=0;
+let lastTex=0;const M0=50;
+// fire eats the paper from the lower right: a charred middle, a glowing orange front
+function drawBurn(x,k){const R=Math.hypot(CW,CH)*1.12*k;if(R<2)return;x.save();
+  [[.93,.9,1],[.82,.97,.84],[.99,.76,.9]].forEach(([fx,fy,sc])=>{const r=R*sc,X=CW*fx,Y=CH*fy,g=x.createRadialGradient(X,Y,Math.max(1,r-78),X,Y,r);
+    g.addColorStop(0,'#160c06');g.addColorStop(.48,'#3b1a08');g.addColorStop(.7,'#ff6a12');g.addColorStop(.86,'rgba(255,198,98,.95)');g.addColorStop(1,'rgba(150,90,30,0)');
+    x.fillStyle=g;x.beginPath();x.arc(X,Y,r,0,Math.PI*2);x.fill()});
+  x.restore()}
 function drawPaper(force){
   const m=PAPER.msg;if(!m||!PAPER.font)return;
   const x=PAPER.c.getContext('2d'),F=PAPER.font;
@@ -822,6 +948,9 @@ function drawPaper(force){
     x.restore()}
   if(PAPER.marks&&PAPER.markFrac>0)drawMarks(x,m,F);
   if(PAPER.stamp)drawStamp(x,PAPER.stamp);
+  if(PAPER.answer&&PAPER.answer.n>0){x.save();x.translate(M0+20,CH-122);x.rotate(-.012);x.font=`${Math.round(F.size*.62)}px ${F.body}`;x.textBaseline='middle';
+    x.fillStyle='rgba(28,38,92,.88)';x.fillText(PAPER.answer.t.slice(0,PAPER.answer.n),0,0);x.restore()}
+  if(PAPER.burn>0)drawBurn(x,PAPER.burn);
   if(W.paperTex){const t=now();if(force||t-lastTex>55){W.paperTex.needsUpdate=true;lastTex=t}}
 }
 
@@ -1164,7 +1293,7 @@ function updCam(t,dt){const e=shotPose(camShot,t);
 // ---------- render loop with ambient life: aurora, snow, lamp, steam, beacon ----------
 let lastT=now();
 function loop(){requestAnimationFrame(loop);const t=now(),dt=Math.min(64,t-lastT);lastT=t;
-  stepTweens(t);tickGame(dt);hangFrame(t,dt);vkFrame(t);if(!has3D)return;
+  stepTweens(t);tickGame(dt);hangFrame(t,dt);vkFrame(t);if(!has3D)return;bearFrame(t);
   const ts=t/1000*(RM?.25:1);
   W.sky.uniforms.t.value=ts;W.stars.uniforms.t.value=ts;W.sky.uniforms.amp.value+=(auroraAmp-W.sky.uniforms.amp.value)*Math.min(1,dt*.002);
   const sp=W.snow.p,sv=W.snow.v,s=dt/1000*(RM?.3:1);
@@ -1185,11 +1314,11 @@ function loop(){requestAnimationFrame(loop);const t=now(),dt=Math.min(64,t-lastT
 // ---------- choreography pieces ----------
 const bez=(p0,c,p1,e,out)=>{const a=1-e;return out.set(a*a*p0.x+2*a*e*c.x+e*e*p1.x,a*a*p0.y+2*a*e*c.y+e*e*p1.y,a*a*p0.z+2*a*e*c.z+e*e*p1.z)};
 async function calTear(dn){if(!has3D)return;const f=W.cal[W.calFront],b=W.cal[1-W.calFront];
-  drawCal(1-W.calFront,dn);b.piv.rotation.set(0,0,0);b.piv.position.set(.64,1.46,WZ+.013);S.paper();const my=SEQ;
+  drawCal(1-W.calFront,dn);b.piv.rotation.set(0,0,0);b.piv.position.set(.64,1.46,WZ+.0145);S.paper();const my=SEQ;
   await tween(650,e=>{f.piv.rotation.x=-1.9*e;f.piv.position.y=1.46+.05*e;f.piv.position.z=WZ+.016+.12*e},EASE.o);
   if(dead(my)){f.piv.rotation.set(0,0,0);f.piv.position.set(.64,1.46,WZ+.016);return}
   await tween(600,e=>{f.piv.position.y=1.51-1.1*e;f.piv.rotation.z=1.3*e;f.piv.position.z=WZ+.136+.18*e},EASE.i);
-  f.piv.rotation.set(0,0,0);f.piv.position.set(.64,1.46,WZ+.013);b.piv.position.z=WZ+.016;W.calFront=1-W.calFront}
+  f.piv.rotation.set(0,0,0);f.piv.position.set(.64,1.46,WZ+.0145);b.piv.position.z=WZ+.016;W.calFront=1-W.calFront}
 async function feed(){const total=PAPER.lines.reduce((a,l)=>a+l.t.length,0);let lastN=-1,lastKey=0;
   if(has3D){W.paper.visible=true;W.paper.quaternion.identity()}
   ttyOn=ttyPrint=true;
@@ -1217,16 +1346,20 @@ async function fileTelegram(){if(!has3D||!W.paper.visible)return;const T=THREE,p
   await tween(750,e=>{bez(p0,c,p1,e,W.paper.position);W.paper.quaternion.copy(q0).slerp(q1,e)});if(dead(my))return;
   const cv=document.createElement('canvas');cv.width=260;cv.height=188;cv.getContext('2d').drawImage(PAPER.c,0,0,260,188);
   const m=new T.Mesh(new T.PlaneGeometry(PW,PH),new T.MeshLambertMaterial({map:new T.CanvasTexture(cv)}));m.position.copy(p1);m.quaternion.copy(q1);m.receiveShadow=true;scene.add(m);W.pile.push(m);W.paper.visible=false}
-// the reward pyramid: its bottom row is wide enough to hold a whole shift (4 tins for 7 or 10 days, 5 for 14)
+// the reward pyramid: its bottom row is wide enough to hold a whole shift (4 tins for 7 or 10 days, 5 for 14).
+// One width per run, so every tin keeps its own slot; a bonus tin past the top widens the base and the stack rebuilds itself
+let tinCap=4;
 function tinBase(n){let b=4;while(b*(b+1)/2<n)b++;return b}
-function tinPos(i){let row=0,n=i,cap=tinBase(Math.max(DAYS,i+1));while(n>=cap&&cap>1){n-=cap;cap--;row++}return new THREE.Vector3(-.75+n*.078+row*.039,DESK+.038+row*.0765,-.03)}
+function tinPos(i){let row=0,n=i,cap=tinCap;while(n>=cap&&cap>1){n-=cap;cap--;row++}return new THREE.Vector3(-.75+n*.078+row*.039,DESK+.038+row*.0765,-.03)}
+function tinRoom(n){if(n<=tinCap*(tinCap+1)/2)return;tinCap=tinBase(n);
+  const mv=W.tins.map((m,i)=>({m,a:m.position.clone(),b:tinPos(i)}));tween(600,e=>{mv.forEach(o=>{o.m.position.lerpVectors(o.a,o.b,e);o.m.position.y+=Math.sin(Math.PI*e)*.04})})}
 function makeTin(kind){const P=W.tinProto[kind],d=TIN[kind],g=new THREE.Group(),b=new THREE.Mesh(P.body,P.mats);b.castShadow=b.receiveShadow=true;g.add(b);
   for(const s of [1,-1]){const rim=new THREE.Mesh(P.rim,P.rimM);rim.position.y=s*(d.h/2-.00225);rim.castShadow=true;g.add(rim)}
   g.userData.kind=kind;return g}
-async function dropTin(kind){if(!has3D)return;const p=tinPos(W.tins.length),m=makeTin(kind);
+async function dropTin(kind,dur=700){if(!has3D)return;tinRoom(W.tins.length+1);const p=tinPos(W.tins.length),m=makeTin(kind);
   m.rotation.y=kind==='meat'?Math.PI+.25+(Math.random()-.5)*.4:Math.random()*6.28;m.position.set(p.x,p.y+.5,p.z);scene.add(m);W.tins.push(m);
-  let rang=false;await tween(700,(e,k)=>{m.position.y=p.y+.5*(1-e);if(!rang&&k>.36){rang=true;if(kind==='meat'){S.clunk();shakeA=.004}else S.clink()}},EASE.bounce)}
-function clearDesk(){if(!has3D)return;W.tins.forEach(m=>scene.remove(m));W.tins=[];W.pile.forEach(m=>{scene.remove(m);m.material.map.dispose();m.material.dispose();m.geometry.dispose()});W.pile=[];W.paper.visible=false;
+  let rang=false;await tween(dur,(e,k)=>{m.position.y=p.y+.5*(1-e);if(!rang&&k>.36){rang=true;if(kind==='meat'){S.clunk();shakeA=.004}else S.clink()}},EASE.bounce)}
+function clearDesk(){tinCap=tinBase(DAYS);if(!has3D)return;W.tins.forEach(m=>scene.remove(m));W.tins=[];W.pile.forEach(m=>{scene.remove(m);m.material.map.dispose();m.material.dispose();m.geometry.dispose()});W.pile=[];W.paper.visible=false;
   [W.stA,W.stP].forEach(g=>{g.position.copy(g.userData.rest);g.rotation.set(0,0,0);g.scale.set(1,1,1)})}
 
 // ---------- tins as currency: tea with condensed milk, zakuska for Volkov, a gift for the officer, the shelf count ----------
@@ -1257,20 +1390,23 @@ async function bribeAnim(ms){await Promise.all(ms.map((m,i)=>{const p0=m.positio
 const teaReady=()=>phase==='decide'&&milk>0&&!teaUsed&&!!cur;
 function teaUI(){const b=$('tinsM');if(!b)return;const ok=teaReady(),u=TXT[lang];b.disabled=!ok;b.classList.toggle('ready',ok);
   b.setAttribute('aria-label',ok?u.teaAria(milk):u.milkAria(milk));b.title=ok?u.teaTitle:u.milkName;if(!ok)hideTip()}
-async function useTea(){if(!teaReady())return;S.init();teaUsed=true;milk--;renderHud();hideTip();const my=SEQ,u=TXT[lang],marks=!PAPER.hint;
+// a telegram with nothing worth underlining (the cook's mother, say) gets the extra time instead
+const markable=()=>hintSpans(PAPER.lines.map(L=>L.t).join(' ')).length>0;
+async function useTea(){if(!teaReady())return;S.init();teaUsed=true;milk--;renderHud();hideTip();const my=SEQ,u=TXT[lang],marks=!PAPER.hint&&markable();
   const tb=$('tinsM');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop');S.open();
   const t=takeTins('milk',1);t.taken.forEach(m=>{teaTinAnim(m)});
   if(marks){toast(u.teaMarks);announce(u.teaMarks);PAPER.hint=true;buildBase();PAPER.markFrac=0;drawPaper(true);await wait(350);if(dead(my))return;S.pencil();
     await tween(800,(e,k)=>{if(!dead(my)){PAPER.markFrac=k;drawPaper(k>=1)}},EASE.lin);if(dead(my))return;hintRowsOn=hintRows(cur);paintHints()}
   else{tLeft+=15000;tTotal=Math.max(tTotal,tLeft);lastSec=-1;setTimerUI();toast(u.teaTime);announce(u.teaTime);setTimeout(()=>S.clink(),500)}}
 // the first time tea is possible, a note under the tin says what it does
-function showTip(){if(tipShown||!teaReady())return;tipShown=true;const t=$('tip'),u=TXT[lang];t.textContent=PAPER.hint?u.teaTipTime:u.teaTipMarks;t.hidden=false;placeTip();
+function showTip(){if(tipShown||!teaReady())return;tipShown=true;const t=$('tip'),u=TXT[lang];t.textContent=PAPER.hint||!markable()?u.teaTipTime:u.teaTipMarks;t.hidden=false;placeTip();
   clearTimeout(showTip.h);showTip.h=setTimeout(hideTip,7500)}
 function placeTip(){const t=$('tip'),b=$('tinsM');if(!t||t.hidden)return;const hr=t.parentElement.getBoundingClientRect(),br=b.getBoundingClientRect(),w=t.offsetWidth,c=br.left+br.width/2-hr.left;
   const x=clamp(c-w/2,4,Math.max(4,hr.width-w-4));t.style.left=x+'px';t.style.setProperty('--ax',(c-x)+'px')}
 function hideTip(){const t=$('tip');if(t&&!t.hidden){t.hidden=true;clearTimeout(showTip.h)}}
-function toast(s){const t=$('toast');t.textContent=s;t.hidden=false;t.classList.remove('show');void t.offsetWidth;t.classList.add('show');
-  clearTimeout(toast.h);toast.h=setTimeout(()=>{t.hidden=true;t.classList.remove('show')},2600)}
+// a toast stays long enough to read: about a second for every 22 characters, between 2.6 and 8 seconds
+function toast(s,ms){const t=$('toast'),d=ms||clamp(1500+s.length*45,2600,8000);t.textContent=s;t.hidden=false;t.style.setProperty('--td',d+'ms');t.classList.remove('show');void t.offsetWidth;t.classList.add('show');
+  clearTimeout(toast.h);toast.h=setTimeout(()=>{t.hidden=true;t.classList.remove('show')},d)}
 
 // ---------- the shelf count: the Politburo knows what it shipped you, the parrot guesses ----------
 // counts are frozen each morning, so the telegram stays true to the morning it arrived
@@ -1281,11 +1417,191 @@ function prepShelf(){shelfCnt={milk,meat,milkX:wrongN(milk),meatX:wrongN(meat)};
   const kk=k||'milk',ph=`{${kk}${cur.real?'':'X'}}`;cur.m=SHELF.m[kk].map(s=>s.replace('{n}',ph));
   if(cur.real)cur.why=SHELF.why[kk];else cur.tell=SHELF.tell[kk]}
 // an empty shelf has nothing to count: swap in another telegram of the same kind that this run hasn't used
-function shelfSub(real){const src=new Set(queue.map(q=>q.src)),pairs=new Set(queue.map(q=>q.src&&q.src.pair).filter(Boolean));
-  const c=POOL.filter(p=>p.real===real&&!p.shelf&&p.tier<=2&&!src.has(p)&&!(p.pair&&pairs.has(p.pair)));return c.length?pick(c):null}
+function shelfSub(real){const src=new Set(queue.map(q=>q.src)),used=new Set(queue.flatMap(q=>q.src?pkeys(q.src):[]));
+  const c=POOL.filter(p=>p.real===real&&!p.shelf&&p.tier<=2&&!src.has(p)&&!pkeys(p).some(k=>used.has(k)));return c.length?pick(c):null}
 
 S.open=function(){if(!this.ok())return;const t=this.ctx.currentTime;for(let i=0;i<7;i++)this.nz(t+i*.06,.025,3100+i*140,6,.24);
   this.tn(t+.45,1650,900,.12,'triangle',.07);this.nz(t+.45,.2,1300,.8,.12,'lowpass')};
+
+// ---------- random events: each shift draws a few, never on the first or the last day ----------
+// funny: a polar bear at the window, a telegram meant for the cook, the parrot's love letter
+// creepy and thoughtful: the 3 a.m. telegram, a telegram from your daughter, the question
+const EVENTS=['bear','cook','love','night','daughter','question'];
+let events={},EV_FORCE=null,bearMode=null,_bearRes=null,nextBang=0,cookRes=null;
+// event telegrams that take a day's place in the queue
+const EV_TG={cook:()=>mk(SPECIAL.cook),love:()=>mk(SPECIAL.love),
+  daughter:()=>mk(Math.random()<.5?SPECIAL.daughterR:pick([SPECIAL.daughterP1,SPECIAL.daughterP2])),
+  question:()=>{const q=mk(SPECIAL.question);q.s='';q.bad=false;return q}};
+// the question comes late in the shift; the 3 a.m. telegram never shares a night with Volkov
+const EV_OK={question:d=>d>=Math.ceil(DAYS/2),night:d=>!(volkov&&volkov.day===d)};
+function planEvents(){events={};const n={7:2,10:3,14:4}[DAYS]||1,pool=shuffle(EVENTS.slice()).slice(0,n).sort((a,b)=>(EV_OK[b]?1:0)-(EV_OK[a]?1:0));
+  const free=new Set(Array.from({length:Math.max(0,DAYS-2)},(_,i)=>i+2));
+  for(const k of pool){const c=[...free].filter(d=>!EV_OK[k]||EV_OK[k](d));if(!c.length)continue;const d=pick(c);free.delete(d);events[d]=k}
+  if(EV_FORCE){events={};Object.assign(events,EV_FORCE)}
+  for(const d in events){const k=events[d];if(EV_TG[k]&&queue[d-1])queue[d-1]=EV_TG[k]()}}
+
+// ---------- the polar bear ----------
+// built like the rest of the room: hard facets, flat light. A long head in three-quarter view, the nose on the glass,
+// a thick neck falling away below the sill, two blocky paws with black claws pressed to the lower-left pane
+const BEAR_AT={x:-.36,y:1.25,z:-.867},BEAR_PAW_Z=[.11,.159];
+// an eight-sided loft along +z through a list of rings, optionally closed by a point (the nose) and a back cap
+function loftGeo(rings,tip,capBack){const A=[90,50,0,-40,-90,-140,180,130].map(d=>d*Math.PI/180),P=[];
+  const R=rings.map(r=>A.map(a=>[Math.cos(a)*r.rx,Math.sin(a)*r.ry*(Math.sin(a)>0?1:.92)+r.cy,r.z])),tri=(a,b,c)=>P.push(...a,...b,...c);
+  for(let i=0;i<R.length-1;i++)for(let j=0;j<8;j++){const k=(j+1)%8,a=R[i][j],b=R[i][k],c=R[i+1][k],d=R[i+1][j];tri(a,c,b);tri(a,d,c)}
+  if(tip){const L=R[R.length-1];for(let j=0;j<8;j++)tri(L[j],tip,L[(j+1)%8])}
+  if(capBack){const F=R[0],c=[0,rings[0].cy,rings[0].z];for(let j=0;j<8;j++)tri(F[j],F[(j+1)%8],c)}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.computeVertexNormals();return g}
+const flatGeo=g=>{const n=g.index?g.toNonIndexed():g;n.computeVertexNormals();return n};
+function ensureBear(){if(!has3D||W.bear)return W.bear;const T=THREE,g=new T.Group(),head=new T.Group();
+  const fur=new T.MeshLambertMaterial({color:0xf3f4f2,emissive:0x23262a}),shade=new T.MeshLambertMaterial({color:0x9aa4ae}),dark=new T.MeshLambertMaterial({color:0x0f1113}),pad=new T.MeshLambertMaterial({color:0x2a2628});
+  const add=(geo,m,par,x=0,y=0,z=0,sx=1,sy=1,sz=1)=>{const o=new T.Mesh(geo,m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);par.add(o);return o};
+  // the head: a long faceted wedge, high skull sloping down a long muzzle to the nose
+  add(loftGeo([{z:-.11,cy:.01,rx:.065,ry:.07},{z:-.06,cy:.02,rx:.085,ry:.085},{z:0,cy:.02,rx:.082,ry:.078},{z:.06,cy:.008,rx:.066,ry:.062},{z:.12,cy:-.004,rx:.052,ry:.05},{z:.17,cy:-.012,rx:.04,ry:.04},{z:.205,cy:-.016,rx:.026,ry:.028}],[0,-.012,.225],true),fur,head);
+  // the neck: thick, falling back and down out of sight below the sill
+  add(loftGeo([{z:-.06,cy:.005,rx:.072,ry:.078},{z:-.17,cy:-.05,rx:.098,ry:.112},{z:-.28,cy:-.15,rx:.13,ry:.155},{z:-.36,cy:-.29,rx:.165,ry:.2}],null,false),fur,head);
+  add(flatGeo(new T.OctahedronGeometry(.017)),dark,head,0,-.011,.214,1.25,.85,.95);                       // nose
+  [-1,1].forEach(k=>{
+    add(flatGeo(new T.OctahedronGeometry(.011)),dark,head,.066*k,.047,.034,.5,.75,1.25);                  // eye
+    const ear=add(flatGeo(new T.ConeGeometry(.027,.036,4)),fur,head,.05*k,.096,-.062);ear.rotation.set(-.35,.4*k,-.45*k);
+    const inn=add(flatGeo(new T.ConeGeometry(.016,.022,4)),shade,head,.051*k,.093,-.054);inn.rotation.copy(ear.rotation);
+    const lip=add(new T.BoxGeometry(.004,.006,.075),dark,head,.033*k,-.037,.147);lip.rotation.x=.16});       // the mouth line
+  head.rotation.order='YXZ';head.rotation.set(.12,.6,0);g.add(head);g.userData.head=head;
+  // paws: blunt faceted blocks on thick forearms that drop out of sight, four black claws each
+  const paws=[[-.08,-.17],[.13,-.19]].map(([x,y])=>{const p=new T.Group();add(flatGeo(new T.DodecahedronGeometry(.054)),fur,p,0,0,0,1.1,1.2,.55);
+    const arm=add(loftGeo([{z:.02,cy:0,rx:.05,ry:.03},{z:.12,cy:0,rx:.056,ry:.04},{z:.26,cy:-.01,rx:.062,ry:.05}],null,false),fur,p,0,-.03,-.02);arm.rotation.x=Math.PI/2+.25;
+    [-.03,-.01,.01,.03].forEach(cx=>{const c=add(flatGeo(new T.ConeGeometry(.0075,.026,3)),dark,p,cx,.06-Math.abs(cx)*.5,.014);c.rotation.set(-.35,0,-cx*6)});
+    p.position.set(x,y,BEAR_PAW_Z[0]);p.userData.x=x;g.add(p);return p});
+  g.userData.paws=paws;g.position.set(BEAR_AT.x,BEAR_AT.y-.5,BEAR_AT.z-.3);g.visible=false;scene.add(g);W.bear=g;
+  // breath fog on the glass, at the nose
+  const fc=canvas(64,64),fx=fc.getContext('2d'),gr=fx.createRadialGradient(32,32,2,32,32,31);gr.addColorStop(0,'rgba(236,242,248,.95)');gr.addColorStop(.55,'rgba(226,236,244,.5)');gr.addColorStop(1,'rgba(226,236,244,0)');fx.fillStyle=gr;fx.fillRect(0,0,64,64);
+  const fog=new T.Mesh(new T.PlaneGeometry(.26,.2),new T.MeshBasicMaterial({map:new T.CanvasTexture(fc),transparent:true,opacity:0,depthWrite:false}));
+  fog.position.set(BEAR_AT.x+.13,BEAR_AT.y-.07,-.6795);fog.renderOrder=2;fog.visible=false;scene.add(fog);W.bearFog=fog;
+  // the room's light falls on its face through the glass
+  const bl=new T.PointLight(0xffe2b8,0,1.3,1.6);bl.position.set(BEAR_AT.x+.12,BEAR_AT.y+.06,-.42);scene.add(bl);W.bearL=bl;
+  return g}
+let _bearFogK=0;
+async function bearIn(){const b=ensureBear();if(!b)return;b.visible=true;W.bearFog.visible=true;W.bearL.intensity=.75;_bearFogK=0;
+  b.userData.paws.forEach(p=>{p.position.x=p.userData.x;p.position.z=BEAR_PAW_Z[0]});b.rotation.set(0,0,0);b.userData.head.rotation.set(.12,.6,0);
+  const p0=new THREE.Vector3(BEAR_AT.x+.05,BEAR_AT.y-.55,BEAR_AT.z-.35),p1=new THREE.Vector3(BEAR_AT.x,BEAR_AT.y,BEAR_AT.z);S.huff();
+  await tween(1100,e=>{b.position.lerpVectors(p0,p1,e);b.rotation.z=.18*(1-e)},EASE.o);
+  for(let i=0;i<2;i++){await pawSlap(i?1:0);await wait(160)}
+  await tween(500,e=>{_bearFogK=e})}
+// one paw (or both) slaps the glass, and the head jerks with it
+async function pawSlap(which){const b=W.bear;if(!b)return;const ps=which==null?b.userData.paws:[b.userData.paws[which]],h=b.userData.head,dz=BEAR_PAW_Z[1]-BEAR_PAW_Z[0];
+  await tween(110,e=>{ps.forEach(p=>{p.position.z=BEAR_PAW_Z[0]+dz*e});h.rotation.x=.12+.06*e},EASE.i);S.bang();shakeA=Math.max(shakeA,.012);_bearFogK=Math.min(1,_bearFogK+.25);
+  await tween(240,e=>{ps.forEach(p=>{p.position.z=BEAR_PAW_Z[1]-dz*e});h.rotation.x=.18-.06*e},EASE.o)}
+// milk: the tin sails out through the fortochka, the bear catches it between its paws and wanders off
+async function bearTakesMilk(m){const b=W.bear;if(!b||!m)return;const T=THREE,p0=m.position.clone(),top=new T.Vector3(-.44,1.56,-.7),catchP=new T.Vector3(BEAR_AT.x+.03,BEAR_AT.y-.15,BEAR_AT.z+.17);S.open();
+  await tween(650,e=>{bez(p0,new T.Vector3(-.6,1.5,-.25),top,e,m.position);m.rotation.x=e*2.4});
+  await tween(420,e=>{m.position.lerpVectors(top,catchP,e)},EASE.i);
+  b.attach(m);S.munch();const ps=b.userData.paws,h=b.userData.head;
+  await tween(320,e=>{ps.forEach(p=>{p.position.x=p.userData.x+(.03-p.userData.x)*.55*e;p.position.z=BEAR_PAW_Z[0]+.03*e});h.rotation.x=.12+.25*e});
+  await tween(500,e=>{b.rotation.z=Math.sin(e*Math.PI*3)*.08;h.rotation.y=.6+Math.sin(e*Math.PI*2)*.12});
+  await bearOut()}
+async function bearOut(){const b=W.bear;if(!b||!b.visible)return;const p0=b.position.clone(),p1=new THREE.Vector3(BEAR_AT.x-.12,BEAR_AT.y-.6,BEAR_AT.z-.45),f0=_bearFogK,h=b.userData.head,y0=h.rotation.y;
+  await tween(1000,e=>{b.position.lerpVectors(p0,p1,e);h.rotation.y=y0+.9*e;_bearFogK=f0*(1-e)},EASE.i);bearHide()}
+function bearHide(){bearMode=null;if(!W.bear)return;const b=W.bear;b.visible=false;W.bearFog.visible=false;W.bearL.intensity=0;
+  b.children.filter(c=>c.userData.tin).forEach(c=>b.remove(c));b.userData.paws.forEach(p=>{p.position.x=p.userData.x;p.position.z=BEAR_PAW_Z[0]});b.userData.head.rotation.set(.12,.6,0);b.rotation.set(0,0,0)}
+// every frame: breathing on the glass, a slow sway of the head, and the banging while you read
+function bearFrame(t){if(!W.bear||!W.bear.visible)return;const b=W.bear,ts=t/1000;
+  W.bearFog.material.opacity=_bearFogK*(.5+.22*Math.sin(ts*2.2));
+  if(bearMode==='wait'||bearMode==='angry'){b.position.y=BEAR_AT.y+Math.sin(ts*1.7)*.004;b.userData.head.rotation.y=.6+Math.sin(ts*.9)*.04}
+  if(bearMode==='angry'&&phase==='decide'&&t>nextBang){nextBang=t+2300+Math.random()*1300;pawSlap(null)}}
+async function bearScene(my){ensureBear();await camTo('bear',900);if(dead(my))return;
+  await bearIn();if(dead(my))return;bearMode='wait';
+  $('skip').hidden=true;showCard('bear');announce(TXT[lang].bearH+' '+TXT[lang].bearT);
+  const ch=await new Promise(r=>{_bearRes=r});_bearRes=null;if(dead(my))return;hideCard();const u=TXT[lang];
+  if(ch==='milk'&&milk>0){milk--;renderHud();const t=takeTins('milk',1);if(t.taken[0]){t.taken[0].userData.tin=1;bearMode='happy';toast(u.bearGone);await bearTakesMilk(t.taken[0])}else bearHide();if(dead(my))return}
+  else{bearMode='angry';nextBang=0;toast(u.bearStays);await pawSlap(null);if(dead(my))return}
+  $('skip').hidden=false}
+SHOTS.bear=()=>stageR.h>stageR.w*1.15?{t:[BEAR_AT.x+.06,.86,-.62],d:[0,.06,1],w:.85,h:1.3}:{t:[BEAR_AT.x+.08,1.1,-.62],d:[.04,.05,1],w:1.15,h:.86};
+
+// ---------- the telegram for the cook: not for you, not the parrot ----------
+// whatever you do, nobody is arrested; handing it over earns the cook's stewed meat
+async function handToCook(){if(!has3D||!W.paper.visible){S.paper();return}const T=THREE,p0=W.paper.position.clone(),q0=W.paper.quaternion.clone(),p1=new T.Vector3(-1.25,DESK+.35,.75),c=p0.clone().lerp(p1,.5);c.y+=.16;S.paper();
+  const q1=q0.clone().multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(0,0,1),.9));
+  await tween(800,e=>{bez(p0,c,p1,e,W.paper.position);W.paper.quaternion.copy(q0).slerp(q1,e)},EASE.io);W.paper.visible=false}
+async function cookResult(g,my){phase='result';setMode();best(day);cookRes=g;reward=g===2?'meat':g===1?'milk':null;
+  if(g===2||g===1)S.good();else S.buzz();
+  const f=g===2||g===3?Promise.resolve():fileTelegram();await camTo('wide',900);await f;if(dead(my))return;
+  if(reward){await dropTin(reward);if(dead(my))return;if(reward==='meat'){meat++;gotMeat++}else{milk++;gotMilk++}renderHud();
+    const tb=$(reward==='meat'?'tinsS':'tinsM');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop')}
+  showCard('cook');announce(TXT[lang].cookH[g])}
+function cookUI(){actUI()}
+
+// ---------- sounds: a paw on glass, a bear's huff, a happy munch ----------
+S.bang=function(){if(!this.ok())return;const t=this.ctx.currentTime;this.tn(t,82,42,.26,'sine',.85);this.nz(t,.16,520,.9,.55);this.tn(t+.015,1750,0,.3,'triangle',.05);this.nz(t+.015,.24,3300,5,.14)};
+S.huff=function(){if(!this.ok())return;const c=this.ctx,t=c.currentTime,o=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(74,t);o.frequency.linearRampToValueAtTime(52,t+.75);
+  f.type='lowpass';f.frequency.value=300;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.16,t+.12);g.gain.exponentialRampToValueAtTime(.0001,t+.85);o.connect(f);f.connect(g);g.connect(this.m);o.start(t);o.stop(t+.9);this.nz(t,.8,420,.6,.2,'lowpass')};
+S.munch=function(){if(!this.ok())return;const t=this.ctx.currentTime;for(let i=0;i<5;i++)this.nz(t+i*.14+Math.random()*.03,.07,800+Math.random()*500,1.3,.24);this.tn(t+.75,210,320,.25,'sine',.12)};
+
+// ---------- creepy and thoughtful events: the 3 a.m. telegram, a telegram from your daughter, the question ----------
+let deskLeak=false,vigilance=false,stampLog=[],daughterHurt=false,daughterWarm=false,famRes=null,qRes=null,nightWait=false,_nightRes=null;
+
+// the stamp bar changes with the day: the cook's button, the question's burn and answer, the night's burn and file
+// the bar itself only shows while there is a choice to make: a telegram on the desk, or the 3 a.m. one waiting
+function actUI(){const night=phase==='night3',live=phase==='decide'||phase==='stamp',ev=live&&cur?cur.ev:null,u=TXT[lang];
+  const show={bA:!night,bC:ev==='cook',bB:night||ev==='question'||ev==='cook',bQ:ev==='question',bF:night,bP:!night};
+  for(const k in show)$(k).hidden=!show[k];
+  const n=Object.values(show).filter(Boolean).length,a=document.querySelector('.act');a.classList.toggle('three',n===3);a.classList.toggle('four',n===4);
+  a.classList.toggle('off',!(phase==='decide'||(night&&nightWait)));
+  const kb=$('bB').querySelector('kbd');if(kb)kb.textContent=night?u.bB[2]:ev==='cook'?u.bB[4]:u.bB[3];
+  // on a family day, AUTHENTIC means "really her"
+  const sa=$('bA').querySelector('.sub');if(sa)sa.textContent=ev==='daughter'?u.bAfam:u.bA[1];
+  $('bB').disabled=$('bF').disabled=!(night?nightWait:phase==='decide');$('bQ').disabled=phase!=='decide'}
+
+// ---------- the 3 a.m. telegram ----------
+// the teleprinter prints by itself in the dark. Burn it, or file it: filed, the commissar thanks you,
+// but it keeps listening, and the next parrot telegram knows your last stamp
+const NIGHT_TG={ev:'night',real:0,tier:1,m:["ORLOV. I KNOW WHICH ONES YOU STAMPED.","ОРЛОВ. Я ЗНАЮ, КАКИЕ ТЕЛЕГРАММЫ ВЫ ПРОШТАМПОВАЛИ."],
+  from:["—","—"],to:["ARKTIKA-7, ORLOV","АРКТИКА-7, ОРЛОВУ"],recv:["0307","03:07"]};
+let _fireL=null;
+function ensureFire(){if(!has3D||_fireL)return;_fireL=new THREE.PointLight(0xff8a3a,0,1.1,2);_fireL.position.set(W.readPos.x+.08,DESK+.14,W.readPos.z+.06);scene.add(_fireL)}
+async function burnPaper(){S.burn();ensureFire();
+  await tween(1800,(e,k)=>{PAPER.burn=k;drawPaper(true);if(_fireL)_fireL.intensity=(.7+.6*Math.random())*Math.sin(Math.PI*Math.min(1,k*1.15))},EASE.lin);
+  if(_fireL)_fireL.intensity=0;if(has3D&&W.paper.visible){puff(W.paper.position.clone());W.paper.visible=false}}
+async function night3am(){const my=++SEQ,u=TXT[lang];phase='night3';nightWait=false;hideCard();setMode();$('skip').hidden=true;
+  lampOn=false;await nightFade(u.n3a,u.n3b);if(dead(my))return;
+  if(has3D){camShot='tty';camFrom=null;W.paper.visible=false}
+  const m=mk(NIGHT_TG);m.s='';m.bad=false;PAPER.msg=m;PAPER.frac=0;PAPER.stamp=null;PAPER.hint=false;PAPER.markFrac=0;PAPER.burn=0;PAPER.answer=null;buildBase();drawPaper(true);
+  unNight();await wait(1500);if(dead(my))return;
+  await feed();if(dead(my))return;ttyOn=false;await wait(600);if(dead(my))return;
+  const fl=flyToDesk();await camTo('read',1000);await fl;if(dead(my))return;
+  announce(msgText(m)+' '+u.n3toast);toast(u.n3toast);nightWait=true;actUI();
+  const ch=await new Promise(r=>{_nightRes=r});_nightRes=null;nightWait=false;actUI();if(dead(my))return;
+  if(ch==='burn'){await burnPaper();toast(u.n3burnt)}else{await fileTelegram();deskLeak=true;vigilance=true;toast(u.n3filed)}
+  if(dead(my))return;await wait(3400);if(dead(my))return;
+  lampOn=true;nextDay()}
+function nightChoose(k){if(phase==='night3'&&nightWait&&_nightRes){S.init();_nightRes(k)}}
+// the morning after filing it: the commissar is pleased
+function vigilanceTin(){if(!vigilance)return;vigilance=false;milk++;gotMilk++;renderHud();dropTin('milk',300);toast(TXT[lang].n3vig,8000)}
+// the leak: the next parrot telegram opens with your last stamp
+function applyLeak(){if(!deskLeak||!cur||cur.real!==0||cur.ev||cur.shelf)return;const L=stampLog[stampLog.length-1];if(!L)return;deskLeak=false;
+  const sRu=L.s.replace('ARK','АРК').replace('ARC','АРС');
+  cur.m=[`Your last telegram, ${L.s}, you stamped ${L.k==='A'?'AUTHENTIC':'PARROT'}. We saw. `+cur.m[0],`Последнюю телеграмму, ${sRu}, вы проштамповали: ${L.k==='A'?'ПОДЛИННО':'ПОПУГАЙ'}. Мы видели. `+cur.m[1]];
+  const t=cur.tell||[TXT.en.tellReal,TXT.ru.tellReal];cur.tell=[t[0]+' '+TXT.en.leakTell,t[1]+' '+TXT.ru.leakTell];cur.leak=1}
+
+// ---------- a telegram from your daughter ----------
+// family mail: no arrests. Get it right for the usual tin; stamp the real one PARROT and her reply at the end turns cold
+async function familyResult(g,my){const real=!!cur.real,right=g!==-1&&(g===1)===real;famRes={real,g,right};
+  if(real&&g===0)daughterHurt=true;if(real&&g===1)daughterWarm=true;
+  phase='result';setMode();best(day);reward=right?(meatDays.has(day)?'meat':'milk'):null;if(right)S.good();else S.buzz();
+  const f=fileTelegram();await camTo('wide',900);await f;if(dead(my))return;
+  if(reward){await dropTin(reward);if(dead(my))return;if(reward==='meat'){meat++;gotMeat++}else{milk++;gotMilk++}renderHud();
+    const tb=$(reward==='meat'?'tinsS':'tinsM');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop')}
+  showCard('daughter');announce(TXT[lang].famH(famRes))}
+
+// ---------- the question ----------
+// stamp it, burn it, answer it, or let the fuse decide: each changes the last line of the game
+async function typeAnswer(){const t=TXT[lang].qTyped;PAPER.answer={t,n:0};let last=-1;
+  await tween(1700,(e,k)=>{const n=Math.round(t.length*k);if(n!==last){last=n;PAPER.answer.n=n;if(n&&t[n-1]!==' ')S.key();drawPaper(k>=1)}},EASE.lin)}
+async function questionResult(g,my){qRes=g;phase='result';setMode();best(day);reward=meatDays.has(day)?'meat':'milk';S.good();
+  const f=g===3?Promise.resolve():fileTelegram();await camTo('wide',900);await f;if(dead(my))return;
+  await dropTin(reward);if(dead(my))return;if(reward==='meat'){meat++;gotMeat++}else{milk++;gotMilk++}renderHud();
+  showCard('question');announce(TXT[lang].qH[g])}
+
+S.burn=function(){if(!this.ok())return;const t=this.ctx.currentTime;this.nz(t,.13,2700,1.4,.38);this.tn(t+.06,520,260,.18,'triangle',.05);this.nz(t+.12,.9,700,.5,.16,'lowpass');
+  for(let i=0;i<16;i++)this.nz(t+.3+Math.random()*1.5,.03,1400+Math.random()*2600,3,.1+Math.random()*.12)};
 
 // ---------- shifts: length sets the difficulty ----------
 // easy: pencil marks every day, all articles at once, long fuse, the parrot often botches its serial
@@ -1307,9 +1623,9 @@ let phase='title',day=0,queue=[],cur=null,tTotal=0,tLeft=0,milk=0,meat=0,meatDay
 function rulesFor(d){d=Math.max(1,d);const L=lvl();if(L==='easy')return 5;if(L==='hard'&&d>=10)return 7;return Math.min(5,2+Math.floor((d-1)/2))}
 function mk(p){const n=String(100+(Math.random()*800|0));let s=n+'/ARK',bad=false;
   if(!p.real&&Math.random()<SLIP[lvl()]){s=pick([n+'-ARK',n+'/ARC',n.slice(1)+'/ARK',n+' ARK']);bad=true}
-  return{m:p.m,real:p.real,tier:p.tier,tell:p.tell||null,why:p.why||null,from:p.from||null,to:p.to||null,shelf:p.shelf||0,src:p,s,bad,seed:(Math.random()*1e9)|0}}
+  return{m:p.m,real:p.real,tier:p.tier,tell:p.tell||null,why:p.why||null,from:p.from||null,to:p.to||null,shelf:p.shelf||0,ev:p.ev||null,recv:p.recv||null,src:p,s,bad,seed:(Math.random()*1e9)|0}}
 function buildQueue(){const used=new Set();
-  const take=(tiers,real,n)=>{const out=[];for(const p of shuffle(POOL.filter(p=>tiers.includes(p.tier)&&p.real===real))){if(out.length>=n)break;if(p.pair&&used.has(p.pair))continue;out.push(p);if(p.pair)used.add(p.pair)}return out};
+  const take=(tiers,real,n)=>{const out=[];for(const p of shuffle(POOL.filter(p=>tiers.includes(p.tier)&&p.real===real))){if(out.length>=n)break;const k=pkeys(p);if(k.some(x=>used.has(x)))continue;out.push(p);k.forEach(x=>used.add(x))}return out};
   const seg=(tiers,r,f)=>{let R,P;if(Math.random()<.5){R=take(tiers,1,r);P=take(tiers,0,f)}else{P=take(tiers,0,f);R=take(tiers,1,r)}return shuffle([...R,...P])};
   const L=lvl();let q;
   if(L==='easy'){const r=Math.random()<.5?3:4;q=seg([1],r,DAYS-r)}
@@ -1328,6 +1644,8 @@ function renderStatic(){const u=TXT[lang];document.documentElement.lang=lang;
   $('rulH').textContent=u.rulH;$('rulU').textContent=u.rulU;renderRules(false);
   $('bA').innerHTML=`<span class="big">${u.bA[0]}</span><span class="sub">${u.bA[1]}</span><kbd>${u.bA[2]}</kbd>`;
   $('bP').innerHTML=`<span class="big">${u.bP[0]}</span><span class="sub">${u.bP[1]}</span><kbd>${u.bP[2]}</kbd>`;
+  $('bC').innerHTML=`<span class="big">${u.bC[0]}</span><span class="sub">${u.bC[1]}</span><kbd>${u.bC[2]}</kbd>`;
+  [['bB',u.bB],['bQ',u.bQ],['bF',u.bF]].forEach(([id,l])=>{$(id).innerHTML=`<span class="big">${l[0]}</span><span class="sub">${l[1]}</span><kbd>${l[2]}</kbd>`});
   $('skip').textContent=u.skip;
   $('icoM').alt=$('tinsM').title=u.milkName;$('icoS').alt=$('tinsS').title=u.meatName}
 function paintHints(){document.querySelectorAll('#dosUl li').forEach((li,i)=>li.classList.toggle('hint',!!(hintRowsOn&&hintRowsOn[i])));$('tabD').classList.toggle('has-hint',!!(hintRowsOn&&hintRowsOn.some(Boolean)))}
@@ -1339,7 +1657,7 @@ function setTimerUI(){const k=tTotal?clamp(tLeft/tTotal,0,1):1;$('fuseI').style.
   $('fuse').classList.toggle('low',phase==='decide'&&k<.3);$('fuse').setAttribute('aria-valuenow',Math.round(k*100));
   $('secs').textContent=(phase==='decide'||phase==='stamp')?Math.max(0,Math.ceil(tLeft/1000)):'--'}
 function setMode(){const ui=$('ui'),was=ui.classList.contains('is-title'),is=phase==='title';ui.classList.toggle('is-title',is);
-  $('bA').disabled=$('bP').disabled=phase!=='decide';if(!has3D)PAPER.c.hidden=is;if(was!==is)layout();setTimerUI();teaUI()}
+  $('bA').disabled=$('bP').disabled=$('bC').disabled=phase!=='decide';actUI();if(!has3D)PAPER.c.hidden=is;if(was!==is)layout();setTimerUI();teaUI()}
 function tab(k){['D','R'].forEach(x=>{$('tab'+x).setAttribute('aria-selected',String(x===k));$('sh'+x).classList.toggle('on',x===k)})}
 function announce(s){const l=$('live');l.textContent='';setTimeout(()=>{l.textContent=s},40)}
 function showCaption(){const c=$('cap');fillCaption();c.hidden=false;c.classList.remove('show');void c.offsetWidth;c.classList.add('show');
@@ -1348,13 +1666,21 @@ function fillCaption(){const u=TXT[lang],d=dayDate(0);$('capD').textContent=u.da
 function showCard(kind){cardKind=kind;renderCard(true)}
 function hideCard(){cardKind=null;$('card').hidden=true;$('logo').hidden=true;$('ui').classList.remove('has-card')}
 function renderCard(anim){const c=$('card'),u=TXT[lang],li=lang==='ru'?1:0;if(!cardKind){c.hidden=true;return}
-  let h='';const tell=cur?(cur.real?(cur.why?fill(cur.why[li]):u.tellReal):fill(cur.tell[li])+(cur.bad?' '+u.serialBad(ser(cur.s)):'')):'';
+  let h='';const tell=cur?(cur.real?(cur.why?fill(cur.why[li]):u.tellReal):(cur.tell?fill(cur.tell[li]):'')+(cur.bad?' '+u.serialBad(ser(cur.s)):'')):'';
   if(cardKind==='title'){const L=lvl(),b=bests[DAYS];
     const opts=SHIFTS.map(d=>`<button type="button" class="shift s${d}" role="radio" aria-checked="${d===DAYS}" tabindex="${d===DAYS?0:-1}" data-d="${d}"><b>${d}</b><span>${u.daysW}</span><i>${u.lvlName[LEVEL[d]]}</i>${bests[d]>=d?`<em>${u.done}</em>`:''}</button>`).join('');
     h=`<p class="eyebrow">${u.eyebrow}</p>${u.intro.map(p=>`<p>${p}</p>`).join('')}<p><b>${u.how}</b></p><div class="dock"><p class="eyebrow pick" id="pickL">${u.shiftLegend}</p><div class="shifts" role="radiogroup" aria-labelledby="pickL">${opts}</div><p class="note">${u.notes[L]}${b&&b<DAYS?' '+u.record(b,DAYS):''}</p><button class="btn" id="cBtn" type="button">${u.begin}</button></div>`}
   else if(cardKind==='good'){const teach=reward==='meat'?(gotMeat===1?u.meatTeach:''):(gotMilk===1?u.teaTeach:'');
-    h=`<h2 class="ok">${u.correct}</h2><p>${u.itWas(cur.real)}</p><div class="tell"><b>${u.tell}</b>${tell}</div><div class="reward"><img src="${ICON[reward+'L']}" alt=""><p class="dim">${reward==='meat'?u.rewardMeat:u.reward}${teach?`<span class="teach">${teach}</span>`:''}</p></div><button class="btn" id="cBtn" type="button">${u.next}</button>`}
-  else if(cardKind==='bad')h=`<h2 class="bad">${u.wrong}</h2><p>${verdict.slow?u.slow+' ':''}${u.itWas(cur.real)}${verdict.slow?'':' '+(cur.real?u.wR:u.wP)}</p><div class="tell"><b>${u.tell}</b>${tell}</div><p class="verdict">${u.verdict(verdict.y,CAMPS[verdict.c][li])}</p><p class="dim">${u.survived(day-1)}</p>${canBribe()?`<div class="bribe"><img src="${ICON.meatL}" alt=""><p>${u.bribeQ}</p></div><button class="btn meat" id="cBtn3" type="button">${u.bribeBtn}</button>`:bribeUsed?`<p class="dim">${u.bribeOnce}</p>`:''}<button class="btn${canBribe()?' alt':''}" id="cBtn" type="button">${u.again}</button><button class="btn2" id="cBtn2" type="button">${u.changeShift}</button>`;
+    h=`<h2 class="ok">${u.correct}</h2><p>${u.itWas(cur.real)}${cur.ev==='love'?' '+u.loveNote:''}</p><div class="tell"><b>${u.tell}</b>${tell}</div><div class="reward"><img src="${ICON[reward+'L']}" alt=""><p class="dim">${reward==='meat'?u.rewardMeat:u.reward}${teach?`<span class="teach">${teach}</span>`:''}</p></div><button class="btn" id="cBtn" type="button">${u.next}</button>`}
+  else if(cardKind==='bad')h=`<h2 class="bad">${u.wrong}</h2><p>${verdict.slow?u.slow+' ':''}${u.itWas(cur.real)}${verdict.slow?'':' '+(cur.ev==='love'?u.loveBad:cur.real?u.wR:u.wP)}</p><div class="tell"><b>${u.tell}</b>${tell}</div><p class="verdict">${u.verdict(verdict.y,CAMPS[verdict.c][li])}</p><p class="dim">${u.survived(day-1)}</p>${qRes!=null&&!canBribe()?`<p class="dim last">${u.qLast[qRes]}</p>`:''}${canBribe()?`<div class="bribe"><img src="${ICON.meatL}" alt=""><p>${u.bribeQ}</p></div><button class="btn meat" id="cBtn3" type="button">${u.bribeBtn}</button>`:bribeUsed?`<p class="dim">${u.bribeOnce}</p>`:''}<button class="btn${canBribe()?' alt':''}" id="cBtn" type="button">${u.again}</button><button class="btn2" id="cBtn2" type="button">${u.changeShift}</button>`;
+  else if(cardKind==='bear'){const can=milk>0;
+    h=`<p class="eyebrow">${u.mornEyebrow(day)}</p><h2>${u.bearH}</h2><p>${u.bearT}</p>${can?'':`<p class="dim">${u.bearNone}</p>`}<div class="vk-btns">${can?`<button class="btn tin milkb" id="cBtn" type="button"><img src="${ICON.milkS}" alt=""><span>${u.bearMilk}<small>${u.bearMilkSub}</small></span></button><button class="btn alt" id="cBtn2" type="button">${u.bearIgnore}</button>`:`<button class="btn alt one" id="cBtn" type="button">${u.bearIgnore}</button>`}</div>`}
+  else if(cardKind==='cook'){const k=cookRes;
+    h=`<h2${k===2||k===1?' class="ok"':''}>${u.cookH[k]}</h2><p>${u.cookT[k]}</p><div class="tell"><b>${u.cookTellH}</b>${u.cookTell}</div>${reward?`<div class="reward"><img src="${ICON[reward+'L']}" alt=""><p class="dim">${reward==='meat'?u.cookMeat:u.reward}</p></div>`:''}<button class="btn" id="cBtn" type="button">${u.next}</button>`}
+  else if(cardKind==='daughter'){const r=famRes;
+    h=`<h2${r.right?' class="ok"':r.real?' class="bad"':''}>${u.famH(r)}</h2><p>${u.famT(r)}</p><div class="tell"><b>${u.tell}</b>${tell}</div>${reward?`<div class="reward"><img src="${ICON[reward+'L']}" alt=""><p class="dim">${reward==='meat'?u.rewardMeat:u.reward}</p></div>`:''}<p class="dim">${u.famNote}</p><button class="btn" id="cBtn" type="button">${u.next}</button>`}
+  else if(cardKind==='question'){
+    h=`<h2>${u.qH[qRes]}</h2><p>${u.qT[qRes]}</p><div class="reward"><img src="${ICON[reward+'L']}" alt=""><p class="dim">${u.qNote}</p></div><button class="btn" id="cBtn" type="button">${u.next}</button>`}
   else if(cardKind==='bribed')h=`<h2>${u.bribedH}</h2><p>${u.bribedT}</p><div class="reward gone"><img src="${ICON.meatL}" alt=""><img src="${ICON.meatL}" alt=""><p class="dim">${u.bribedCost}</p></div><button class="btn" id="cBtn" type="button">${u.next}</button>`;
   else if(cardKind==='volkov'||cardKind==='volkovNo'){const no=cardKind==='volkovNo';
     const face=no?`<img src="${VOLKOV_IMG}" alt="${u.vkName}" width="132" height="176">`:`<canvas id="vkFace" width="66" height="88" role="img" aria-label="${u.vkName}"></canvas>`;
@@ -1364,18 +1690,20 @@ function renderCard(anim){const c=$('card'),u=TXT[lang],li=lang==='ru'?1:0;if(!c
   else{const vr=volkov&&volkov.result,denied=vr==='refuse',car=DAYS>=10&&!denied,pm=milk,pb=car?0:meat,Q0=8;
     const qLine=car?`<p class="queue">${u.queue(Q0,Math.max(1,Q0-meat),meat)}</p>`:'';
     const items=(pm?`<span><img src="${ICON.milkL}" alt="${u.milkName}">×${pm}</span>`:'')+(pb?`<span><img src="${ICON.meatL}" alt="${u.meatName}">×${pb}</span>`:'');
-    h=`<p class="eyebrow">${u.eyebrow}</p><h2 class="ok">${u.released}</h2><p>${u.relT(DAYS,bribeUsed)}</p>${DAYS>=10?`<div class="permit${denied?' no':''}"><span class="ph">${u.permitH}</span><p>${denied?u.carNo:(vr==='drink'?u.carVolkov+' ':'')+u.car}</p>${qLine}<span class="pst">${denied?u.permitDenied:u.permitStamp}</span></div>`:''}<div class="parcel"><span class="ph">${u.parcelH}</span>${items?`<div class="haul">${items}</div>`:`<p class="dim">${u.parcelEmpty}</p>`}<p class="reply">${u.reply(pm,pb)}</p></div><p class="dim">${u.relQ}</p><button class="btn" id="cBtn" type="button">${u.newPost}</button>`}
-  c.innerHTML=h;c.hidden=false;c.classList.toggle('title',cardKind==='title');c.classList.toggle('low',cardKind==='volkov'||cardKind==='volkovNo');$('logo').hidden=cardKind!=='title';$('ui').classList.add('has-card');if(anim){c.style.animation='none';void c.offsetWidth;c.style.animation=''}
-  $('cBtn').onclick=cardAction;const b2=$('cBtn2');if(b2)b2.onclick=cardKind==='volkov'?()=>{S.init();refuseVolkov()}:()=>{S.init();toTitle(true)};
+    h=`<p class="eyebrow">${u.eyebrow}</p><h2 class="ok">${u.released}</h2><p>${u.relT(DAYS,bribeUsed)}</p>${DAYS>=10?`<div class="permit${denied?' no':''}"><span class="ph">${u.permitH}</span><p>${denied?u.carNo:(vr==='drink'?u.carVolkov+' ':'')+u.car}</p>${qLine}<span class="pst">${denied?u.permitDenied:u.permitStamp}</span></div>`:''}<div class="parcel"><span class="ph">${u.parcelH}</span>${items?`<div class="haul">${items}</div>`:`<p class="dim">${u.parcelEmpty}</p>`}<p class="reply">${u.reply(pm,pb,daughterHurt?'cold':daughterWarm?'warm':'')}</p></div><p class="dim last">${qRes!=null?u.qLast[qRes]:u.relQ}</p><button class="btn" id="cBtn" type="button">${u.newPost}</button>`}
+  c.innerHTML=h;c.hidden=false;c.classList.toggle('title',cardKind==='title');c.classList.toggle('low',cardKind==='volkov'||cardKind==='volkovNo'||cardKind==='bear');$('logo').hidden=cardKind!=='title';$('ui').classList.add('has-card');if(anim){c.style.animation='none';void c.offsetWidth;c.style.animation=''}
+  $('cBtn').onclick=cardAction;const b2=$('cBtn2');if(b2)b2.onclick=cardKind==='volkov'?()=>{S.init();refuseVolkov()}:cardKind==='bear'?()=>{S.init();if(_bearRes)_bearRes('ignore')}:()=>{S.init();toTitle(true)};
   const b3=$('cBtn3');if(b3)b3.onclick=cardKind==='volkov'?()=>{S.init();drinkWithVolkov(true)}:()=>{S.init();bribeOfficer()};
   c.querySelectorAll('.shift').forEach(b=>{b.onclick=()=>setShift(+b.dataset.d)});
   if(anim)setTimeout(()=>{try{(cardKind==='bad'&&$('cBtn3')||$('cBtn')).focus({preventScroll:true})}catch(e){}},80)}
 function cardAction(){S.init();
-  if(cardKind==='good'||cardKind==='bribed')afterDay();
+  if(cardKind==='good'||cardKind==='bribed'||cardKind==='cook'||cardKind==='daughter'||cardKind==='question')afterDay();
+  else if(cardKind==='bear'){if(_bearRes)_bearRes(milk>0?'milk':'ignore')}
   else if(cardKind==='volkov')drinkWithVolkov();
   else if(cardKind==='volkovNo')nextDay();
   else if(cardKind==='win')toTitle(true);else newRun()}
-function afterDay(){if(volkov&&volkov.day===day&&!volkov.result)evening();else nextDay()}
+function resetEvents(){deskLeak=false;vigilance=false;stampLog=[];daughterHurt=false;daughterWarm=false;famRes=null;qRes=null;nightWait=false;PAPER.burn=0;PAPER.answer=null}
+function afterDay(){if(volkov&&volkov.day===day&&!volkov.result)evening();else if(events[day]==='night'){events[day]='night-done';night3am()}else nextDay()}
 const canBribe=()=>phase==='arrest'&&meat>=2&&!bribeUsed;
 function setShift(d){if(phase!=='title'||!SHIFTS.includes(d))return;
   if(d!==DAYS){DAYS=d;S.init();S.tick()}
@@ -1383,37 +1711,40 @@ function setShift(d){if(phase!=='title'||!SHIFTS.includes(d))return;
 
 // ---------- flow: one day = calendar, teleprinter, read, (pencil), stamp, verdict ----------
 function toTitle(fromRun){SEQ++;flushTweens();fast=false;phase='title';newFrom=-1;$('skip').hidden=true;
-  volkov=null;hangDay=0;dusk=false;hideVodka();unNight();clearHang();vkEnd();teaUsed=false;bribeUsed=false;gotMilk=gotMeat=0;hideTip();
+  volkov=null;hangDay=0;dusk=false;hideVodka();unNight();clearHang();vkEnd();events={};bearHide();resetEvents();teaUsed=false;bribeUsed=false;gotMilk=gotMeat=0;hideTip();
   if(fromRun){lampOn=true;alarmOn=false;auroraAmp=1;$('vig').classList.remove('alarm');clearDesk();day=0;milk=0;meat=0;cur=null;PAPER.msg=null;hintRowsOn=null;tTotal=0;renderStatic();renderHud();camTo('title',1400)}
   else camShot='title';
   setMode();showCard('title');setTimeout(()=>{if(phase==='title')shakeA=.01},1050)}
 function newRun(){SEQ++;flushTweens();fast=false;day=0;milk=0;meat=0;teaUsed=false;bribeUsed=false;gotMilk=gotMeat=0;hideTip();
   meatDays=new Set(shuffle(Array.from({length:DAYS-1},(_,i)=>i+2)).slice(0,Math.round(DAYS*.3)));
-  shownRules=0;newFrom=-1;verdict=null;cur=null;hintRowsOn=null;queue=buildQueue();
-  volkov=DAYS>=10?{day:2+Math.floor(Math.random()*(DAYS-2)),result:null}:null;hangDay=0;dusk=false;hideVodka();unNight();clearHang();vkEnd();
+  shownRules=0;newFrom=-1;verdict=null;cur=null;hintRowsOn=null;queue=buildQueue();bearHide();cookRes=null;
+  volkov=DAYS>=10?{day:2+Math.floor(Math.random()*(DAYS-2)),result:null}:null;planEvents();resetEvents();hangDay=0;dusk=false;hideVodka();unNight();clearHang();vkEnd();
   lampOn=true;alarmOn=false;auroraAmp=1;$('vig').classList.remove('alarm');clearDesk();hideCard();paintHints();renderHud();nextDay()}
-async function nextDay(){const my=++SEQ;unNight();dusk=false;auroraAmp=1;if(hangDay&&day>=hangDay)hideVodka();
+async function nextDay(){const my=++SEQ;unNight();dusk=false;auroraAmp=1;if(hangDay&&day>=hangDay)hideVodka();bearHide();
   if(day>=DAYS)return win(my);
   day++;cur=queue[day-1];prepShelf();teaUsed=false;phase='intro';fast=false;hideCard();setMode();renderHud();hintRowsOn=null;paintHints();
   const n=rulesFor(day);newFrom=day>1&&n>shownRules?shownRules:-1;shownRules=n;renderRules(true);
-  PAPER.msg=cur;PAPER.frac=0;PAPER.stamp=null;PAPER.hint=hintsOn();PAPER.markFrac=0;buildBase();drawPaper(true);if(has3D)W.paper.visible=false;
+  applyLeak();PAPER.msg=cur;PAPER.frac=0;PAPER.stamp=null;PAPER.hint=hintsOn();PAPER.markFrac=0;PAPER.burn=0;PAPER.answer=null;buildBase();drawPaper(true);if(has3D)W.paper.visible=false;
   tTotal=FUSE[lvl()](day)*1000;tLeft=tTotal;setTimerUI();$('skip').hidden=false;
   const dn=$('dayN');dn.classList.remove('go');void dn.offsetWidth;dn.classList.add('go');
   await camTo('wall',900);if(dead(my))return;
   await calTear(day);if(dead(my))return;
-  showCaption();await wait(1250);if(dead(my))return;
+  showCaption();vigilanceTin();await wait(1250);if(dead(my))return;
+  if(events[day]==='bear'){await bearScene(my);if(dead(my))return}
   S.bell();ttyOn=true;await camTo('tty',850);if(dead(my))return;
   await feed();if(dead(my))return;
   ttyOn=false;await wait(150);if(dead(my))return;
   const fl=flyToDesk();await camTo('read',1000);await fl;if(dead(my))return;
-  if(PAPER.hint){S.pencil();await tween(800,(e,k)=>{PAPER.markFrac=k;drawPaper(k>=1)},EASE.lin);if(dead(my))return;hintRowsOn=hintRows(cur);paintHints()}
+  if(PAPER.hint&&PAPER.marks){S.pencil();await tween(800,(e,k)=>{PAPER.markFrac=k;drawPaper(k>=1)},EASE.lin);if(dead(my))return;hintRowsOn=hintRows(cur);paintHints()}
   $('skip').hidden=true;fast=false;phase='decide';lastSec=-1;setMode();
   announce(TXT[lang].liveTele(ser(cur.s),msgText(cur)));if(milk>0&&!tipShown)setTimeout(()=>{if(!dead(my)&&phase==='decide')showTip()},900)}
-async function decide(g){if(phase!=='decide')return;phase='stamp';$('skip').hidden=true;setMode();const my=SEQ;
+async function decide(g){if(phase!=='decide'||(g===2&&cur.ev!=='cook')||(g===3&&cur.ev!=='question'&&cur.ev!=='cook')||(g===4&&cur.ev!=='question'))return;phase='stamp';$('skip').hidden=true;setMode();const my=SEQ,cook=cur.ev==='cook';
+  if((g===0||g===1)&&cur.s&&cur.ev!=='question')stampLog.push({d:day,s:cur.s,k:g===1?'A':'P'});
   const ok=g!==-1&&(g===1)===!!cur.real,kind=g===-1?'T':g===1?'A':'P';
   const st={kind,cx:CW*(.6+Math.random()*.1),cy:CH*(.63+Math.random()*.08),rot:-.22+(Math.random()-.5)*.2,seed:(Math.random()*1e9)|0};
-  if(g===-1){PAPER.stamp=st;drawPaper(true);S.buzz();shakeA=.006}else await stampAnim(g===1?W.stA:W.stP,st);
+  if(g===2)await handToCook();else if(g===3)await burnPaper();else if(g===4)await typeAnswer();else if(g===-1){PAPER.stamp=st;drawPaper(true);S.buzz();shakeA=.006}else await stampAnim(g===1?W.stA:W.stP,st);
   if(dead(my))return;await wait(420);if(dead(my))return;
+  if(cook)return cookResult(g,my);if(cur.ev==='daughter')return familyResult(g,my);if(cur.ev==='question')return questionResult(g,my);
   if(ok){phase='result';setMode();S.good();best(day);reward=meatDays.has(day)?'meat':'milk';
     const f=fileTelegram();await camTo('wide',900);await f;if(dead(my))return;await dropTin(reward);if(dead(my))return;
     if(reward==='meat'){meat++;gotMeat++}else{milk++;gotMilk++}renderHud();
@@ -1424,7 +1755,7 @@ async function decide(g){if(phase!=='decide')return;phase='stamp';$('skip').hidd
     alarmOn=true;$('vig').classList.add('alarm');S.siren();await camTo('wide',1400);if(dead(my))return;
     showCard('bad');announce(TXT[lang].wrong)}}
 // ---------- Volkov's evening ----------
-async function evening(){const my=++SEQ;phase='evening';hideCard();setMode();dusk=true;
+async function evening(){const my=++SEQ;phase='evening';hideCard();setMode();dusk=true;if(W.bear&&W.bear.visible)bearOut();
   S.knock();await wait(1500);if(dead(my))return;
   auroraAmp=3.4;const sv=showVodka();await camTo('evening',1700);await sv;if(dead(my))return;
   vkBegin();showCard('volkov');announce(TXT[lang].vkSay.join(' '))}
@@ -1447,7 +1778,7 @@ function tickGame(dt){if(phase!=='decide')return;tLeft-=dt;const s=Math.ceil(tLe
   if(s!==lastSec){lastSec=s;setTimerUI();if(tLeft<tTotal*.3&&tLeft>0)S.tick()}
   if(tLeft<=0){tLeft=0;decide(-1)}}
 function setLang(l){if(cardKind==='volkov'&&vkTalking())vkSkip();lang=l;try{localStorage.setItem('pp_lang',l)}catch(e){}
-  if(!$('tip').hidden){$('tip').textContent=PAPER.hint?TXT[l].teaTipTime:TXT[l].teaTipMarks;placeTip()}
+  if(!$('tip').hidden){$('tip').textContent=PAPER.hint||!markable()?TXT[l].teaTipTime:TXT[l].teaTipMarks;placeTip()}
   renderStatic();renderHud();renderCard(false);if(!$('cap').hidden)fillCaption();
   if(PAPER.msg){buildBase();drawPaper(true)}if(has3D)drawCal(W.calFront,day);
   if(phase==='decide')announce(TXT[lang].liveTele(ser(cur.s),msgText(cur)))}
@@ -1455,6 +1786,9 @@ function refreshCanvases(){if(PAPER.msg){buildBase();drawPaper(true)}if(has3D){d
 
 // ---------- input ----------
 $('tinsM').onclick=()=>useTea();
+$('bC').onclick=()=>{S.init();decide(2)};
+$('bB').onclick=()=>{if(phase==='night3')nightChoose('burn');else{S.init();decide(3)}};
+$('bQ').onclick=()=>{S.init();decide(4)};$('bF').onclick=()=>nightChoose('file');
 $('bA').onclick=()=>{S.init();decide(1)};$('bP').onclick=()=>{S.init();decide(0)};
 $('skip').onclick=()=>{if(phase==='evening'&&vkTalking())vkSkip();else hurry()};
 $('card').addEventListener('click',e=>{if(cardKind==='volkov'&&vkTalking()&&e.target.closest('.vk'))vkSkip()});
@@ -1466,6 +1800,10 @@ $('card').addEventListener('keydown',e=>{const t=e.target;if(!t.classList||!t.cl
   e.preventDefault();e.stopPropagation();setShift(SHIFTS[i])});
 addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey)return;
   if(phase==='decide'&&e.code==='KeyT'){e.preventDefault();useTea();return}
+  if(phase==='decide'&&cur&&cur.ev==='cook'&&(e.key==='ArrowDown'||e.key==='3')){e.preventDefault();S.init();decide(2);return}
+  if(phase==='decide'&&cur&&cur.ev==='question'&&(e.key==='3'||e.key==='4')){e.preventDefault();S.init();decide(e.key==='3'?3:4);return}
+  if(phase==='decide'&&cur&&cur.ev==='cook'&&e.key==='4'){e.preventDefault();S.init();decide(3);return}
+  if(phase==='night3'){if(e.key==='ArrowLeft'||e.key==='1'){e.preventDefault();nightChoose('burn')}else if(e.key==='ArrowRight'||e.key==='2'){e.preventDefault();nightChoose('file')}return}
   if(phase==='decide'){if(e.key==='ArrowLeft'||e.key==='1'){e.preventDefault();S.init();decide(1)}else if(e.key==='ArrowRight'||e.key==='2'){e.preventDefault();S.init();decide(0)}}
   else if(phase==='intro'&&(e.key===' '||e.key==='Enter')){e.preventDefault();hurry()}
   else if(phase==='evening'&&vkTalking()&&(e.key===' '||e.key==='Enter'||e.key==='Escape')){e.preventDefault();vkSkip()}});
@@ -1479,7 +1817,7 @@ function start(data){data=data||{};
   if(typeof data.muted==='boolean')S.on=!data.muted;else if(snd!==null)S.on=snd==='1';
   if(data.bests)for(const d of SHIFTS)bests[d]=+data.bests[d]||0;if(SHIFTS.includes(data.days))DAYS=data.days;
   initTins();
-  if(has3D){try{buildWorld();W.curT=new THREE.Vector3()}catch(e){console.error(e);has3D=false;$('gl').innerHTML=''}}
+  if(has3D){try{buildWorld();ensureBear();ensureFire();W.curT=new THREE.Vector3()}catch(e){console.error(e);has3D=false;$('gl').innerHTML=''}}
   if(has3D){
     const ray=new THREE.Raycaster(),nd=new THREE.Vector2(),hitStamp=()=>{ray.setFromCamera(nd,cam);const h=ray.intersectObjects([W.stA,W.stP],true)[0];let o=h&&h.object;while(o&&!o.userData.kind)o=o.parent;return o};
     R.domElement.addEventListener('pointerdown',e=>{if(phase==='intro'){hurry();return}if(phase!=='decide')return;nd.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);const o=hitStamp();if(o){S.init();decide(o.userData.kind==='A'?1:0)}});
@@ -1496,5 +1834,5 @@ function start(data){data=data||{};
   if(window.claude&&window.claude.hot&&window.claude.hot.snapshot)window.claude.hot.snapshot(()=>({lang,muted:!S.on,bests:{...bests},days:DAYS}))}
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 </script>
-
-</body></html>
+</body>
+</html>
