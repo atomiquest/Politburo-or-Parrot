@@ -399,7 +399,7 @@ const RULES=[
 ["Read the whole form, not just the message. Check the calendar too.","Читайте весь бланк, а не только текст. И сверяйтесь с календарём."]];
 
 // the build players are on, shown in the corner of the title screen. 0.x while the game is in open beta; 1.0 when it is finished
-const VERSION='0.3.7';
+const VERSION='0.3.8';
 function ruPl(n,a,b,c){const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c}
 const CAMPS=[["in Kolyma","на Колыме"],["in Vorkuta","в Воркуте"],["in Norilsk","в Норильске"],["in Magadan","в Магадане"],["in Yakutsk","в Якутске"]];
 const TELLS=[
@@ -440,6 +440,7 @@ const TXT={
   shVShift:s=>`${s.days} DAYS · ${({easy:'EASY',medium:'MEDIUM',hard:'HARD'})[s.lvl]}`,shVNone:'NONE',shVBribe:'ONE “MISUNDERSTANDING”',shVNothing:'NOTHING',
   shVCause:s=>s.slow?'TOO SLOW. THE COMMISSAR CALLS IT SABOTAGE.':s.love?'APPROVED A LOVE LETTER TO THE CENTRAL COMMITTEE.':s.real?'IT WAS THE REAL POLITBURO.':'IT WAS THE AMERICAN PARROT.',
   shVSentence:s=>`${s.y} YEARS OF HARD LABOUR ${s.camp.toUpperCase()}`,
+  shTest:'TEST SHIFT',
   shPost:s=>(s.win?`I served all ${s.days} days at ARKTIKA-7 and caught ${s.caught} parrot${s.caught===1?'':'s'}.`
     :s.slow?`I hesitated on day ${s.day} at ARKTIKA-7: ${s.y} years of hard labour ${s.camp}.`
     :s.real?`I denounced the real Politburo on day ${s.day} at ARKTIKA-7: ${s.y} years of hard labour ${s.camp}.`
@@ -527,6 +528,7 @@ const TXT={
   shVShift:s=>`${s.days} ДНЕЙ · ${({easy:'ЛЁГКАЯ',medium:'СРЕДНЯЯ',hard:'СЛОЖНАЯ'})[s.lvl]}`,shVNone:'НЕТ',shVBribe:'ОДНО «НЕДОРАЗУМЕНИЕ»',shVNothing:'НИЧЕГО',
   shVCause:s=>s.slow?'ЗАМЕШКАЛСЯ. КОМИССАР СЧИТАЕТ ЭТО САБОТАЖЕМ.':s.love?'ОДОБРИЛ ЛЮБОВНОЕ ПИСЬМО В ЦЕНТРАЛЬНЫЙ КОМИТЕТ.':s.real?'ЭТО БЫЛО НАСТОЯЩЕЕ ПОЛИТБЮРО.':'ЭТО БЫЛ АМЕРИКАНСКИЙ ПОПУГАЙ.',
   shVSentence:s=>`${s.y} ЛЕТ КАТОРЖНЫХ РАБОТ ${s.camp.toUpperCase()}`,
+  shTest:'ПРОБНАЯ ВАХТА',
   shPost:s=>(s.win?`Я отслужил все ${s.days} дней на АРКТИКЕ-7 и поймал попугаев: ${s.caught}.`
     :s.slow?`На ${s.day}-й день на АРКТИКЕ-7 я замешкался: ${s.y} лет каторжных работ ${s.camp}.`
     :s.real?`На ${s.day}-й день на АРКТИКЕ-7 я донёс на настоящее Политбюро: ${s.y} лет каторжных работ ${s.camp}.`
@@ -1712,7 +1714,7 @@ try{if(window.claude&&typeof window.claude.use==='function')window.claude.use('d
 function shareStats(){const li=lang==='ru'?1:0,win=cardKind==='win',vr=volkov&&volkov.result,car=DAYS>=10&&vr!=='refuse';
   return{win,days:DAYS,lvl:lvl(),day,served:win?DAYS:Math.max(0,day-1),caught:runCaught,bribe:bribeUsed,
     y:verdict?verdict.y:0,camp:verdict?CAMPS[verdict.c][li]:'',slow:!!(verdict&&verdict.slow),real:!!(cur&&cur.real),love:!!(cur&&cur.ev==='love'),
-    milk:win?milk:0,meat:win&&!car?meat:0}}
+    milk:win?milk:0,meat:win&&!car?meat:0,test:!!devUsed}}
 
 // ---------- drawing ----------
 const SH={ink:'#2b2219',fade:'rgba(43,34,25,.62)',red:'#b3271f',redD:'#8f1d17',redL:'#c63a2e',cream:'#ece4cc',
@@ -1760,6 +1762,8 @@ function shParrot(x,ox,oy,k){const P=(pts,c)=>shPoly(x,pts,c,ox,oy,k);
   P([[-35,-46],[-16,-51],[3,-45],[4,-34],[-35,-37]],SH.red);
   x.strokeStyle='#5e120e';x.lineWidth=3*k;x.beginPath();x.moveTo(ox-35*k,oy-37*k);x.lineTo(ox+4*k,oy-34*k);x.stroke()}
 // the stamp, on its own canvas so the worn specks never cut through the paper under it: green when released, red when arrested
+// the verdict stamp: green RELEASED, red ARRESTED, and a blue-grey TEST SHIFT when the developer panel was used
+const shVerdict=(st,u)=>st.test?shStamp(u.shTest,'rgba(52,82,116,.9)'):shStamp(st.win?u.shWin:u.shLost,st.win?'rgba(38,108,54,.9)':'rgba(176,32,24,.88)');
 function shStamp(txt,col){const c=document.createElement('canvas'),s=c.getContext('2d');let fs=44;s.font=`${fs}px ${DISP}`;while(s.measureText(txt).width>196&&fs>26){fs-=2;s.font=`${fs}px ${DISP}`}
   const w=Math.ceil(s.measureText(txt).width+52),h=fs+40;c.width=w+12;c.height=h+12;s.translate(6,6);
   s.strokeStyle=col;s.lineWidth=6;s.strokeRect(3,3,w-6,h-6);s.lineWidth=2.5;s.strokeRect(12,12,w-24,h-24);
@@ -1783,7 +1787,7 @@ function shTelegram(st){const W=640,H=420,c=document.createElement('canvas'),x=c
       [['milk',st.milk],['meat',st.meat]].forEach(([k,n])=>{if(!n)return;const ic=tinIcon(k,k==='milk'?40:34),ih=40,iw=ic.width*ih/ic.height;x.drawImage(ic,hx,y-ih+6,iw,ih);x.font=`${en?28:22}px ${F.body}`;x.fillText('×'+n,hx+iw+5,y);hx+=iw+5+x.measureText('×'+n).width+16})}}
   x.font=`11px ${DISP}`;x.fillStyle='rgba(43,34,25,.5)';const mw=spaced(x,u.marks,30,H-18,2,'l');x.fillStyle='rgba(43,34,25,.3)';for(let dx=30+mw+10;dx<W-30;dx+=7)x.fillRect(dx,H-20,3,1.5);
   // the verdict stamped across the header, so the report under it stays readable
-  const sp=shStamp(st.win?u.shWin:u.shLost,st.win?'rgba(38,108,54,.9)':'rgba(176,32,24,.88)');x.save();x.translate(W-132,154);x.rotate(-.1);x.drawImage(sp,-sp.width/2,-sp.height/2);x.restore();return c}
+  const sp=shVerdict(st,u);x.save();x.translate(W-132,154);x.rotate(-.1);x.drawImage(sp,-sp.width/2,-sp.height/2);x.restore();return c}
 // the outcome pictures, decoded once
 const _shArt={};
 function shArt(k){const src=typeof OUTCOME_ART!=='undefined'&&OUTCOME_ART[k];if(!src)return Promise.resolve(null);
@@ -1813,7 +1817,7 @@ function shDossier(st){const u=TXT[lang],F=FONTS[lang],en=lang!=='ru',W=380,c=do
     :[[u.shKShift,u.shVShift(st)],[u.shKParrots,String(st.caught)],[u.shKCause,u.shVCause(st)],[u.shKSentence,u.shVSentence(st)]];
   const vf=en?30:23,lh=en?30:29,maxW=W-44;x.font=`${vf}px ${F.body}`;const laid=rows.map(([k,v])=>[k,layoutText(x,v,maxW)]);
   // the stamp first, to leave room for it at the foot of the sheet
-  const sp=shStamp(st.win?u.shWin:u.shLost,st.win?'rgba(38,108,54,.9)':'rgba(176,32,24,.88)'),rot=-.1,sbH=sp.height*Math.cos(rot)+sp.width*Math.abs(Math.sin(rot));
+  const sp=shVerdict(st,u),rot=-.1,sbH=sp.height*Math.cos(rot)+sp.width*Math.abs(Math.sin(rot));
   let H=18+80+14+104+18;laid.forEach(([,ls])=>{H+=20+ls.length*lh+14});if(st.win)H+=20+50+14;H+=Math.ceil(sbH)+24;c.width=W;c.height=H;
   // the stone of POLITBURO in the logo, a shade darker at the edges, a black border
   x.fillStyle=SH.stone;x.fillRect(0,0,W,H);const g=x.createRadialGradient(W/2,H/2,H*.2,W/2,H/2,H*.75);g.addColorStop(0,'rgba(20,20,20,0)');g.addColorStop(1,'rgba(20,20,20,.16)');x.fillStyle=g;x.fillRect(0,0,W,H);
@@ -1998,7 +2002,7 @@ function cardAction(){S.init();
   else if(cardKind==='volkov')drinkWithVolkov();
   else if(cardKind==='volkovNo')nextDay();
   else if(cardKind==='win')toTitle(true);else newRun()}
-function resetEvents(){runCaught=0;deskLeak=false;vigilance=false;stampLog=[];daughterHurt=false;daughterWarm=false;famRes=null;qRes=null;nightWait=false;PAPER.burn=0;PAPER.answer=null}
+function resetEvents(){runCaught=0;deskLeak=false;vigilance=false;stampLog=[];daughterHurt=false;daughterWarm=false;famRes=null;qRes=null;nightWait=false;PAPER.burn=0;PAPER.answer=null;devUsed=false}
 function afterDay(){if(volkov&&volkov.day===day&&!volkov.result)evening();else if(events[day]==='night'){events[day]='night-done';night3am()}else nextDay()}
 const canBribe=()=>phase==='arrest'&&meat>=2&&!bribeUsed;
 function setShift(d){if(phase!=='title'||!SHIFTS.includes(d))return;
@@ -2131,13 +2135,34 @@ function start(data){data=data||{};
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 
 // ---------- developer panel: test any part of a shift without playing it through ----------
-// open it with ?dev in the address (…/Politburo-or-Parrot/?dev), or by typing "dev" anywhere; type "dev" again to hide it.
-// it stays on in this browser until hidden. Nothing here changes the game for players who never open it
-var devFreeze=false;
+// it opens only with the right key: in the address (…/?dev=KEY), or typed on the keyboard anywhere in the game (typing it
+// again hides the panel). The key itself is not in this code, only its SHA-256 fingerprint, which what you type is checked
+// against. ?dev=0 turns it off. Any shift where the panel is used is marked as a test shift, and its share poster
+// is stamped TEST SHIFT instead of RELEASED or ARRESTED
+var devFreeze=false,devUsed=false;
 (function(){
+  const DEV_KEY='7248f4c37cd93b183c37595396d27a6dd708de09049b76f6dc0ff41ba8d9e6c9';
+  // compact SHA-256: UTF-8 in, hex out
+  function sha256(s){const K=[],H=[];for(let n=2,c=0;c<64;n++){let p=1;for(let d=2;d*d<=n;d++)if(n%d===0){p=0;break}if(p){if(c<8)H[c]=(Math.pow(n,1/2)*4294967296)|0;K[c++]=(Math.pow(n,1/3)*4294967296)|0}}
+    const b=unescape(encodeURIComponent(s)),l=b.length*8,w=[];for(let i=0;i<b.length;i++)w[i>>2]|=b.charCodeAt(i)<<(24-(i%4)*8);
+    w[l>>5]|=0x80<<(24-l%32);w[((l+64>>9)<<4)+15]=l;for(let i=0;i<w.length;i++)w[i]=w[i]|0;
+    for(let j=0;j<w.length;j+=16){const a=H.slice(0,8),W=[];
+      for(let i=0;i<64;i++){if(i<16)W[i]=w[j+i];else{const x=W[i-15],y=W[i-2];W[i]=(((x>>>7|x<<25)^(x>>>18|x<<14)^(x>>>3))+W[i-7]+((y>>>17|y<<15)^(y>>>19|y<<13)^(y>>>10))+W[i-16])|0}
+        const e=a[4],A=a[0],t1=(a[7]+((e>>>6|e<<26)^(e>>>11|e<<21)^(e>>>25|e<<7))+((e&a[5])^(~e&a[6]))+K[i]+W[i])|0,t2=(((A>>>2|A<<30)^(A>>>13|A<<19)^(A>>>22|A<<10))+((A&a[1])^(A&a[2])^(a[1]&a[2])))|0;
+        a.pop();a.unshift((t1+t2)|0);a[4]=(a[4]+t1)|0}
+      for(let i=0;i<8;i++)H[i]=(H[i]+a[i])|0}
+    return H.map(h=>('00000000'+(h>>>0).toString(16)).slice(-8)).join('')}
+  const ok=k=>!!k&&sha256(String(k).trim().toLowerCase())===DEV_KEY;
   const EV_NAMES=[['bear','Bear'],['cook','Cook'],['love','Love letter'],['night','3 a.m.'],['daughter','Daughter'],['question','Question'],['volkov','Volkov']];
   let box=null,note='',noteT=0;
-  const want=()=>{try{const q=location.search+location.hash;if(/[?&#]dev=0\b/.test(q)){localStorage.removeItem('pp_dev');return false}if(/[?&#]dev\b/.test(q)){localStorage.setItem('pp_dev','1');return true}return localStorage.getItem('pp_dev')==='1'}catch(e){return /[?&#]dev\b/.test(location.search+location.hash)}};
+  // the key from the address is remembered in this browser, so the panel stays on until turned off
+  const want=()=>{let m=null;try{m=(location.search+location.hash).match(/[?&#]dev=([^&#]*)/)}catch(e){}
+    let k=null;if(m){try{k=decodeURIComponent(m[1])}catch(e){k=m[1]}}
+    // the key leaves the address bar at once, so a screenshot or a shared link never carries it
+    if(m){try{const u=new URL(location.href);u.searchParams.delete('dev');const h=u.hash.slice(1).split('&').filter(x=>x&&!/^dev=/.test(x)).join('&');u.hash=h;
+      history.replaceState(history.state,'',u.toString().replace(/#$/,''))}catch(e){}}
+    try{if(k==='0'){localStorage.removeItem('pp_dev');return false}if(ok(k)){localStorage.setItem('pp_dev',k.trim().toLowerCase());return true}return ok(localStorage.getItem('pp_dev'))}
+    catch(e){return ok(k)}};
   function say(t){note=t;noteT=performance.now()}
   function calm(){flushTweens();fast=false;try{S.sirenStop()}catch(e){}alarmOn=false;$('vig').classList.remove('alarm');lampOn=true;closeShare();bearHide();unNight();try{vkEnd()}catch(e){}hideCard()}
   const inShift=()=>{if(phase==='title'){say('Start a shift first.');return false}return true};
@@ -2148,7 +2173,8 @@ var devFreeze=false;
     next(){if(!inShift())return;calm();nextDay()},
     goto(){if(!inShift())return;const n=clamp(parseInt($('devDay').value,10)||1,1,DAYS);calm();day=n-1;nextDay()},
     milk(){milk++;gotMilk++;renderHud();dropTin('milk',300)},
-    meat(){meat++;gotMeat++;renderHud();dropTin('meat',300)}};
+    meat(){meat++;gotMeat++;renderHud();dropTin('meat',300)},
+    off(){try{localStorage.removeItem('pp_dev')}catch(e){}show(false)}};
   // an event, right now: tomorrow's telegram or visitor, tonight's Volkov or 3 a.m. telegram
   function event(k){if(!inShift())return;calm();
     if(k==='volkov'){volkov={day:Math.max(1,day),result:null};evening();return}
@@ -2156,13 +2182,13 @@ var devFreeze=false;
     if(day>=DAYS)day=DAYS-1;const d=day+1;events[d]=k;if(EV_TG[k])queue[d-1]=EV_TG[k]();nextDay()}
   // swap today's telegram for any in the pool, or a special one
   function load(v){if(!v)return;if(phase!=='decide'){say('Wait until the telegram is on the desk.');$('devTg').value='';return}
-    const src=v[0]==='p'?POOL[+v.slice(1)]:SPECIAL[v.slice(1)];const m=mk(src);if(m.ev==='question'){m.s='';m.bad=false}cur=queue[day-1]=m;
+    devUsed=true;const src=v[0]==='p'?POOL[+v.slice(1)]:SPECIAL[v.slice(1)];const m=mk(src);if(m.ev==='question'){m.s='';m.bad=false}cur=queue[day-1]=m;
     PAPER.msg=m;PAPER.frac=1;PAPER.stamp=null;PAPER.burn=0;PAPER.answer=null;PAPER.hint=hintsOn();PAPER.markFrac=1;buildBase();drawPaper(true);
     hintRowsOn=PAPER.hint&&PAPER.marks?hintRows(m):null;paintHints();actUI();$('devTg').value='';say('Loaded.')}
-  function state(){if(!box||box.classList.contains('closed'))return;const s=$('devState');let t=`${phase} · day ${day}/${DAYS} · milk ${milk} · meat ${meat}`;
+  function state(){if(!box||box.classList.contains('closed'))return;const s=$('devState');let t=`${phase} · day ${day}/${DAYS} · milk ${milk} · meat ${meat}${devUsed?' · TEST SHIFT':''}`;
     if(cur&&day>0){const li=lang==='ru'?1:0,tell=cur.real?(cur.why?fill(cur.why[li]):'every fact matches'):(cur.tell?fill(cur.tell[li]):'');
       t+=`\ntoday: ${cur.ev?cur.ev.toUpperCase()+' · ':''}${cur.real?'AUTHENTIC':'PARROT'} · tier ${cur.tier}${cur.bad?' · bad serial':''}${tell?'\n'+tell:''}`}
-    const ev=Object.entries(events).filter(([d,k])=>+d>day&&k!=='night-done').map(([d,k])=>`${k} d${d}`);if(volkov&&!volkov.result&&volkov.day>=day)ev.push(`volkov d${volkov.day}`);
+    const ev=Object.entries(events).filter(([d,k])=>+d>day&&!/-done$/.test(k)).map(([d,k])=>`${k} d${d}`);if(volkov&&!volkov.result&&volkov.day>=day)ev.push(`volkov d${volkov.day}`);
     if(ev.length)t+=`\ncoming: ${ev.join(', ')}`;if(note&&performance.now()-noteT<3500)t+=`\n» ${note}`;s.textContent=t}
   function build(){box=document.createElement('div');box.className='dev';box.id='dev';
     const opts=POOL.map((p,i)=>`<option value="p${i}">${p.real?'R':'P'}${p.tier} · ${p.m[0].slice(0,52).replace(/</g,'&lt;')}</option>`).join('')+
@@ -2174,16 +2200,19 @@ var devFreeze=false;
       <div class="dev-g"><b>Telegram</b><select id="devTg" aria-label="Load a telegram"><option value="">Load a telegram…</option>${opts}</select>
         <label><input type="checkbox" id="devFreeze"> Freeze the fuse</label></div>
       <div class="dev-g"><b>Tins</b><button type="button" data-a="milk">+ milk</button><button type="button" data-a="meat">+ stewed meat</button></div>
-      <p class="dev-n">Type “dev” to hide this panel.</p></div>`;
+      <div class="dev-g"><button type="button" data-a="off">Turn the panel off</button></div>
+      <p class="dev-n">A shift that uses this panel is a test shift: its poster is stamped TEST SHIFT.</p></div>`;
     document.body.appendChild(box);if(matchMedia('(max-width:879px)').matches)box.classList.add('closed');
     $('devH').onclick=()=>{box.classList.toggle('closed');state()};
-    box.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;b.blur();if(b.id==='devH')return;S.init();if(b.dataset.a)act[b.dataset.a]();else if(b.dataset.e)event(b.dataset.e);state()});
-    $('devTg').onchange=e=>{load(e.target.value);e.target.blur()};$('devFreeze').onchange=e=>{devFreeze=e.target.checked};
+    box.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;b.blur();if(b.id==='devH')return;S.init();
+      if(b.dataset.a){if(b.dataset.a!=='off')devUsed=true;act[b.dataset.a]()}else if(b.dataset.e){devUsed=true;event(b.dataset.e)}state()});
+    $('devTg').onchange=e=>{load(e.target.value);e.target.blur()};$('devFreeze').onchange=e=>{devFreeze=e.target.checked;if(devFreeze)devUsed=true};
     box.addEventListener('keydown',e=>{if(/^(INPUT|SELECT)$/.test(e.target.tagName))e.stopPropagation()});setInterval(state,400);state()}
   function show(on){if(on&&!box)build();else if(box)box.hidden=!on;if(!on){devFreeze=false;const f=$('devFreeze');if(f)f.checked=false}}
-  // type "dev" to toggle
-  let keys='';addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey||/^(INPUT|SELECT|TEXTAREA)$/.test((e.target&&e.target.tagName)||''))return;
-    keys=(keys+e.key.toLowerCase()).slice(-3);if(keys==='dev'){keys='';const on=!(box&&!box.hidden);try{if(on)localStorage.setItem('pp_dev','1');else localStorage.removeItem('pp_dev')}catch(e){}show(on)}});
+  // typing the key anywhere toggles the panel: every ending of what was just typed is checked against the fingerprint
+  let typed='';addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey||e.key.length!==1||/^(INPUT|SELECT|TEXTAREA)$/.test((e.target&&e.target.tagName)||''))return;
+    typed=(typed+e.key.toLowerCase()).slice(-24);for(let n=4;n<=typed.length;n++){const k=typed.slice(-n);if(ok(k)){typed='';const on=!(box&&!box.hidden);
+      try{if(on)localStorage.setItem('pp_dev',k);else localStorage.removeItem('pp_dev')}catch(e){}show(on);return}}});
   if(want())show(true);
 })();
 </script>
