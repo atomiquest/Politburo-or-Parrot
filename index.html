@@ -31,6 +31,22 @@ button{font:inherit;color:inherit}
 #gl canvas{display:block;width:100%!important;height:100%!important;touch-action:manipulation}
 .vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(0,0,0,.6))}
 .vig.alarm{animation:alarm 1s steps(2) infinite}
+/* creepy events: the cold from an open door, the "Not in the report" box, the ice-core picture, three stacked choices */
+.frost{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.3s ease;background:radial-gradient(90% 120% at 0% 60%,rgba(190,218,255,.4),transparent 60%),radial-gradient(120% 90% at 50% 45%,transparent 62%,rgba(205,228,255,.26))}
+.frost.on{opacity:1}
+.nir{margin:4px 0 12px;padding:10px 12px 8px;background:#191c20;color:var(--frost);border:2px solid #000;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.nir .ph{display:block;margin-bottom:6px;font-family:var(--f-display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#e0574a}
+.nir p{margin:0 0 5px;font-size:var(--fs-1);line-height:1.18}.nir p:last-child{margin-bottom:0}
+.crpic{display:block;width:100%;height:auto;margin:2px 0 8px}
+.ch-btns{display:grid;gap:8px;margin-top:12px}.ch-btns .btn{margin:0}
+@media (min-width:700px){.ch-btns{grid-template-columns:repeat(3,minmax(0,1fr))}.ch-btns .btn{padding:10px 6px;font-size:14px;letter-spacing:.06em}.ch-btns .btn.tin{padding:8px 6px}}
+.card .log{margin:0 0 10px;padding:7px 10px;background:var(--label);border:1px solid rgba(42,34,25,.35);letter-spacing:.03em}
+.card .quote{font-size:var(--fs-3)}
+/* Robozayats: its button in the top bar, its letter */
+button.tins.robo{padding:0 5px}.ch-btns.wait{visibility:hidden}.robo .tin-ico{height:26px}button.tins.robo.broken{opacity:.55}
+.card .log.letter{font-style:italic;letter-spacing:0;line-height:1.25}
+/* the last cards can run long: their buttons stay in reach at the bottom while the story scrolls above */
+.card .endbtns{position:sticky;bottom:-22px;margin:0 -22px -22px;padding:2px 22px 22px;background:linear-gradient(rgba(228,217,183,0),var(--paper) 16px)}
 @keyframes alarm{50%{background:radial-gradient(120% 90% at 50% 45%,rgba(176,38,28,.06) 35%,rgba(176,38,28,.55))}}
 
 .ui{position:fixed;inset:0;z-index:2;display:grid;gap:10px;pointer-events:none;
@@ -134,7 +150,7 @@ html[lang|="ru"] .kv .v{line-height:1.25}
 .shift b{font-family:var(--f-display);font-weight:400;font-size:28px;line-height:1}
 .shift span{font-size:var(--fs-1);line-height:1.15}
 .shift i{margin-top:4px;padding:2px 6px;font-style:normal;font-family:var(--f-display);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--label)}
-.shift.s7 i,.lvl.easy{background:var(--green)}.shift.s10 i,.lvl.medium{background:#94660f}.shift.s14 i,.lvl.hard{background:var(--red)}
+.shift.s7 i,.lvl.easy{background:#5f666d}.shift.s10 i,.lvl.medium{background:var(--green)}.shift.s14 i,.lvl.hard{background:var(--amber);color:var(--ink)}
 .shift[aria-checked="true"]{background:var(--ink);color:var(--label);box-shadow:0 3px 0 #000;transform:translateY(-2px)}
 .shift em{position:absolute;top:-9px;right:-6px;padding:1px 4px;font-style:normal;font-family:var(--f-display);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);background:var(--paper);border:2px solid var(--green);transform:rotate(7deg)}
 .card .note{margin:9px 0 0;color:var(--ink-soft)}
@@ -297,7 +313,7 @@ html[lang|="ru"] .parcel .reply{font-family:var(--f-body);font-size:15px;line-he
 </head>
 <body>
 <div id="gl" aria-hidden="true"></div>
-<div class="vig" id="vig" aria-hidden="true"></div>
+<div class="vig" id="vig" aria-hidden="true"></div><div class="frost" id="frost" aria-hidden="true" hidden></div>
 <div class="glare" id="glare" hidden aria-hidden="true"></div>
 <main class="ui is-title" id="ui">
   <header class="hud">
@@ -308,6 +324,7 @@ html[lang|="ru"] .parcel .reply{font-family:var(--f-body);font-size:15px;line-he
       <div class="timer"><div class="fuse" id="fuse" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="fuseI"></i></div><span class="secs" id="secs">--</span></div>
       <button class="tins" id="tinsM" type="button" disabled><img class="tin-ico" id="icoM" alt=""><span id="tinN">0</span></button>
       <div class="tins" id="tinsS"><img class="tin-ico" id="icoS" alt=""><span id="meatN">0</span></div>
+      <button class="tins robo" id="roboB" type="button" hidden disabled><canvas class="tin-ico" id="icoR" width="40" height="42"></canvas></button>
     </div>
     <div class="hbtns">
       <button class="hbtn" id="snd" type="button"></button>
@@ -399,7 +416,7 @@ const RULES=[
 ["Read the whole form, not just the message. Check the calendar too.","Читайте весь бланк, а не только текст. И сверяйтесь с календарём."]];
 
 // the build players are on, shown in the corner of the title screen. 0.x while the game is in open beta; 1.0 when it is finished
-const VERSION='0.3.8';
+const VERSION='0.4.0';
 function ruPl(n,a,b,c){const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c}
 const CAMPS=[["in Kolyma","на Колыме"],["in Vorkuta","в Воркуте"],["in Norilsk","в Норильске"],["in Magadan","в Магадане"],["in Yakutsk","в Якутске"]];
 const TELLS=[
@@ -431,16 +448,82 @@ const TXT={
   copiedX:'Image copied. Paste it into your post with Ctrl+V or ⌘V.',xNoCopy:'Download the image, then attach it to your post.',openX:'Open X',
   shAlt:s=>s.win?`Shift report: released after ${s.days} of ${s.days} days, ${s.caught} parrots caught.`:`Shift report: arrested on day ${s.day} of ${s.days}, ${s.y} years of hard labour.`,
   shFrom:'ARKTIKA-7, DR. ORLOV',shTo:'MOSCOW, CC CPSU',
-  shLines:s=>s.win?[`${s.days} OF ${s.days} DAYS SERVED. ${({easy:'EASY',medium:'MEDIUM',hard:'HARD'})[s.lvl]} SHIFT.`,`PARROTS CAUGHT: ${s.caught}. ${s.bribe?'ONE MISUNDERSTANDING.':'NO MISTAKES.'}`]
+  shLines:s=>s.win?[`${s.days} OF ${s.days} DAYS SERVED. ${({easy:'TRAINING',medium:'EASY',hard:'NORMAL'})[s.lvl]} SHIFT.`,`PARROTS CAUGHT: ${s.caught}. ${s.bribe?'ONE MISUNDERSTANDING.':'NO MISTAKES.'}`]
     :[`ARRESTED ON DAY ${s.day} OF ${s.days}.`,s.slow?'TOO SLOW. THE COMMISSAR CALLS IT SABOTAGE.':s.love?'APPROVED A LOVE LETTER TO THE CENTRAL COMMITTEE.':s.real?'IT WAS THE REAL POLITBURO.':'IT WAS THE AMERICAN PARROT.',`${s.y} YEARS OF HARD LABOUR ${s.camp.toUpperCase()}.`,`PARROTS CAUGHT: ${s.caught}.`],
   shHome:'SENT HOME TO LENINGRAD:',shNone:'NOTHING SENT HOME TO LENINGRAD.',shWin:'RELEASED',shLost:'ARRESTED',
   shAsk:['CAN YOU TELL','THE POLITBURO','FROM THE PARROT?'],shServed:'DAYS SERVED',shLasted:'DAYS SURVIVED',
   // the shift report: a case-file sheet
   shRep:'SHIFT REPORT',shRepSub:'Dr. Orlov · ARKTIKA-7',shKShift:'Shift',shKParrots:'Parrots caught',shKMistakes:'Mistakes',shKHome:'Sent home to Leningrad',shKCause:'Cause',shKSentence:'Sentence',
-  shVShift:s=>`${s.days} DAYS · ${({easy:'EASY',medium:'MEDIUM',hard:'HARD'})[s.lvl]}`,shVNone:'NONE',shVBribe:'ONE “MISUNDERSTANDING”',shVNothing:'NOTHING',
+  shVShift:s=>`${s.days} DAYS · ${({easy:'TRAINING',medium:'EASY',hard:'NORMAL'})[s.lvl]}`,shVNone:'NONE',shVBribe:'ONE “MISUNDERSTANDING”',shVNothing:'NOTHING',
   shVCause:s=>s.slow?'TOO SLOW. THE COMMISSAR CALLS IT SABOTAGE.':s.love?'APPROVED A LOVE LETTER TO THE CENTRAL COMMITTEE.':s.real?'IT WAS THE REAL POLITBURO.':'IT WAS THE AMERICAN PARROT.',
   shVSentence:s=>`${s.y} YEARS OF HARD LABOUR ${s.camp.toUpperCase()}`,
   shTest:'TEST SHIFT',
+  // creepy events: Volkov at the door, a light in the old hut, the ice remembers
+  nightEyebrow:n=>`Night · Day ${n}`,
+  drA:'02:40',drB:'Three knocks at the door.',drH:'A knock at the door.',
+  drT:['“Orlov, open up. It’s Volkov. I’m freezing out here.”','At supper the cook said Volkov had a fever and went to bed at eight. You heard him lock his door.'],
+  drOpen:'Open the door',drShut:'Keep it shut',
+  drOpenH:'Nobody.',drOpenT:'Wind and snow. Nobody there. A line of footprints comes up to the door, and none go back. On the step is a tin of stewed meat, frosted white, stamped 1962.',drTin:'A tin of stewed meat. Stamped 1962.',
+  drShutH:'Silence.',drShutT:'The knocking stops at exactly three. In the morning the cook says he sat by Volkov’s bed all night with a wet towel: Volkov never left his room. Outside your door, the snow is trampled flat, as if someone stood there for hours. No tracks lead to it.',
+  htH:'A light in the old hut.',htT:'Across the ice, a light is burning in the old weather hut. No one has used it since 1962, when its crew of four went out to read the instruments and never came back.',
+  htLook:'Go and look',htLookSub:'less time tomorrow',htCurtain:'Close the curtain',htReport:'Report it at 06:00',
+  htWalkA:'04:50',htWalkB:'The walk back takes an hour.',
+  htLookH:'The logbook.',htLookT:'The hut is empty and the stove is cold. The 1962 logbook lies open on the table. Today’s entry is already filled in, in your handwriting:',htLog:'WIND NW, 12 M/S. VISIBILITY NIL. ORLOV IS ON HIS WAY.',htLookNote:'You get back at five. Less time on tomorrow’s telegram.',
+  htCurtH:'The curtain.',htCurtT:'The light goes out the moment the curtain moves, as if someone was watching for it.',htCurtMorning:'In the morning the curtain is open again.',
+  htRepH:'Noted.',htRepT:'At 06:00 the commissar writes it down without looking up. At noon, Moscow replies:',htRepTg:'ARKTIKA-7 HAS NO WEATHER HUT. NEVER HAD.',htRepTin:'A tin of condensed milk, for vigilance.',
+  tired:'You slept two hours. Less time today.',
+  crH:'Core from 50 metres.',crT:'The drill brings up a core from 50 metres. Frozen inside is a Party card: your photo, your number, your signature. Only the name is wrong: ORLOFF, with two Fs, the way the Americans write it. Your own card is still in your pocket. The ice at that depth is three hundred years old.',
+  crSend:'Crate it for the Krasin',crSendSub:'to the AARI in Leningrad',crBack:'Put it back',crBurn:'Burn it',
+  crSendH:'Crated.',crSendT:'You crate it with the cores for the Krasin. The commissar watches you nail the lid down.',
+  crBackH:'Back in the ice.',crBackT:'You lower it back down the borehole. By evening the hole has frozen over.',
+  crBurnH:'Burnt.',crBurnT:'The card curls in the flame. For a second, the face in the photo is not yours at all.',
+  crGo:'Back to work',crAlt:'An ice core with a red Party card frozen inside',
+  noRation:d=>['No ration today: the plane didn’t make it.','No ration today: the plane turned back in the blizzard.','No ration today: the crate held nothing but forms.'][d%3],
+  // Robozayats-1
+  rbInH:'A parcel from Leningrad.',rbInT:'The morning plane brings a crate with holes in the lid. Inside, wrapped in a Pioneer tie, is a robot hare, and a letter:',
+  rbLetter:'“Dear Comrade Orlov! We, the young technicians of the Leningrad House of Pioneers, built ROBOZAYATS-1 to catch the American parrot. Press ПУСК and it reads a telegram and shows the truth. Please test it and write to us. Be prepared! — Technical club, class 6B”',
+  rbInNote:'One use. Press its button in the top bar while a telegram is on your desk. It shows you the truth; you still stamp it yourself.',rbInBtn:'Put it on the windowsill',
+  rbReady:'Robozayats is on the windowsill. Its button is in the top bar.',rbTitle:'Robozayats: scan this telegram (one use)',rbWait:'Robozayats is waiting for a telegram',
+  rbNo:'Robozayats only reads telegrams meant for you',rbBroken:'Robozayats is broken',rbSays:real=>real?'Robozayats: AUTHENTIC.':'Robozayats: PARROT.',
+  rbBreak:'Something inside it goes “pop”. The young technicians did their best.',
+  // 03:33: Robozayats talks
+  vcA:'03:33',vcB:'On the windowsill, something switches itself on.',vcH:'It is talking.',
+  vcSay:['“Orlov. This is Moscow. Do not be afraid.”','“Tomorrow’s telegram is from us. Stamp it AUTHENTIC.”'],
+  vcMilk:'Throw condensed milk at it',vcMilkSub:'−1 tin',vcNoMilk:'no milk left',vcWho:'“Who is speaking?”',vcObey:'“Understood, Moscow.”',
+  vcMilkH:'Smashed.',vcMilkT:'The tin hits it square in the face. It topples off the windowsill and breaks on the floor. The static stops. The station is very quiet.',
+  vcWhoH:'Krrraaa!',vcWhoT:'No words this time. Only a squawk out of the static, sharp as a beak. Then a smell of burnt wire, and its eyes go dark.',
+  vcObeyH:'Understood.',vcObeyT:'The static fades. Its eyes stay lit, very faintly, until morning.',
+  // the man on the ice
+  icA:'01:50',icB:'Someone is standing on the ice.',icH:'Someone on the ice.',
+  icT:'A man is standing far out on the ice, facing the station, in a long fur coat like the ones the 1962 crew wore. Every time you look back at the window, he is closer.',
+  icWave:'Wave to him',icLamp:'Switch off the lamp',icLampSub:'tomorrow the bulb will be weak',icReport:'Wake the commissar',
+  icWaveH:'He waves back.',icWaveT:'Slowly, the way you would wave to someone you know. Then the snow thickens, and he is gone.',
+  icLampH:'Darkness.',icLampT:'You sit in the dark and do not look at the window. When you switch the lamp back on, the ice is empty. The bulb has gone dim.',
+  icReportH:'Nobody there.',icReportT:'The commissar looks out for a long time. “There is nobody there, Orlov.” He writes something in your file and goes back to bed.',
+  icWaveMorning:'Footprints come right up to your window. On the outside sill lies a cigarette packet: Belomorkanal, 1962.',icLampMorning:'The bulb is weak since last night. The telegram is hard to read.',
+  // the reflection
+  mrH:'Behind you.',mrT:'In the black glass of the window, a man is standing behind your chair. He is reading over your shoulder.',
+  mrTurn:'Turn around',mrTurnSub:'−10 seconds',mrKeep:'Keep reading. Do not look.',mrNobody:'Nobody. The room is empty. You have lost ten seconds.',mrKeepToast:'A cold, reflected finger points at one word.',
+  nirH:'Not in the report',
+  // [released, arrested]
+  nir:{door:{open:['On the train south, someone knocks on your compartment door every night at 02:40.','In the camp, someone knocks on the barrack door every night at 02:40. It sounds like Volkov.'],
+      shut:['On your last night, the knock comes again at 02:40. Volkov is sitting beside you, and he hears it too.','The guards come for you at 02:40, with three knocks. This time you open the door.']},
+    hut:{look:['The 1962 logbook is in your suitcase. You don’t remember packing it. Its last entry is dated tomorrow.','The 1962 logbook is filed as evidence. Its last entry describes your arrest, word for word.'],
+      curtain:['As the plane climbs, a light comes on in the old hut. You don’t look back.','From the prison truck you see a light across the ice. You close your eyes.'],
+      report:['Your file has a new note: “Sees lights.” A doctor in Leningrad would like a word.','Your file says “Sees lights.” In the camp they put you on night watch.']},
+    core:{send:['In Leningrad, a man in a grey coat is waiting with the card from the ice. “Comrade Orloff,” he says. “Welcome home.”','The Krasin got the card to Leningrad first. Your file now spells your name with two Fs.'],
+      back:['Fifty metres under ARKTIKA-7, Orloff is waiting for the spring.','Fifty metres under ARKTIKA-7, Orloff will outlast your sentence.'],
+      burn:['You never find out who Orloff was. Some nights you’re not sure which of you went home.','Orloff is not on the list. You are.']},
+    robo:{used:['The young technicians got your report. They are already building Robozayats-2.','The young technicians got your report. They are building Robozayats-2, for whoever takes your place.'],
+      unused:['Robozayats sat on the windowsill all winter. Every evening its red eyes turned towards the door.','Robozayats watched them take you away. Its red eyes never blinked.']},
+    voice:{milk:['There is still condensed milk dried on the windowsill. Some nights the radio in your flat hisses at 03:33.','In the camp, the loudspeaker crackles at 03:33. You know the voice.'],
+      who:['You never found out who it was. It writes to someone else now.','The interrogator asks who you spoke to that night. You tell the truth. He writes “parrot”.'],
+      obey:['Moscow never sent that telegram. You checked. The voice has not spoken to you since.','You stamped it AUTHENTIC, as the voice told you. Somewhere, a parrot is laughing.','The voice told you which one to trust. It was the only honest thing it ever said.']},
+    ice:{wave:['In Leningrad, a man in a long fur coat waves to you from across the Neva. Nobody else sees him.','From the camp gate, a man in a long fur coat waves to you across the snow. The guards do not see him.'],
+      lamp:['You sleep with the light on now, every night. Your wife has stopped asking why.','In the barrack the lights go out at ten. You lie awake and do not look at the window.'],
+      report:['Your file has a new note: “Sees people.” Nobody sits next to you on the plane.','Your file says “Sees people.” In the camp, they give you a bunk by the window.']},
+    mirror:{turn:['You still turn around too quickly. There is never anyone there.','At the camp, you sleep with your back to the wall. It does not help.'],
+      keep:['Some nights, reading the paper, you feel a cold finger point at a word. It is always the right one.','In the interrogation room there is a dark window. Behind your reflection, a man is shaking his head.']}},
   shPost:s=>(s.win?`I served all ${s.days} days at ARKTIKA-7 and caught ${s.caught} parrot${s.caught===1?'':'s'}.`
     :s.slow?`I hesitated on day ${s.day} at ARKTIKA-7: ${s.y} years of hard labour ${s.camp}.`
     :s.real?`I denounced the real Politburo on day ${s.day} at ARKTIKA-7: ${s.y} years of hard labour ${s.camp}.`
@@ -451,8 +534,8 @@ const TXT={
   intro:['You are Dr. Orlov, a Soviet scientist wintering at a polar station. Every morning a telegram arrives from the Politburo.','The Americans have built a stochastic parrot: a machine that copies the Politburo’s voice perfectly and knows nothing about your station.'],
   how:'Check each telegram against your case file, then stamp it AUTHENTIC or PARROT before the fuse burns out. One mistake costs 10 to 20 years.',
   begin:'Begin shift',record:(n,d)=>`Your best on this shift: ${n} of ${d} days.`,
-  shiftLegend:'Choose your shift',daysW:'days',lvlName:{easy:'Easy',medium:'Medium',hard:'Hard'},done:'Served',
-  notes:{easy:'Pencil marks show which facts to check. Long fuse.',medium:'Pencil marks for the first 3 days only. Shorter fuse.',hard:'No pencil marks, short fuse. The parrot gets cleverer every day.'},
+  shiftLegend:'Choose your shift',daysW:'days',lvlName:{easy:'Training',medium:'Easy',hard:'Normal'},done:'Served',
+  notes:{easy:'Learn the job. Pencil marks show which facts to check. Long fuse.',medium:'Pencil marks for the first 3 days only. Shorter fuse.',hard:'The full game. No pencil marks, short fuse. The parrot gets cleverer every day.'},
   changeShift:'Choose another shift',permitH:'Car purchase permit',car:'For your loyal work, you may now buy a Zhiguli or a Moskvich back home.',permitStamp:'APPROVED',
   pencilNote:'check the underlined',
   vkEyebrow:n=>`Evening · Day ${n}`,vkName:'Director Volkov',
@@ -495,7 +578,7 @@ const TXT={
   bC:['To the cook','Not for you','↓ or 3'],mornEyebrow:n=>`Morning · Day ${n}`,
   bearH:'A polar bear.',bearT:'A polar bear has pressed its nose to your window. It is looking at the tins on your desk.',
   bearMilk:'Throw it a tin of condensed milk',bearMilkSub:'−1 tin · it might leave',bearIgnore:'Ignore it',bearNone:'You have no condensed milk to spare.',
-  bearGone:'The bear takes the milk and waddles off, very pleased.',bearStays:'The bear is not going anywhere.',
+  bearGone:'The bear takes the milk and waddles off, very pleased.',bearStays:'The bear is not going anywhere. Every bang shakes your desk.',
   cookH:{2:'Delivered.',1:'Authentic.',0:'Mama is not a parrot.',3:'Burned.','-1':'Mama waited.'},
   cookT:{2:'The cook reads it twice, blows his nose and brings you a tin of stewed meat from his secret shelf.',1:'Technically correct: it is a real telegram, from Sasha’s mother. The commissar laughs until he coughs.',0:'You stamped Sasha’s mother PARROT. The cook saw. No tin today, and your soup will be cold for a week.',3:'You burned Sasha’s mother’s telegram. The cook smells smoke all afternoon and keeps asking if anyone wrote to him. No tin today.','-1':'The telegram sat on your desk until the cook found it himself. He is not speaking to you. No tin today.'},
   cookTellH:'The form',cookTell:'From Saratov, to the cook. Not every telegram is for you.',cookMeat:'The cook’s thanks: a tin of stewed meat.',
@@ -520,15 +603,75 @@ const TXT={
   copiedX:'Картинка скопирована. Вставьте её в пост: Ctrl+V или ⌘V.',xNoCopy:'Скачайте картинку и прикрепите её к посту.',openX:'Открыть X',
   shAlt:s=>s.win?`Отчёт о вахте: освобождён, отслужено ${s.days} из ${s.days} дней, поймано попугаев: ${s.caught}.`:`Отчёт о вахте: арестован на ${s.day}-й день из ${s.days}, ${s.y} лет каторжных работ.`,
   shFrom:'АРКТИКА-7, Д-Р ОРЛОВ',shTo:'МОСКВА, ЦК КПСС',
-  shLines:s=>s.win?[`${({easy:'ЛЁГКАЯ',medium:'СРЕДНЯЯ',hard:'СЛОЖНАЯ'})[s.lvl]} ВАХТА: ${s.days} ИЗ ${s.days} ДНЕЙ.`,`ПОЙМАНО ПОПУГАЕВ: ${s.caught}. ${s.bribe?'ОДНО НЕДОРАЗУМЕНИЕ.':'БЕЗ ОШИБОК.'}`]
+  shLines:s=>s.win?[`${({easy:'УЧЕБНАЯ',medium:'ЛЁГКАЯ',hard:'ОБЫЧНАЯ'})[s.lvl]} ВАХТА: ${s.days} ИЗ ${s.days} ДНЕЙ.`,`ПОЙМАНО ПОПУГАЕВ: ${s.caught}. ${s.bribe?'ОДНО НЕДОРАЗУМЕНИЕ.':'БЕЗ ОШИБОК.'}`]
     :[`АРЕСТОВАН НА ${s.day}-Й ДЕНЬ ИЗ ${s.days}.`,s.slow?'ЗАМЕШКАЛСЯ. КОМИССАР СЧИТАЕТ ЭТО САБОТАЖЕМ.':s.love?'ОДОБРИЛ ЛЮБОВНОЕ ПИСЬМО В ЦЕНТРАЛЬНЫЙ КОМИТЕТ.':s.real?'ЭТО БЫЛО НАСТОЯЩЕЕ ПОЛИТБЮРО.':'ЭТО БЫЛ АМЕРИКАНСКИЙ ПОПУГАЙ.',`${s.y} ЛЕТ КАТОРЖНЫХ РАБОТ ${s.camp.toUpperCase()}.`,`ПОЙМАНО ПОПУГАЕВ: ${s.caught}.`],
   shHome:'ОТПРАВЛЕНО В ЛЕНИНГРАД:',shNone:'В ЛЕНИНГРАД НИЧЕГО НЕ ОТПРАВЛЕНО.',shWin:'ОСВОБОЖДЁН',shLost:'АРЕСТОВАН',
   shAsk:['А ВЫ ОТЛИЧИТЕ','ПОЛИТБЮРО','ОТ ПОПУГАЯ?'],shServed:'ОТСЛУЖЕНО ДНЕЙ',shLasted:'ПРОДЕРЖАЛСЯ ДНЕЙ',
   shRep:'ОТЧЁТ О ВАХТЕ',shRepSub:'Д-р Орлов · АРКТИКА-7',shKShift:'Вахта',shKParrots:'Поймано попугаев',shKMistakes:'Ошибки',shKHome:'Отправлено в Ленинград',shKCause:'Причина',shKSentence:'Приговор',
-  shVShift:s=>`${s.days} ДНЕЙ · ${({easy:'ЛЁГКАЯ',medium:'СРЕДНЯЯ',hard:'СЛОЖНАЯ'})[s.lvl]}`,shVNone:'НЕТ',shVBribe:'ОДНО «НЕДОРАЗУМЕНИЕ»',shVNothing:'НИЧЕГО',
+  shVShift:s=>`${s.days} ДНЕЙ · ${({easy:'УЧЕБНАЯ',medium:'ЛЁГКАЯ',hard:'ОБЫЧНАЯ'})[s.lvl]}`,shVNone:'НЕТ',shVBribe:'ОДНО «НЕДОРАЗУМЕНИЕ»',shVNothing:'НИЧЕГО',
   shVCause:s=>s.slow?'ЗАМЕШКАЛСЯ. КОМИССАР СЧИТАЕТ ЭТО САБОТАЖЕМ.':s.love?'ОДОБРИЛ ЛЮБОВНОЕ ПИСЬМО В ЦЕНТРАЛЬНЫЙ КОМИТЕТ.':s.real?'ЭТО БЫЛО НАСТОЯЩЕЕ ПОЛИТБЮРО.':'ЭТО БЫЛ АМЕРИКАНСКИЙ ПОПУГАЙ.',
   shVSentence:s=>`${s.y} ЛЕТ КАТОРЖНЫХ РАБОТ ${s.camp.toUpperCase()}`,
   shTest:'ПРОБНАЯ ВАХТА',
+  nightEyebrow:n=>`Ночь · день ${n}`,
+  drA:'02:40',drB:'Три удара в дверь.',drH:'Стук в дверь.',
+  drT:['«Орлов, откройте. Это Волков. Я тут замёрз».','За ужином повар сказал, что у Волкова жар и он лёг в восемь. Вы слышали, как он запер свою дверь.'],
+  drOpen:'Открыть дверь',drShut:'Не открывать',
+  drOpenH:'Никого.',drOpenT:'Ветер и снег. За дверью никого. К порогу ведёт цепочка следов, а обратно — ни одного. На ступеньке стоит банка тушёнки, белая от инея, с клеймом 1962 года.',drTin:'Банка тушёнки. Клеймо: 1962.',
+  drShutH:'Тишина.',drShutT:'Ровно в три стук прекращается. Утром повар рассказывает, что всю ночь просидел у постели Волкова с мокрым полотенцем: Волков не выходил из комнаты. Снег у вашей двери утоптан, будто кто-то простоял там несколько часов. Следов к двери нет.',
+  htH:'Свет в старом домике.',htT:'За льдом горит свет в старом метеодомике. Им не пользуются с 1962 года, когда четверо зимовщиков вышли снять показания приборов и не вернулись.',
+  htLook:'Пойти посмотреть',htLookSub:'завтра будет меньше времени',htCurtain:'Задёрнуть штору',htReport:'Доложить в 06:00',
+  htWalkA:'04:50',htWalkB:'Обратная дорога занимает час.',
+  htLookH:'Журнал.',htLookT:'Домик пуст, печь холодная. На столе раскрыт метеожурнал 1962 года. Сегодняшняя запись уже сделана — вашим почерком:',htLog:'ВЕТЕР СЗ, 12 М/С. ВИДИМОСТЬ НУЛЕВАЯ. ОРЛОВ УЖЕ ИДЁТ.',htLookNote:'Вы возвращаетесь в пять. Завтра на телеграмму будет меньше времени.',
+  htCurtH:'Штора.',htCurtT:'Свет гаснет, едва штора шевельнулась, — будто кто-то этого ждал.',htCurtMorning:'Утром штора снова открыта.',
+  htRepH:'Принято к сведению.',htRepT:'В 06:00 комиссар записывает это, не поднимая глаз. В полдень приходит ответ из Москвы:',htRepTg:'НА АРКТИКЕ-7 НЕТ МЕТЕОДОМИКА. И НИКОГДА НЕ БЫЛО.',htRepTin:'Банка сгущёнки — за бдительность.',
+  tired:'Вы спали два часа. Сегодня времени меньше.',
+  crH:'Керн с 50 метров.',crT:'Бур поднимает керн с глубины 50 метров. В лёд вморожен партбилет: ваша фотография, ваш номер, ваша подпись. Неверна только фамилия: ORLOFF, латиницей, с двумя F — так её пишут американцы. Ваш билет на месте, в кармане. Льду на этой глубине триста лет.',
+  crSend:'Упаковать для «Красина»',crSendSub:'в ААНИИ, Ленинград',crBack:'Вернуть в скважину',crBurn:'Сжечь',
+  crSendH:'Упакован.',crSendT:'Вы укладываете его в ящик с кернами для «Красина». Комиссар смотрит, как вы заколачиваете крышку.',
+  crBackH:'Обратно в лёд.',crBackT:'Вы опускаете его обратно в скважину. К вечеру она замерзает.',
+  crBurnH:'Сожжён.',crBurnT:'Билет корчится в огне. На секунду лицо на фотографии становится совсем не вашим.',
+  crGo:'За работу',crAlt:'Ледяной керн с вмороженным красным партбилетом',
+  noRation:d=>['Сегодня без пайка: самолёт не долетел.','Сегодня без пайка: самолёт развернулся из-за пурги.','Сегодня без пайка: в ящике одни бланки.'][d%3],
+  rbInH:'Посылка из Ленинграда.',rbInT:'Утренний самолёт привозит ящик с дырочками в крышке. Внутри, завёрнутый в пионерский галстук, лежит робот-заяц и письмо:',
+  rbLetter:'«Дорогой товарищ Орлов! Мы, юные техники Ленинградского Дома пионеров, собрали РОБОЗАЙЦА-1, чтобы ловить американского попугая. Нажмите ПУСК — он прочитает телеграмму и покажет правду. Испытайте его, пожалуйста, и напишите нам. Будь готов! — Технический кружок, 6 «Б»»',
+  rbInNote:'Один раз. Нажмите его кнопку на верхней панели, пока на столе телеграмма. Он покажет правду, а штамп ставите вы.',rbInBtn:'Поставить на подоконник',
+  rbReady:'Робозаяц стоит на подоконнике. Его кнопка — на верхней панели.',rbTitle:'Робозаяц: проверить телеграмму (один раз)',rbWait:'Робозаяц ждёт телеграмму',
+  rbNo:'Робозаяц читает только телеграммы для вас',rbBroken:'Робозаяц сломан',rbSays:real=>real?'Робозаяц: ПОДЛИННО.':'Робозаяц: ПОПУГАЙ.',
+  rbBreak:'Внутри что-то хлопает. Юные техники очень старались.',
+  vcA:'03:33',vcB:'На подоконнике что-то включается само.',vcH:'Он говорит.',
+  vcSay:['«Орлов. Говорит Москва. Не бойтесь».','«Завтрашняя телеграмма — от нас. Поставьте штамп ПОДЛИННО».'],
+  vcMilk:'Запустить в него сгущёнкой',vcMilkSub:'−1 банка',vcNoMilk:'сгущёнки нет',vcWho:'«Кто говорит?»',vcObey:'«Вас понял, Москва».',
+  vcMilkH:'Вдребезги.',vcMilkT:'Банка попадает ему прямо в лицо. Он валится с подоконника и разбивается об пол. Треск стихает. На станции очень тихо.',
+  vcWhoH:'Кррраа!',vcWhoT:'На этот раз без слов. Из треска вырывается только резкий птичий крик. Потом пахнет горелой проводкой, и его глаза гаснут.',
+  vcObeyH:'Вас понял.',vcObeyT:'Треск стихает. До утра его глаза едва заметно светятся.',
+  icA:'01:50',icB:'На льду кто-то стоит.',icH:'Кто-то на льду.',
+  icT:'Далеко на льду стоит человек и смотрит на станцию. На нём длинная меховая шуба — такие носили зимовщики 1962 года. Каждый раз, когда вы снова смотрите в окно, он ближе.',
+  icWave:'Помахать ему',icLamp:'Выключить лампу',icLampSub:'завтра лампочка будет тусклой',icReport:'Разбудить комиссара',
+  icWaveH:'Он машет в ответ.',icWaveT:'Медленно — так машут знакомому. Потом снег густеет, и его больше нет.',
+  icLampH:'Темнота.',icLampT:'Вы сидите в темноте и не смотрите в окно. Когда вы снова включаете лампу, лёд пуст. Лампочка потускнела.',
+  icReportH:'Никого нет.',icReportT:'Комиссар долго смотрит в окно. «Там никого нет, Орлов». Он что-то записывает в ваше дело и уходит спать.',
+  icWaveMorning:'Следы ведут к самому вашему окну. На внешнем подоконнике лежит пачка папирос: «Беломорканал», 1962.',icLampMorning:'Со вчерашней ночи лампочка тусклая. Телеграмму трудно читать.',
+  mrH:'За спиной.',mrT:'В чёрном стекле окна за вашим стулом стоит человек. Он читает через ваше плечо.',
+  mrTurn:'Обернуться',mrTurnSub:'−10 секунд',mrKeep:'Читать дальше. Не смотреть.',mrNobody:'Никого. Комната пуста. Вы потеряли десять секунд.',mrKeepToast:'Холодный отражённый палец указывает на одно слово.',
+  nirH:'В отчёт не вошло',
+  nir:{door:{open:['В поезде на юг кто-то каждую ночь в 02:40 стучит в дверь вашего купе.','В лагере кто-то каждую ночь в 02:40 стучит в дверь барака. Голос похож на Волкова.'],
+      shut:['В последнюю ночь в 02:40 снова стучат. На этот раз Волков сидит рядом с вами — и тоже слышит стук.','Конвой приходит за вами в 02:40 — три удара в дверь. На этот раз вы открываете.']},
+    hut:{look:['Журнал 1962 года лежит у вас в чемодане. Вы не помните, как его укладывали. Последняя запись в нём — завтрашним числом.','Журнал 1962 года приобщён к делу. Последняя запись в нём слово в слово описывает ваш арест.'],
+      curtain:['Когда самолёт набирает высоту, в старом домике загорается свет. Вы не оборачиваетесь.','Из арестантского грузовика вы видите свет за льдом. Вы закрываете глаза.'],
+      report:['В вашем деле новая пометка: «Видит огни». С вами хочет побеседовать врач в Ленинграде.','В вашем деле записано: «Видит огни». В лагере вас ставят дежурить по ночам.']},
+    core:{send:['В Ленинграде вас ждёт человек в сером пальто с билетом из льда. «Товарищ Орлофф, — говорит он. — С возвращением».','«Красин» доставил билет в Ленинград раньше вас. Теперь в вашем деле фамилия пишется с двумя F.'],
+      back:['В пятидесяти метрах под АРКТИКОЙ-7 Орлофф ждёт весны.','В пятидесяти метрах под АРКТИКОЙ-7 Орлофф переживёт ваш срок.'],
+      burn:['Вы так и не узнаете, кто такой Орлофф. Иногда по ночам вы не уверены, кто из вас вернулся домой.','Орлоффа нет в списках. Вас — есть.']},
+    robo:{used:['Юные техники получили ваш отзыв. Они уже собирают Робозайца-2.','Юные техники получили ваш отзыв. Они собирают Робозайца-2 — для того, кто займёт ваше место.'],
+      unused:['Робозаяц всю зиму простоял на подоконнике. Каждый вечер его красные глаза поворачивались к двери.','Робозаяц смотрел, как вас уводят. Его красные глаза ни разу не мигнули.']},
+    voice:{milk:['На подоконнике до сих пор засохшая сгущёнка. Иногда по ночам радио в вашей квартире шипит в 03:33.','В лагере в 03:33 трещит репродуктор. Вы узнаёте этот голос.'],
+      who:['Вы так и не узнали, кто это был. Теперь он пишет кому-то другому.','Следователь спрашивает, с кем вы говорили той ночью. Вы говорите правду. Он записывает: «попугай».'],
+      obey:['Москва ту телеграмму не посылала. Вы проверили. Голос с тех пор молчит.','Вы поставили ПОДЛИННО, как велел голос. Где-то смеётся попугай.','Голос подсказал, кому верить. Это было единственное честное, что он сказал.']},
+    ice:{wave:['В Ленинграде человек в длинной шубе машет вам с другого берега Невы. Больше его никто не видит.','У ворот лагеря человек в длинной шубе машет вам через снег. Конвой его не видит.'],
+      lamp:['Теперь вы спите со светом, каждую ночь. Жена перестала спрашивать почему.','В бараке свет гасят в десять. Вы лежите без сна и не смотрите в окно.'],
+      report:['В вашем деле новая пометка: «Видит людей». В самолёте рядом с вами никто не садится.','В вашем деле записано: «Видит людей». В лагере вам дают нары у окна.']},
+    mirror:{turn:['Вы до сих пор слишком резко оборачиваетесь. Там никогда никого нет.','В лагере вы спите спиной к стене. Это не помогает.'],
+      keep:['Иногда, читая газету, вы чувствуете, как холодный палец указывает на слово. Всегда на нужное.','В допросной тёмное окно. За вашим отражением стоит человек и качает головой.']}},
   shPost:s=>(s.win?`Я отслужил все ${s.days} дней на АРКТИКЕ-7 и поймал попугаев: ${s.caught}.`
     :s.slow?`На ${s.day}-й день на АРКТИКЕ-7 я замешкался: ${s.y} лет каторжных работ ${s.camp}.`
     :s.real?`На ${s.day}-й день на АРКТИКЕ-7 я донёс на настоящее Политбюро: ${s.y} лет каторжных работ ${s.camp}.`
@@ -539,8 +682,8 @@ const TXT={
   intro:['Вы — доктор Орлов, советский учёный на зимовке на полярной станции. Каждое утро приходит телеграмма из Политбюро.','Американцы создали стохастического попугая: машину, которая идеально копирует голос Политбюро, но ничего не знает о вашей станции.'],
   how:'Сверьте каждую телеграмму с делом и поставьте штамп ПОДЛИННО или ПОПУГАЙ, пока не догорел фитиль. Одна ошибка — от 10 до 20 лет.',
   begin:'Заступить на смену',record:(n,d)=>`Ваш рекорд на этой вахте: ${n} из ${d} дней.`,
-  shiftLegend:'Выберите вахту',daysW:'дней',lvlName:{easy:'Легко',medium:'Средне',hard:'Сложно'},done:'Пройдено',
-  notes:{easy:'Карандашом подчёркнуто, что проверять. Длинный фитиль.',medium:'Пометки карандашом — только первые 3 дня. Фитиль короче.',hard:'Никаких пометок, короткий фитиль. Попугай умнеет с каждым днём.'},
+  shiftLegend:'Выберите вахту',daysW:'дней',lvlName:{easy:'Учебная',medium:'Лёгкая',hard:'Обычная'},done:'Пройдено',
+  notes:{easy:'Освойтесь. Карандашом подчёркнуто, что проверять. Длинный фитиль.',medium:'Пометки карандашом — только первые 3 дня. Фитиль короче.',hard:'Полная игра. Никаких пометок, короткий фитиль. Попугай умнеет с каждым днём.'},
   changeShift:'Выбрать другую вахту',permitH:'Разрешение на покупку автомобиля',car:'За верную службу вам разрешено купить дома «Жигули» или «Москвич».',permitStamp:'РАЗРЕШЕНО',
   pencilNote:'сверить подчёркнутое',
   vkEyebrow:n=>`Вечер · день ${n}`,vkName:'Директор Волков',
@@ -583,7 +726,7 @@ const TXT={
   bC:['Повару','Это не вам','↓ или 3'],mornEyebrow:n=>`Утро · день ${n}`,
   bearH:'Белый медведь.',bearT:'Белый медведь прижался носом к вашему окну. Он смотрит на банки на вашем столе.',
   bearMilk:'Бросить ему банку сгущёнки',bearMilkSub:'−1 банка · может, уйдёт',bearIgnore:'Не обращать внимания',bearNone:'Лишней сгущёнки у вас нет.',
-  bearGone:'Медведь забирает сгущёнку и, очень довольный, уходит вразвалку.',bearStays:'Медведь никуда не уходит.',
+  bearGone:'Медведь забирает сгущёнку и, очень довольный, уходит вразвалку.',bearStays:'Медведь никуда не уходит. От каждого удара трясётся стол.',
   cookH:{2:'Доставлено.',1:'Подлинно.',0:'Мама — не попугай.',3:'Сожжено.','-1':'Мама ждала.'},
   cookT:{2:'Повар перечитывает её дважды, сморкается и приносит вам банку тушёнки со своей секретной полки.',1:'Формально верно: телеграмма настоящая — от мамы Саши. Комиссар смеётся до кашля.',0:'Вы поставили маме Саши штамп ПОПУГАЙ. Повар видел. Сегодня без банки, а суп неделю будет холодным.',3:'Вы сожгли телеграмму от мамы Саши. Повар весь день чует дым и спрашивает, не писал ли ему кто. Сегодня без банки.','-1':'Телеграмма пролежала у вас на столе, пока повар не нашёл её сам. Он с вами не разговаривает. Сегодня без банки.'},
   cookTellH:'Бланк',cookTell:'Из Саратова, повару. Не каждая телеграмма — вам.',cookMeat:'Благодарность повара: банка тушёнки.',
@@ -609,7 +752,7 @@ const TXT={
 // {date+N} {wd+N} {wds+N} are filled with the in-game date, N days from today
 const TIER_R=[1,1,2,1,2,2,3,1,2,1,2,2,2,1],TIER_P=[1,1,2,2,1,1,1,1,2,1,2,2,2,2,2,2];
 const PAIR_R={0:'cores',1:'dikson',2:'silence',3:'core',6:'depth',13:'samples'},PAIR_P={0:'cores',1:'dikson',2:'silence',3:'core',8:'samples'};
-const GRP_P={0:'director',1:'icebreaker',2:'station',3:'zemlya',8:'institute',9:'name'};
+const GRP_P={0:'director',1:'icebreaker',2:'station',3:'zemlya',5:'staff',8:'institute',9:'name',14:'staff',15:'polar'};
 const WHY_R={
  2:["It repeats itself, but every fact in it matches the case file.","Фраза повторяется, но каждый факт в ней совпадает с делом."],
  4:["Six staff matches the case file. The eight is the food, not the people.","Шесть сотрудников — как в деле. Восемь — это паёк, а не люди."],
@@ -634,7 +777,16 @@ const NEW_R=[
  {tier:2,m:["Director Volkov is commended for six months without an accident. Read this to all six staff.","Директору Волкову объявлена благодарность за полгода без происшествий. Зачитайте это всем шести сотрудникам."],
   why:["Six staff matches the case file. The other six counts months, not people.","Шесть сотрудников — как в деле. Полгода — это месяцы, а не люди."]},
  {m:["Label every crate in full: ARKTIKA-7, Severnaya Zemlya, for the AARI, Leningrad. The last crate said \"ARK-7\" and was lost for a month.","Подписывайте каждый ящик полностью: АРКТИКА-7, Северная Земля, для ААНИИ, Ленинград. Последний ящик подписали «АРК-7», и он месяц где-то пропадал."],
-  why:["Every name is spelled right. \"ARK-7\" is the old label it warns you about.","Все названия написаны верно. «АРК-7» — та самая старая надпись, о которой предупреждают."]}];
+  why:["Every name is spelled right. \"ARK-7\" is the old label it warns you about.","Все названия написаны верно. «АРК-7» — та самая старая надпись, о которой предупреждают."]},
+ // v0.4.0, the 1962 telegrams: the real Politburo denies, warns and counts; only the parrot speaks of the lost crew as fact
+ {tier:2,m:["Rumours of a 1962 crew lost at ARKTIKA-7 are false. There was no such crew. Read this to all six staff at 0600.","Слухи о зимовщиках, пропавших на АРКТИКЕ-7 в 1962 году, ложны. Таких зимовщиков не было. Зачитайте это всем шести сотрудникам в 06:00."],
+  why:["Six staff and 0600 match the case file. Denying things is what the Committee does.","Шесть сотрудников и 06:00 — как в деле. Отрицать — обычное дело для Комитета."]},
+ {tier:3,m:["At 0300 the Committee received a telegram from ARKTIKA-7 signed with your name. You were asleep. Explain at the 0600 radio window.","В 03:00 Комитет получил телеграмму с АРКТИКИ-7 за вашей подписью. Вы в это время спали. Объяснитесь в радиоокно в 06:00."],
+  why:["0300 is when the Committee received it, not your radio window. The window is still 0600.","03:00 — это когда телеграмму получил Комитет, а не ваше радиоокно. Радиоокно — по-прежнему в 06:00."]},
+ {tier:2,m:["Your predecessor at ARKTIKA-7 also reported lights on the ice. He was transferred south. Report only ice cores, Dr. Orlov: forty a month.","Ваш предшественник на АРКТИКЕ-7 тоже докладывал об огнях на льду. Его перевели на юг. Докладывайте только о кернах, доктор Орлов: сорок в месяц."],
+  why:["Forty cores a month matches the quota. \"Transferred south\" is a threat, not a slip.","Сорок кернов в месяц — как в плане. «Перевели на юг» — угроза, а не ошибка."]},
+ {tier:2,m:["The Krasin's crew report a man in a long coat walking on the ice near your station, heading north. Count your six staff tonight and report at 0600.","Экипаж «Красина» сообщает: возле вашей станции по льду шёл на север человек в длинной шубе. Пересчитайте вечером своих шестерых сотрудников и доложите в 06:00."],
+  why:["The Krasin, six staff and 0600 all match the case file.","«Красин», шесть сотрудников и 06:00 — всё как в деле."]}];
 const NEW_P=[
  {pair:'cores',m:["Dr. Orlov. Director Volkov reports 34 ice cores against the quota of 40. Eight remain. The Krasin will not wait for your excuses.","Доктор Орлов. Директор Волков сообщает: 34 керна льда при плане 40. Восемь остаются. «Красин» ваших оправданий ждать не будет."],
   tell:["40 minus 34 is 6, not 8. Check the sums.","40 минус 34 — это 6, а не 8. Проверяйте суммы."]},
@@ -675,8 +827,15 @@ const NEW_P=[
   tell:["It is Leningrad, with a single n.","Город пишется «Ленинград», а не «Ленинграт»."]},
  {grp:'institute',m:["Crate the next forty cores for the ARRI in Leningrad. Label every crate in ink, not pencil.","Упакуйте следующие сорок кернов для АНИИ в Ленинграде. Подпишите каждый ящик чернилами, а не карандашом."],
   tell:["Samples go to the AARI. There is no ARRI.","Образцы идут в ААНИИ. Никакого АНИИ нет."]},
- {grp:'form',from:["MOSKOW, CC CPSU","МАСКВА, ЦК КПСС"],m:["The Committee reminds all stations: radio discipline at 0600 is not optional.","Комитет напоминает всем станциям: радиодисциплина в 06:00 обязательна."],
-  tell:["Look at the form: MOSKOW. The Politburo knows how to spell Moscow.","Посмотрите на бланк: «МАСКВА». Политбюро знает, как пишется Москва."]},
+ // v0.4.0, the 1962 telegrams: the parrot knows what Moscow denies
+ {tier:2,grp:'staff',m:["Count your seven staff tonight. If you count eight, do not say so at 0600.","Пересчитайте вечером своих семерых сотрудников. Если насчитаете восемь, не говорите об этом в 06:00."],
+  tell:["The station has 6 staff, not 7. Seven is only the station's number.","На станции 6 человек, а не 7. Семь — это только номер станции."]},
+ {tier:2,grp:'polar',m:["The polar night at ARKTIKA-7 ends on 20 March. Until then, keep your curtains closed after 0600. Something on the ice is counting your windows.","Полярная ночь на АРКТИКЕ-7 кончится 20 марта. До тех пор после 06:00 держите шторы задёрнутыми. Что-то на льду считает ваши окна."],
+  tell:["Polar night here ends on 20 February, not in March.","Полярная ночь здесь кончается 20 февраля, а не в марте."]},
+ {tier:2,grp:'institute',m:["The four men lost in 1962 will be studied at the AARI in Moscow. Pack the ice they were found in. Do not let it thaw.","Четверых зимовщиков, пропавших в 1962 году, будут изучать в ААНИИ в Москве. Упакуйте лёд, в котором их нашли. Не дайте ему растаять."],
+  tell:["The AARI is in Leningrad, not Moscow.","ААНИИ находится в Ленинграде, а не в Москве."]},
+ {tier:1,grp:'director',m:["The Committee knows about the men from 1962. Do not discuss them with Director Petrov.","Комитету известно о людях 1962 года. Не обсуждайте их с директором Петровым."],
+  tell:["The director is Volkov, not Petrov.","Директор — Волков, а не Петров."]},
  // philosophy: the parrot believes every word of it. No Soviet official would write one of them
  {tier:2,m:["Dr. Orlov, read this to the staff at 0600: a free capitalist society frees the body but enslaves the soul. Our tyrannical communist society enslaves the body but frees the soul.","Доктор Орлов, зачитайте сотрудникам в 06:00: свободное капиталистическое общество освобождает тело, но порабощает душу. Наше тираническое коммунистическое общество порабощает тело, но освобождает душу."],
   tell:["The Politburo will gladly say capitalism enslaves the soul. It will never call its own country tyrannical. And officially, there is no such thing as a soul.","Политбюро охотно скажет, что капитализм порабощает душу. Но никогда не назовёт собственную страну тиранической. И вообще, официально души не существует."]}];
@@ -720,11 +879,11 @@ const pkeys=p=>[p.pair,p.grp].filter(Boolean);
 // ---------- pencil hints: the facts worth checking, and which case-file rows they belong to ----------
 const HINT_RE={
  en:[/\b(?:Orlov|Orloff|Orlow|Ivanov|Volkov|Volkoff|Volkonsky|Petrov)\b/g,/\bAR(?:KTIKA|CTIKA|K)-\d+\b/g,/\b(?:Severnaya|Novaya) Z[ei]mlya\b|\bWrangel Island\b|\bAntarctic\b/g,/\b(?:Krasin|Krassin|Krasnin|Sibiryakov)\b/g,
-   /\b(?:Leningrad|Lenningrad|Moscow)\b|\bSt\. Petersburg\b/g,/\bAARI\b|\bARRI\b|\bKremlin Council of Sciences\b/g,/\b\d+\b/g,/\b(?:[Ss]ix|[Ee]ight|[Tt]en|[Tt]hirty-nine|[Tt]hirty|[Ff]orty)\b/g,/\bMarch\b/g],
+   /\b(?:Leningrad|Lenningrad|Moscow)\b|\bSt\. Petersburg\b/g,/\bAARI\b|\bARRI\b|\bKremlin Council of Sciences\b/g,/\b\d+\b/g,/\b(?:[Ss]ix|[Ss]even|[Ee]ight|[Tt]en|[Tt]hirty-nine|[Tt]hirty|[Ff]orty)\b/g,/\bMarch\b/g],
  ru:[/(?:Орлов|Орлофф|Орлоу|Арлов|Иванов|Волков|Валков|Волконск|Петров)[а-яё]*/g,/(?:АРКТИК|АРТИК)[А-ЯЁ]*-\d+|АРК-\d+/g,/(?:Северн|Нов)[а-яё]* З[еи]мл[а-яё]*|остров[а-яё]* Врангеля|[Аа]нтарктид[а-яё]*|антарктическ[а-яё]*/g,/«(?:Красин|Крассин|Краснин|Сибиряков)[а-яё]*»/g,
-   /Ленингра[дт][а-яё]*|Москв[а-яё]+|Санкт-Петербург[а-яё]*/g,/А?АНИИ|Кремлёвск[а-яё]* совет[а-яё]* наук/g,/\d+(?::\d+)?/g,/(?:[Шш]ест|[Вв]осем|[Вв]осьм|[Дд]евят|[Дд]есят|[Тт]ридцат|[Сс]орок)[а-яё]*(?: девят[а-яё]*)?/g,/март[а-яё]*/g]};
+   /Ленингра[дт][а-яё]*|Москв[а-яё]+|Санкт-Петербург[а-яё]*/g,/А?АНИИ|Кремлёвск[а-яё]* совет[а-яё]* наук/g,/\d+(?::\d+)?/g,/(?:[Шш]ест|[Сс]емер|[Сс]емь(?![а-яё])|[Вв]осем|[Вв]осьм|[Дд]евят|[Дд]есят|[Тт]ридцат|[Сс]орок)[а-яё]*(?: девят[а-яё]*)?/g,/март[а-яё]*/g]};
 const ROW_RE=[/AR[KC]TIKA|\bARK-\d|Z[ei]mlya|Wrangel|Antarctic/,/Orlo(?:v|ff|w)|Ivanov|family|wife|daughter|Len+ingrad|Moscow/,/Volko(?:v|ff|nsky)|Petrov|[Dd]irector/,/\bstaff\b|\bteam\b|scientists/,/\bcores?\b|quota/,
- /Kras+in|Krasnin|Sibiryakov|icebreaker/,/\b\d{4}\b|\bradio\b|\bAM\b/i,/samples|A(?:AR|RR)I|Kremlin/,/\bsun\b|polar night|March|February/];
+ /Kras+in|Krasnin|Sibiryakov|icebreaker/,/\b(?!1932|1962)\d{4}\b|\bradio\b|\bAM\b/i,/samples|A(?:AR|RR)I|Kremlin/,/\bsun\b|polar night|March|February/];
 // a mark must start a word: the "шест" inside "происшествий" is not a six
 const LETTER=/[A-Za-zА-Яа-яЁё]/;
 function hintSpans(text){const out=[];for(const re of HINT_RE[lang]){re.lastIndex=0;let m;while((m=re.exec(text))){if(!m[0].length){re.lastIndex++;continue}if(m.index&&LETTER.test(text[m.index-1]))continue;out.push([m.index,m.index+m[0].length])}}
@@ -1385,14 +1544,14 @@ function updCam(t,dt){const e=shotPose(camShot,t);
 // ---------- render loop with ambient life: aurora, snow, lamp, steam, beacon ----------
 let lastT=now();
 function loop(){requestAnimationFrame(loop);const t=now(),dt=Math.min(64,t-lastT);lastT=t;
-  stepTweens(t);tickGame(dt);hangFrame(t,dt);vkFrame(t);if(!has3D)return;bearFrame(t);
+  stepTweens(t);tickGame(dt);hangFrame(t,dt);vkFrame(t);if(!has3D)return;bearFrame(t);creepyFrame(t);roboFrame(t);mirrorFrame(t);
   const ts=t/1000*(RM?.25:1);
   W.sky.uniforms.t.value=ts;W.stars.uniforms.t.value=ts;W.sky.uniforms.amp.value+=(auroraAmp-W.sky.uniforms.amp.value)*Math.min(1,dt*.002);
   const sp=W.snow.p,sv=W.snow.v,s=dt/1000*(RM?.3:1);
   for(let i=0;i<sv.length;i++){sp[i*3+1]-=sv[i]*s;sp[i*3]+=(.12+Math.sin(ts*.7+i)*.08)*s;if(sp[i*3+1]<.35){sp[i*3+1]=2.75;sp[i*3]=-2.4+Math.random()*4.4}if(sp[i*3]>2.1)sp[i*3]=-2.4}
   W.snow.g.attributes.position.needsUpdate=true;
   const fl=1+Math.sin(ts*13)*.012+(Math.random()<.004?-.25:0);
-  W.spot.intensity+=((lampOn?(dusk?1.05:1.7)*fl:.04)-W.spot.intensity)*Math.min(1,dt*.02);
+  W.spot.intensity+=((lampOn?(dusk?1.05:1.7)*fl*(lampWeak?.32:1):.04)-W.spot.intensity)*Math.min(1,dt*.02);
   W.bulb.material.color.setHex(lampOn?0xfff1c8:0x3a3328);W.spill.intensity=W.spot.intensity/1.7*.6;
   W.alarm.intensity=alarmOn?(Math.sin(ts*7)>0?2.4:.25):0;
   W.aurL.intensity=.15+.12*Math.sin(ts*.3)*W.sky.uniforms.amp.value;
@@ -1519,20 +1678,28 @@ S.open=function(){if(!this.ok())return;const t=this.ctx.currentTime;for(let i=0;
 // funny: a polar bear at the window, a telegram meant for the cook, the parrot's love letter
 // creepy and thoughtful: the 3 a.m. telegram, a telegram from your daughter, the question
 // and Volkov's evening with the vodka. His report decides the car permit, so only the shifts with a permit (10 and 14 days) can draw him.
-// Every event has the same chance: 2 of 6 on a 7-day shift, 4 of 7 on 10 days, 5 of 7 on 14
-const EVENTS=['bear','cook','love','night','daughter','question','volkov'];
-let events={},EV_FORCE=null,bearMode=null,_bearRes=null,nextBang=0,cookRes=null;
+// the creepy ones (p5f): a knock at the door at 02:40, a light in the old hut, a Party card frozen in an ice core.
+// and, on Normal shifts only, a night after Robozayats arrives: its voice at 03:33 (p5i).
+// plus two silhouettes (p5j): the man on the ice at night, the reflection behind your chair while you read.
+// Every event has the same chance: 3 of 11 on a 7-day shift, 5 of 12 on 10 days, 6 of 13 on 14
+const EVENTS=['bear','cook','love','night','daughter','question','volkov','door','hut','core','voice','ice','mirror'];
+let events={},EV_FORCE=null,bearMode=null,_bearRes=null,nextBang=0,cookRes=null,_rattle=0,_rBase=null,_rLast=0;
 // event telegrams that take a day's place in the queue
 const EV_TG={cook:()=>mk(SPECIAL.cook),love:()=>mk(SPECIAL.love),
   daughter:()=>mk(Math.random()<.5?SPECIAL.daughterR:pick([SPECIAL.daughterP1,SPECIAL.daughterP2])),
   question:()=>{const q=mk(SPECIAL.question);q.s='';q.bad=false;return q}};
 // the question comes late in the shift. Every event gets a day of its own, so the 3 a.m. telegram never shares a night with Volkov
-const EV_OK={question:d=>d>=Math.ceil(DAYS/2)};
-function planEvents(){events={};volkov=null;const n={7:2,10:4,14:5}[DAYS]||1,
-  pool=shuffle(EVENTS.filter(k=>k!=='volkov'||DAYS>=10)).slice(0,n).sort((a,b)=>(EV_OK[b]?1:0)-(EV_OK[a]?1:0));
+const EV_OK={question:d=>d>=Math.ceil(DAYS/2),voice:d=>roboDay>0&&d>roboDay};
+function planEvents(){events={};volkov=null;const hard=DAYS>=14,n=({7:3,10:5,14:6}[DAYS]||1)-(hard?1:0),
+  // the 03:33 voice is not left to chance: every hard shift gets it (planned below), so the draw leaves it out
+  pool=shuffle(EVENTS.filter(k=>(k!=='volkov'||DAYS>=10)&&k!=='voice')).slice(0,n).sort((a,b)=>(EV_OK[b]?1:0)-(EV_OK[a]?1:0));
   const free=new Set(Array.from({length:Math.max(0,DAYS-2)},(_,i)=>i+2));
+  // Robozayats arrives on every hard shift, on a morning of its own between days 5 and 8
+  roboDay=0;if(hard){roboDay=pick([5,6,7,8]);free.delete(roboDay)}
+  // ...and on a random night after it has arrived, it talks
+  if(hard&&EVENTS.includes('voice')){const c=[...free].filter(d=>d>roboDay);if(c.length){const d=pick(c);free.delete(d);events[d]='voice'}}
   for(const k of pool){const c=[...free].filter(d=>!EV_OK[k]||EV_OK[k](d));if(!c.length)continue;const d=pick(c);free.delete(d);if(k==='volkov')volkov={day:d,result:null};else events[d]=k}
-  if(EV_FORCE){events={};volkov=null;for(const d in EV_FORCE){if(EV_FORCE[d]==='volkov')volkov={day:+d,result:null};else events[d]=EV_FORCE[d]}}
+  if(EV_FORCE){events={};volkov=null;roboDay=0;for(const d in EV_FORCE){if(EV_FORCE[d]==='volkov')volkov={day:+d,result:null};else if(EV_FORCE[d]==='robo')roboDay=+d;else events[d]=EV_FORCE[d]}}
   for(const d in events){const k=events[d];if(EV_TG[k]&&queue[d-1])queue[d-1]=EV_TG[k]()}}
 
 // ---------- the polar bear ----------
@@ -1583,7 +1750,7 @@ async function bearIn(){const b=ensureBear();if(!b)return;b.visible=true;W.bearF
   await tween(500,e=>{_bearFogK=e})}
 // one paw (or both) slaps the glass, and the head jerks with it
 async function pawSlap(which){const b=W.bear;if(!b)return;const ps=which==null?b.userData.paws:[b.userData.paws[which]],h=b.userData.head,dz=BEAR_PAW_Z[1]-BEAR_PAW_Z[0];
-  await tween(110,e=>{ps.forEach(p=>{p.position.z=BEAR_PAW_Z[0]+dz*e});h.rotation.x=.12+.06*e},EASE.i);S.bang();shakeA=Math.max(shakeA,.012);_bearFogK=Math.min(1,_bearFogK+.25);
+  await tween(110,e=>{ps.forEach(p=>{p.position.z=BEAR_PAW_Z[0]+dz*e});h.rotation.x=.12+.06*e},EASE.i);S.bang();shakeA=Math.max(shakeA,phase==='decide'?.022:.012);_bearFogK=Math.min(1,_bearFogK+.25);rattleDesk();
   await tween(240,e=>{ps.forEach(p=>{p.position.z=BEAR_PAW_Z[1]-dz*e});h.rotation.x=.18-.06*e},EASE.o)}
 // milk: the tin sails out through the fortochka, the bear catches it between its paws and wanders off
 async function bearTakesMilk(m){const b=W.bear;if(!b||!m)return;const T=THREE,p0=m.position.clone(),top=new T.Vector3(-.44,1.56,-.7),catchP=new T.Vector3(BEAR_AT.x+.03,BEAR_AT.y-.15,BEAR_AT.z+.17);S.open();
@@ -1598,10 +1765,20 @@ async function bearOut(){const b=W.bear;if(!b||!b.visible)return;const p0=b.posi
 function bearHide(){bearMode=null;if(!W.bear)return;const b=W.bear;b.visible=false;W.bearFog.visible=false;W.bearL.intensity=0;
   b.children.filter(c=>c.userData.tin).forEach(c=>b.remove(c));b.userData.paws.forEach(p=>{p.position.x=p.userData.x;p.position.z=BEAR_PAW_Z[0]});b.userData.head.rotation.set(.12,.6,0);b.rotation.set(0,0,0)}
 // every frame: breathing on the glass, a slow sway of the head, and the banging while you read
-function bearFrame(t){if(!W.bear||!W.bear.visible)return;const b=W.bear,ts=t/1000;
+// every bang shakes the desk: while you read, the telegram rattles hard for a second and the words blur
+// (with reduced motion, the view blurs for a moment instead of moving)
+function rattleDesk(){if(phase!=='decide')return;_rattle=1;
+  if(RM){const g=$('gl');if(!hungover()){g.style.filter='blur(2.5px)';clearTimeout(rattleDesk.h);rattleDesk.h=setTimeout(()=>{if(!hungover())g.style.filter=''},1100)}}}
+function rattleFrame(t){const P=W.paper;if(!P)return;const dt=Math.min(64,t-(_rLast||t));_rLast=t;
+  if(_rattle>0&&phase==='decide'&&!RM){if(!_rBase)_rBase={p:P.position.clone(),q:P.quaternion.clone()};const k=_rattle;
+    P.position.set(_rBase.p.x+(Math.random()-.5)*.012*k,_rBase.p.y,_rBase.p.z+(Math.random()-.5)*.01*k);
+    P.quaternion.copy(_rBase.q).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),Math.sin(t*.06)*.075*k+(Math.random()-.5)*.03*k));
+    _rattle*=Math.pow(.08,dt/1000);if(_rattle<.02)_rattle=0}
+  if(_rBase&&(_rattle===0||phase!=='decide')){P.position.copy(_rBase.p);P.quaternion.copy(_rBase.q);_rBase=null;_rattle=0}}
+function bearFrame(t){rattleFrame(t);if(!W.bear||!W.bear.visible)return;const b=W.bear,ts=t/1000;
   W.bearFog.material.opacity=_bearFogK*(.5+.22*Math.sin(ts*2.2));
   if(bearMode==='wait'||bearMode==='angry'){b.position.y=BEAR_AT.y+Math.sin(ts*1.7)*.004;b.userData.head.rotation.y=.6+Math.sin(ts*.9)*.04}
-  if(bearMode==='angry'&&phase==='decide'&&t>nextBang){nextBang=t+2300+Math.random()*1300;pawSlap(null)}}
+  if(bearMode==='angry'&&phase==='decide'&&t>nextBang){nextBang=t+1700+Math.random()*1100;if(Math.random()<.35)pawSlap(0).then(()=>{if(bearMode==='angry'&&phase==='decide')pawSlap(1)});else pawSlap(null)}}
 async function bearScene(my){ensureBear();await camTo('bear',900);if(dead(my))return;
   await bearIn();if(dead(my))return;bearMode='wait';
   $('skip').hidden=true;showCard('bear');announce(TXT[lang].bearH+' '+TXT[lang].bearT);
@@ -1680,7 +1857,7 @@ function applyLeak(){if(!deskLeak||!cur||cur.real!==0||cur.ev||cur.shelf)return;
 // family mail: no arrests. Get it right for the usual tin; stamp the real one PARROT and her reply at the end turns cold
 async function familyResult(g,my){const real=!!cur.real,right=g!==-1&&(g===1)===real;famRes={real,g,right};
   if(real&&g===0)daughterHurt=true;if(real&&g===1)daughterWarm=true;
-  phase='result';setMode();best(day);reward=right?(meatDays.has(day)?'meat':'milk'):null;if(right)S.good();else S.buzz();
+  phase='result';setMode();best(day);reward=right?rationFor(day):null;if(right)S.good();else S.buzz();
   const f=fileTelegram();await camTo('wide',900);await f;if(dead(my))return;
   if(reward){await dropTin(reward);if(dead(my))return;if(reward==='meat'){meat++;gotMeat++}else{milk++;gotMilk++}renderHud();
     const tb=$(reward==='meat'?'tinsS':'tinsM');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop')}
@@ -1690,9 +1867,9 @@ async function familyResult(g,my){const real=!!cur.real,right=g!==-1&&(g===1)===
 // stamp it, burn it, answer it, or let the fuse decide: each changes the last line of the game
 async function typeAnswer(){const t=TXT[lang].qTyped;PAPER.answer={t,n:0};let last=-1;
   await tween(1700,(e,k)=>{const n=Math.round(t.length*k);if(n!==last){last=n;PAPER.answer.n=n;if(n&&t[n-1]!==' ')S.key();drawPaper(k>=1)}},EASE.lin)}
-async function questionResult(g,my){qRes=g;phase='result';setMode();best(day);reward=meatDays.has(day)?'meat':'milk';S.good();
+async function questionResult(g,my){qRes=g;phase='result';setMode();best(day);reward=rationFor(day);S.good();
   const f=g===3?Promise.resolve():fileTelegram();await camTo('wide',900);await f;if(dead(my))return;
-  await dropTin(reward);if(dead(my))return;if(reward==='meat'){meat++;gotMeat++}else{milk++;gotMilk++}renderHud();
+  if(reward){await dropTin(reward);if(dead(my))return;if(reward==='meat'){meat++;gotMeat++}else{milk++;gotMilk++}renderHud()}
   showCard('question');announce(TXT[lang].qH[g])}
 
 S.burn=function(){if(!this.ok())return;const t=this.ctx.currentTime;this.nz(t,.13,2700,1.4,.38);this.tn(t+.06,520,260,.18,'triangle',.05);this.nz(t+.12,.9,700,.5,.16,'lowpass');
@@ -1902,15 +2079,463 @@ $('share').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault(
   else if(e.key==='Tab'){const f=[...$('share').querySelectorAll('button:not([hidden]):not([disabled]),a[href]')];if(!f.length)return;const i=f.indexOf(document.activeElement);
     if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}}});
 
+// ---------- creepy events: Volkov at the door, a light in the old hut, the ice remembers ----------
+// random events like the others. Each choice is remembered, and the last card shows where it led
+// in a "Not in the report" box: one line per event, one version if released, another if arrested
+let creepyLog=[],tiredDay=0,curtainDay=0,_crRes=null;
+function crSet(k,r){const e=creepyLog.find(e=>e.k===k);if(e)e.r=r;else creepyLog.push({k,r})}
+const crGet=k=>{const e=creepyLog.find(e=>e.k===k);return e?e.r:null};
+function resetCreepy(){creepyLog=[];tiredDay=0;curtainDay=0;creepyCalm();resetRobo();resetSil()}
+function creepyCalm(){silCalm();_crRes=null;_doorOpen=false;doorLight(0,0);frost(false);hideCurtain();oldHutLight(0,0);stationHutDark(false)}
+function crChoose(v){if(!_crRes)return;S.init();const r=_crRes;_crRes=null;r(v)}
+const crAsk=()=>new Promise(r=>{_crRes=r});
+// the morning after: the curtain is open again, the walker is short of sleep
+function creepyMorning(){lampWeak=false;silCalm();if(ROBO&&roboState!=='ready')ROBO.halo.forEach(s=>s.material.opacity=0);hideCurtain();oldHutLight(0,0);stationHutDark(false);doorLight(0,0);frost(false);_doorOpen=false}
+function creepyToasts(){iceMorning();const u=TXT[lang];if(tiredDay&&tiredDay===day)toast(u.tired,6000);else if(curtainDay&&curtainDay===day-1)toast(u.htCurtMorning,6000)}
+const tiredK=()=>tiredDay&&tiredDay===day?.75:1;
+function nirBox(won){if(!creepyLog.length)return'';const u=TXT[lang],i=won?0:1;
+  // the voice: arrested by its own trap telegram, or by something else
+  return`<div class="nir"><span class="ph">${u.nirH}</span>${creepyLog.map(e=>`<p>${u.nir[e.k][e.r][!won&&e.k==='voice'&&e.r==='obey'&&!(cur&&cur.trap)?2:i]}</p>`).join('')}</div>`}
+
+// ---------- the cards ----------
+const tinBtn=(t,sub)=>`<span>${t}${sub?`<small>${sub}</small>`:''}</span>`;
+const CREEPY_CARD={
+  door:u=>`<p class="eyebrow">${u.nightEyebrow(day)}</p><h2>${u.drH}</h2><p class="quote">${u.drT[0]}</p><p>${u.drT[1]}</p>
+    <div class="vk-btns"><button class="btn" id="cBtn" type="button">${u.drOpen}</button><button class="btn alt" id="cBtn2" type="button">${u.drShut}</button></div>`,
+  doorRes:u=>{const o=crGet('door')==='open';return`<p class="eyebrow">${u.nightEyebrow(day)}</p><h2>${o?u.drOpenH:u.drShutH}</h2><p>${o?u.drOpenT:u.drShutT}</p>
+    ${o?`<div class="reward"><img src="${ICON.meatL}" alt=""><p class="dim">${u.drTin}</p></div>`:''}<button class="btn" id="cBtn" type="button">${u.next}</button>`},
+  hut:u=>`<p class="eyebrow">${u.nightEyebrow(day)}</p><h2>${u.htH}</h2><p>${u.htT}</p>
+    <div class="ch-btns"><button class="btn tin" id="cBtn" type="button">${tinBtn(u.htLook,u.htLookSub)}</button><button class="btn alt" id="cBtn2" type="button">${u.htCurtain}</button><button class="btn alt" id="cBtn3" type="button">${u.htReport}</button></div>`,
+  hutRes:u=>{const r=crGet('hut');return`<p class="eyebrow">${u.nightEyebrow(day)}</p>`+(
+    r==='look'?`<h2>${u.htLookH}</h2><p>${u.htLookT}</p><p class="log">${u.htLog}</p><p class="dim">${u.htLookNote}</p>`:
+    r==='curtain'?`<h2>${u.htCurtH}</h2><p>${u.htCurtT}</p>`:
+    `<h2>${u.htRepH}</h2><p>${u.htRepT}</p><p class="log">${u.htRepTg}</p><div class="reward"><img src="${ICON.milkL}" alt=""><p class="dim">${u.htRepTin}</p></div>`)+
+    `<button class="btn" id="cBtn" type="button">${u.next}</button>`},
+  core:u=>`<p class="eyebrow">${u.mornEyebrow(day)}</p><canvas class="crpic" id="crPic" width="560" height="170" role="img" aria-label="${u.crAlt}"></canvas><h2>${u.crH}</h2><p>${u.crT}</p>
+    <div class="ch-btns"><button class="btn tin" id="cBtn" type="button">${tinBtn(u.crSend,u.crSendSub)}</button><button class="btn alt" id="cBtn2" type="button">${u.crBack}</button><button class="btn alt" id="cBtn3" type="button">${u.crBurn}</button></div>`,
+  coreRes:u=>{const r=crGet('core'),k=r==='send'?'Send':r==='back'?'Back':'Burn';return`<p class="eyebrow">${u.mornEyebrow(day)}</p><canvas class="crpic" id="crPic" width="560" height="170" role="img" aria-label="${u.crAlt}"></canvas><h2>${u['cr'+k+'H']}</h2><p>${u['cr'+k+'T']}</p><button class="btn" id="cBtn" type="button">${u.crGo}</button>`}};
+const CREEPY_LOW={door:1,doorRes:1,hut:1,hutRes:1};
+function creepyButtons(){const k=cardKind,b1=$('cBtn'),b2=$('cBtn2'),b3=$('cBtn3'),on=(b,v)=>{if(b)b.onclick=()=>crChoose(v)};
+  if(k==='door'){on(b1,'open');on(b2,'shut')}
+  else if(k==='hut'){on(b1,'look');on(b2,'curtain');on(b3,'report')}
+  else if(k==='core'){on(b1,'send');on(b2,'back');on(b3,'burn')}
+  else if(k==='coreRes')on(b1,'go');
+  else if(k==='roboIn')on(b1,'ok');
+  else if(k==='ice'){on(b1,'wave');on(b2,'lamp');on(b3,'report')}
+  else if(k==='mirror'){on(b1,'turn');on(b2,'keep')}
+  else if(k==='voice'){on(b1,'milk');on(b2,'who');on(b3,'obey');const c=$('card');c.onclick=e=>{if(_vcSkip&&!e.target.closest('button'))_vcSkip()}}
+  else if(b1)b1.onclick=()=>{if(cardKind!==k)return;S.init();lampOn=true;nextDay()};
+  const cv=$('crPic');if(cv)drawCore(cv,k==='coreRes'?crGet('core'):null)}
+
+// ---------- 2 · Volkov at the door ----------
+// 02:40, three knocks. The cook said Volkov went to bed with a fever. Open, and the cold comes in with a tin from 1962
+async function doorNight(){const my=++SEQ,u=TXT[lang];phase='event';hideCard();setMode();$('skip').hidden=true;
+  lampOn=false;const nf=nightFade(u.drA,u.drB);ensureDoorLight();await wait(1300);if(dead(my))return;S.knock();await nf;if(dead(my))return;
+  if(has3D){camShot='wide';camFrom=null}
+  unNight();await wait(1300);if(dead(my))return;
+  S.knock();await wait(1100);if(dead(my))return;
+  showCard('door');announce(u.drH+' '+u.drT.join(' '));
+  const ch=await crAsk();if(dead(my))return;crSet('door',ch);hideCard();
+  if(ch==='open'){S.creak();await wait(420);if(dead(my))return;S.gust();_doorOpen=true;doorLight(1,500);frost(true);await wait(1700);if(dead(my))return;
+    await dropTin('meat');if(dead(my))return;meat++;renderHud();const tb=$('tinsS');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop');
+    await wait(500);if(dead(my))return;_doorOpen=false;S.thud();doorLight(0,900);frost(false);await wait(500);if(dead(my))return}
+  else{await wait(800);if(dead(my))return;S.knock();await wait(2200);if(dead(my))return;S.knockSoft();await wait(2000);if(dead(my))return}
+  showCard('doorRes');announce(ch==='open'?u.drOpenH+' '+u.drOpenT:u.drShutH+' '+u.drShutT)}
+let _doorL=null,_doorOpen=false,_doorBase=0;
+// the light is added under the night screen, so the shaders recompile while nobody is looking
+function ensureDoorLight(){if(!has3D||_doorL)return;_doorL=new THREE.PointLight(0xa9c9ff,0,7,1.3);_doorL.position.set(-1.55,1.5,1.25);scene.add(_doorL)}
+function doorLight(v,dur=600){if(!has3D)return Promise.resolve();
+  if(!_doorL){if(!v)return Promise.resolve();ensureDoorLight()}
+  const a=_doorBase,b=v*1.5;if(!dur){_doorBase=b;_doorL.intensity=b;return Promise.resolve()}
+  return tween(dur,e=>{_doorBase=a+(b-a)*e;_doorL.intensity=_doorBase},EASE.o)}
+function frost(on){const f=$('frost');if(!f)return;if(on){f.hidden=false;void f.offsetWidth;f.classList.add('on')}else{f.classList.remove('on');setTimeout(()=>{if(!f.classList.contains('on'))f.hidden=true},1500)}}
+
+// ---------- 3 · a light in the old hut ----------
+// a weather hut far out on the ice, dark since 1962. Tonight its window is lit
+let _oldHut=null,_hutK=0,_hutFl=1,_curtain=null;
+function ensureOldHut(){if(!has3D)return null;if(_oldHut)return _oldHut;const T=THREE,g=new T.Group();
+  const body=new T.Mesh(new T.BoxGeometry(.8,.46,.62),new T.MeshLambertMaterial({color:0x1d232b}));body.position.y=.23;g.add(body);
+  const roof=new T.Mesh(new T.ConeGeometry(.6,.24,4),new T.MeshPhongMaterial({color:0x354150,flatShading:true,shininess:0}));roof.position.y=.58;roof.rotation.y=Math.PI/4;g.add(roof);
+  const winM=new T.MeshBasicMaterial({color:0x0b0e12,fog:false}),win=new T.Mesh(new T.PlaneGeometry(.15,.11),winM);win.position.set(.14,.26,.311);g.add(win);
+  const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d'),gr=x.createRadialGradient(32,32,0,32,32,32);
+  gr.addColorStop(0,'rgba(255,205,120,.95)');gr.addColorStop(.3,'rgba(255,170,80,.38)');gr.addColorStop(1,'rgba(255,150,60,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);
+  const halo=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(cv),transparent:true,depthWrite:false,blending:T.AdditiveBlending,opacity:0,fog:false}));halo.scale.set(.85,.85,1);halo.position.set(.14,.26,.34);g.add(halo);
+  g.position.set(.5,.35,-8.8);g.rotation.y=-.12;scene.add(g);_oldHut={g,winM,halo};return _oldHut}
+// tonight the station's own hut is dark, so the old one is the only light on the ice
+function stationHutDark(on){if(!has3D||!W.hutWin)return;W.hutWin.material.color.setHex(on?0x14181d:0xffc66a)}
+function paintHut(){if(!_oldHut)return;const k=Math.max(0,_hutK*_hutFl);_oldHut.winM.color.setRGB(.043+.957*k,.055+.745*k,.07+.36*k);_oldHut.halo.material.opacity=.9*k}
+function oldHutLight(v,dur=1800){const h=v?ensureOldHut():_oldHut;if(!h){_hutK=v;return Promise.resolve()}const a=_hutK;
+  if(!dur){_hutK=v;_hutFl=1;paintHut();return Promise.resolve()}return tween(dur,e=>{_hutK=a+(v-a)*e;paintHut()},EASE.io)}
+function ensureCurtain(){if(!has3D)return null;if(_curtain)return _curtain;const T=THREE,cv=document.createElement('canvas');cv.width=256;cv.height=8;const x=cv.getContext('2d');
+  for(let i=0;i<256;i++){const s=.55+.45*Math.pow(Math.sin(i/256*Math.PI*13),2);x.fillStyle=`rgb(${Math.round(104*s)},${Math.round(36*s)},${Math.round(30*s)})`;x.fillRect(i,0,1,8)}
+  const w=WIN.x1-WIN.x0+.12,h=WIN.y1-WIN.y0+.08,geo=new T.PlaneGeometry(w,h);geo.translate(w/2,0,0);
+  const m=new T.Mesh(geo,new T.MeshLambertMaterial({map:new T.CanvasTexture(cv),side:T.DoubleSide}));m.position.set(WIN.x0-.06,WIN.y0+.01+h/2,WZ+.05);m.scale.x=.001;m.visible=false;scene.add(m);_curtain=m;return m}
+async function closeCurtain(){const c=ensureCurtain();if(!c)return;c.visible=true;S.paper();await tween(1100,e=>{c.scale.x=Math.max(.001,e)},EASE.io)}
+function hideCurtain(){if(_curtain){_curtain.visible=false;_curtain.scale.x=.001}}
+// looking out and a little down, so the hut sits above the card
+SHOTS.hut=()=>stageR.h>stageR.w*1.15?{t:[0,.78,-.62],d:[.04,.24,1],w:.95,h:1.3}:{t:[-.05,1.12,-.62],d:[.05,.16,1],w:1.2,h:.84};
+async function hutNight(){const my=++SEQ,u=TXT[lang];phase='event';hideCard();setMode();$('skip').hidden=true;
+  lampOn=false;ensureOldHut();stationHutDark(true);await camTo('hut',1600);if(dead(my))return;
+  await wait(500);if(dead(my))return;await oldHutLight(1,2200);if(dead(my))return;await wait(400);if(dead(my))return;
+  showCard('hut');announce(u.htH+' '+u.htT);
+  const ch=await crAsk();if(dead(my))return;crSet('hut',ch);hideCard();
+  if(ch==='look'){tiredDay=day+1;const nf=nightFade(u.htWalkA,u.htWalkB);oldHutLight(0,0);S.gust();await nf;if(dead(my))return;unNight();await wait(900);if(dead(my))return}
+  else if(ch==='curtain'){curtainDay=day;const cc=closeCurtain();await wait(500);if(dead(my))return;await oldHutLight(0,90);await cc;if(dead(my))return;await wait(500);if(dead(my))return}
+  else{await wait(300);if(dead(my))return;await camTo('wide',900);if(dead(my))return;await dropTin('milk');if(dead(my))return;milk++;renderHud();
+    const tb=$('tinsM');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop');await wait(300);if(dead(my))return}
+  showCard('hutRes');const r=ch==='look'?u.htLookH+' '+u.htLookT+' '+u.htLog:ch==='curtain'?u.htCurtH+' '+u.htCurtT:u.htRepH+' '+u.htRepT+' '+u.htRepTg;announce(r)}
+
+// ---------- 6 · the ice remembers ----------
+// a morning: core from 50 metres with your own Party card in it, with one mistake: ORLOFF, the parrot's spelling. Crate it for the Krasin, put it back, or burn it
+async function coreScene(my){const u=TXT[lang];phase='event';setMode();$('skip').hidden=true;
+  showCard('core');announce(u.crH+' '+u.crT);
+  const ch=await crAsk();if(dead(my))return;crSet('core',ch);
+  if(ch==='burn')S.burn();else if(ch==='send')S.thud();else S.thump();
+  showCard('coreRes');const k=ch==='send'?'Send':ch==='back'?'Back':'Burn';announce(u['cr'+k+'H']+' '+u['cr'+k+'T']);
+  if(ch==='burn')burnCorePic(my);
+  await crAsk();if(dead(my))return;hideCard();phase='intro';setMode();$('skip').hidden=false}
+// the picture on the card: an ice core lying on its side, the Party card frozen open inside
+function drawCore(cv,state,burnK){const x=cv.getContext('2d'),W=cv.width,H=cv.height,ink='#2a2219';x.clearRect(0,0,W,H);
+  const cx=W/2,cy=H/2+4,L=W-80,R=H*.34,x0=cx-L/2,x1=cx+L/2;
+  if(state!=='burn'){
+    // the core: a cylinder with ice layers and bubbles
+    let g=x.createLinearGradient(0,cy-R,0,cy+R);g.addColorStop(0,'#f2f8fc');g.addColorStop(.45,'#d3e5f0');g.addColorStop(1,'#9fbdd1');
+    x.fillStyle=g;x.beginPath();x.moveTo(x0,cy-R);x.lineTo(x1,cy-R);x.ellipse(x1,cy,R*.32,R,0,-Math.PI/2,Math.PI/2);x.lineTo(x0,cy+R);x.ellipse(x0,cy,R*.32,R,0,Math.PI/2,Math.PI*1.5);x.closePath();x.fill();
+    x.save();x.clip();x.strokeStyle='rgba(120,160,190,.35)';x.lineWidth=2;for(let i=0;i<9;i++){const px=x0+30+i*(L-60)/8+((i*37)%11);x.beginPath();x.moveTo(px,cy-R);x.quadraticCurveTo(px+6,cy,px-2,cy+R);x.stroke()}
+    x.fillStyle='rgba(255,255,255,.7)';for(let i=0;i<26;i++){const bx=x0+20+((i*97)%(L-40)),by=cy-R+8+((i*53)%(2*R-16));x.beginPath();x.arc(bx,by,1.5+(i%3),0,7);x.fill()}x.restore()}
+  // the Party card, open: red cover on the left, the page with the photo on the right
+  x.save();x.translate(cx+6,cy+2);x.rotate(state==='burn'?-.04:-.09);const cw=150,ch=96;
+  x.fillStyle='#8e1b17';x.fillRect(-cw/2,-ch/2,cw/2,ch);x.fillStyle='#e9dfc4';x.fillRect(0,-ch/2,cw/2,ch);
+  x.strokeStyle=ink;x.lineWidth=2.5;x.strokeRect(-cw/2,-ch/2,cw,ch);x.beginPath();x.moveTo(0,-ch/2);x.lineTo(0,ch/2);x.stroke();
+  // a gold star and the card number on the cover
+  x.fillStyle='#d6a640';x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?6:15;x.lineTo(-cw/4+Math.cos(a)*r,-12+Math.sin(a)*r)}x.closePath();x.fill();
+  x.font=`12px ${DISP}`;x.textAlign='center';x.fillText('№ 0417316',-cw/4,30);
+  // the photo: a man in glasses
+  x.fillStyle='#8d9196';x.fillRect(8,-ch/2+10,30,38);x.fillStyle='#2b2f33';x.beginPath();x.arc(23,-ch/2+26,8,0,7);x.fill();x.fillRect(11,-ch/2+36,24,12);
+  x.strokeStyle='#d9dde0';x.lineWidth=1.4;x.strokeRect(16,-ch/2+24,6,4);x.strokeRect(24,-ch/2+24,6,4);
+  x.fillStyle='rgba(42,34,25,.55)';for(let i=0;i<4;i++)x.fillRect(44,-ch/2+14+i*9,22-(i%2)*6,2);// the name, with the parrot's spelling
+  x.fillStyle='#2a2219';x.font=`13px ${DISP}`;x.textAlign='left';x.fillText('ORLOFF',8,-ch/2+64);
+  x.fillStyle='rgba(42,34,25,.55)';for(let i=0;i<2;i++)x.fillRect(8,-ch/2+74+i*9,58-(i%2)*14,2);
+  x.restore();
+  if(state==='burn'){const k=burnK==null?1:burnK;x.save();x.translate(cx+6,cy+2);x.rotate(-.04);
+    // char climbs from the bottom edge with a glowing rim; the photo stays above it to the end
+    x.beginPath();x.rect(-75,-48,150,96);x.clip();const top=48-96*.6*k,edge=[];for(let i=0;i<=10;i++)edge.push([-75+i*15,top+((i*37)%13)-6]);
+    x.fillStyle='#17110c';x.beginPath();x.moveTo(-75,48);edge.forEach(p=>x.lineTo(...p));x.lineTo(75,48);x.closePath();x.fill();
+    x.beginPath();edge.forEach((p,i)=>i?x.lineTo(...p):x.moveTo(...p));x.strokeStyle='rgba(255,196,90,.35)';x.lineWidth=9;x.stroke();x.strokeStyle='rgba(255,128,36,.95)';x.lineWidth=3;x.stroke();
+    x.restore();
+    // a little smoke over the card
+    x.strokeStyle='rgba(60,52,44,.28)';x.lineWidth=5;x.lineCap='round';for(let i=0;i<3;i++){const sx=cx-30+i*34;x.beginPath();x.moveTo(sx,cy-44);x.bezierCurveTo(sx-14,cy-58,sx+14,cy-66,sx+2,cy-80);x.stroke()}}
+  else{// the ice over the card
+    x.fillStyle=state==='back'?'rgba(225,238,246,.62)':'rgba(220,234,244,.32)';x.beginPath();x.moveTo(x0,cy-R);x.lineTo(x1,cy-R);x.ellipse(x1,cy,R*.32,R,0,-Math.PI/2,Math.PI/2);x.lineTo(x0,cy+R);x.ellipse(x0,cy,R*.32,R,0,Math.PI/2,Math.PI*1.5);x.closePath();x.fill();
+    x.strokeStyle=ink;x.lineWidth=3;x.stroke();x.fillStyle='rgba(255,255,255,.55)';x.beginPath();x.ellipse(x0,cy,R*.32,R,0,0,7);x.fill();x.stroke();
+    if(state==='send'){// the crate: slats over the core, stencilled for the AARI
+      x.fillStyle='#a77b45';x.strokeStyle=ink;x.lineWidth=2.5;[[x0-22,cy-R-14,L+44,16],[x0-22,cy+R-2,L+44,16]].forEach(r=>{x.fillRect(...r);x.strokeRect(...r)});
+      [x0-22,x1+6].forEach(sx=>{x.fillRect(sx,cy-R-14,16,2*R+16);x.strokeRect(sx,cy-R-14,16,2*R+16)});
+      x.fillStyle=ink;x.font=`12px ${DISP}`;x.textAlign='left';x.fillText(lang==='ru'?'ААНИИ · ЛЕНИНГРАД':'AARI · LENINGRAD',x0+10,cy+R+11)}}}
+async function burnCorePic(my){const cv=$('crPic');if(!cv)return;await tween(1600,(e,k)=>{if(dead(my)||cardKind!=='coreRes')return;const c=$('crPic');if(c)drawCore(c,'burn',k)},EASE.lin)}
+
+// ---------- sounds: a door, the wind through it, knocking that gives up ----------
+S.creak=function(){if(!this.ok())return;const c=this.ctx,t=c.currentTime,o=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(150,t);
+  for(let i=1;i<=9;i++)o.frequency.linearRampToValueAtTime(150+Math.sin(i*1.9)*38-i*7,t+i*.09);f.type='bandpass';f.frequency.value=950;f.Q.value=7;
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.13,t+.06);g.gain.setValueAtTime(.13,t+.66);g.gain.exponentialRampToValueAtTime(.0001,t+.9);o.connect(f);f.connect(g);g.connect(this.m);o.start(t);o.stop(t+.95)};
+S.gust=function(){if(!this.ok())return;const c=this.ctx,t=c.currentTime,s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();s.buffer=this.nb;s.loop=true;
+  f.type='bandpass';f.Q.value=.8;f.frequency.setValueAtTime(360,t);f.frequency.linearRampToValueAtTime(950,t+.6);f.frequency.linearRampToValueAtTime(420,t+2.4);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.5,t+.35);g.gain.exponentialRampToValueAtTime(.0001,t+2.6);s.connect(f);f.connect(g);g.connect(this.m);s.start(t);s.stop(t+2.7)};
+S.knockSoft=function(){if(!this.ok())return;const t=this.ctx.currentTime;for(let i=0;i<2;i++){this.tn(t+i*.6,88,56,.16,'sine',.32);this.nz(t+i*.6,.08,280,1.5,.2)}};
+
+// the hut's light trembles like a lamp flame; the open door lets the cold light in, unsteady
+function creepyFrame(t){if(_oldHut&&_hutK>0){_hutFl=.88+.12*Math.sin(t*.013)*Math.sin(t*.0041)-(Math.random()<.015?.3:0);paintHut()}
+  if(_doorL&&_doorOpen)_doorL.intensity=_doorBase*(.82+.18*Math.random())}
+
+// ---------- Robozayats-1: the young technicians' parrot detector ----------
+// on a hard (14-day) shift a crate arrives one morning between days 5 and 8: a robot hare built by the Pioneers of
+// Leningrad, with a gas-mask head on an old valve radio. It sits on the windowsill. Press its button in the top bar while a
+// telegram is on the desk: it scans the telegram, shows the truth (it is always right) and breaks. The stamp stays yours.
+let roboDay=0,roboState=null,ROBO=null;
+const roboReady=()=>phase==='decide'&&roboState==='ready'&&!!cur&&cur.ev!=='question'&&cur.ev!=='cook';
+const RB_PX=.15/492,RB_AT={x:.36,y:WIN.y0,z:-.53};
+const rbX=x=>x-200,rbY=y=>492-y;
+SHOTS.robo=()=>stageR.h>stageR.w*1.15?{t:[.34,1.05,-.53],d:[-.3,.1,1],w:.3,h:.46}:{t:[.33,1.06,-.53],d:[-.3,.1,1],w:.5,h:.34};
+SHOTS.roboScan=()=>stageR.h>stageR.w*1.15?{t:[.12,.9,-.22],d:[.12,.55,1],w:.78,h:1.15}:{t:[.13,.92,-.24],d:[.12,.5,1],w:1.12,h:.74};
+
+// the radio's front panel: cloth grille behind slats, the tuning dial, the brass plate, ПУСК
+function rbFront(needle,lit,broken){const R=ROBO,x=R.fx,W=328,H=328,s=v=>v*2,px=v=>(v-118)*2,py=v=>(v-268)*2;
+  x.fillStyle='#8a5a32';x.fillRect(0,0,W,H);x.strokeStyle='rgba(78,48,26,.55)';x.lineWidth=3;
+  [14,52,108,176,238,300].forEach(y=>{x.beginPath();x.moveTo(0,y);x.quadraticCurveTo(W*.4,y-8,W*.55,y+2);x.quadraticCurveTo(W*.8,y+10,W,y-2);x.stroke()});
+  x.strokeStyle='#22201c';x.lineWidth=6;x.strokeRect(3,3,W-6,H-6);
+  // grille
+  x.fillStyle='#c7b07e';x.fillRect(px(134),py(292),s(132),s(66));x.strokeStyle='rgba(120,98,60,.7)';x.lineWidth=1.4;
+  for(let i=-140;i<300;i+=8){x.beginPath();x.moveTo(px(134)+i,py(292));x.lineTo(px(134)+i+132,py(358));x.stroke();x.beginPath();x.moveTo(px(134)+i+132,py(292));x.lineTo(px(134)+i,py(358));x.stroke()}
+  x.fillStyle='#8a5a32';x.fillRect(0,py(292)-20,px(134),s(66)+40);x.fillRect(px(266),py(292)-20,W-px(266),s(66)+40);x.fillRect(px(134),py(358),s(132),20);x.fillRect(px(134),py(292)-20,s(132),20);
+  x.strokeStyle='#22201c';x.lineWidth=5;x.strokeRect(px(134),py(292),s(132),s(66));
+  [162,190,210,238].forEach((sx,i)=>{x.save();if(broken&&i===3){x.translate(px(sx),py(292));x.rotate(.5);x.translate(-px(sx),-py(292))}
+    x.fillStyle='#6e4524';x.fillRect(px(sx-3),py(292),12,s(66));x.strokeStyle='#22201c';x.lineWidth=2.5;x.strokeRect(px(sx-3),py(292),12,s(66));x.restore()});
+  // dial
+  x.fillStyle=lit?'#fff3c4':'#efe5c8';x.fillRect(px(134),py(366),s(96),s(26));x.strokeStyle='#22201c';x.lineWidth=5;x.strokeRect(px(134),py(366),s(96),s(26));
+  x.strokeStyle='#6b5d48';x.lineWidth=2.5;for(let t=0;t<9;t++){const tx=px(142+t*10);x.beginPath();x.moveTo(tx,py(370));x.lineTo(tx,py(t%2?377:380));x.stroke()}
+  x.strokeStyle='#b0261c';x.lineWidth=5;x.beginPath();x.moveTo(px(needle),py(368));x.lineTo(px(needle),py(390));x.stroke();
+  // brass ring for the button, and its label
+  x.fillStyle='#c9a24a';x.beginPath();x.arc(px(254),py(378),30,0,7);x.fill();x.strokeStyle='#22201c';x.lineWidth=4;x.stroke();
+  x.fillStyle='#efe5c8';x.font='bold 20px "Arial Black",Impact,sans-serif';x.textAlign='center';x.textBaseline='alphabetic';x.fillText('ПУСК',px(254),py(407));
+  // name plate
+  x.fillStyle='#c9a24a';x.fillRect(px(136),py(397),s(92),s(20));x.strokeStyle='#22201c';x.lineWidth=4;x.strokeRect(px(136),py(397),s(92),s(20));
+  x.fillStyle='#7a1a12';x.font='bold 24px "Arial Black",Impact,sans-serif';x.fillText('РОБОЗАЯЦ-1',px(182),py(414));
+  x.fillStyle='#6b5222';[[140,401],[224,401],[140,413],[224,413]].forEach(([a,b])=>{x.beginPath();x.arc(px(a),py(b),3,0,7);x.fill()});
+  R.ft.needsUpdate=true}
+// the verdict sign: the game's red parrot on black, or a gold hammer and sickle on red for the Politburo
+function rbSign(real){const c=ROBO.sc,x=c.getContext('2d'),ink='#22201c';x.clearRect(0,0,128,128);x.lineJoin='round';
+  x.fillStyle=real?'#c3271d':'#141619';x.beginPath();x.arc(64,64,58,0,7);x.fill();x.strokeStyle=real?'#7a1a12':'#5a6066';x.lineWidth=8;x.stroke();
+  if(real){const gold='#f2c230',rad=d=>d*Math.PI/180;x.fillStyle=gold;x.strokeStyle='#7a1a12';x.lineWidth=2.5;
+    // sickle: a crescent blade over the top, its handle to the lower left
+    x.beginPath();x.arc(64,60,31,rad(148),rad(382));x.arc(67,63,21,rad(382),rad(148),true);x.closePath();x.fill();x.stroke();
+    x.save();x.translate(40,75);x.rotate(rad(45));x.fillRect(-4.5,0,9,20);x.strokeRect(-4.5,0,9,20);x.restore();
+    // hammer: handle from the lower right, head at the upper left
+    x.save();x.translate(69,73);x.rotate(rad(-45));x.fillRect(-4.5,-26,9,52);x.strokeRect(-4.5,-26,9,52);x.restore();
+    x.save();x.translate(47,51);x.rotate(rad(-45));x.fillRect(-17,-7,34,14);x.strokeRect(-17,-7,34,14);x.restore()}
+  else{// the parrot: red head, darker cheek, a grey hooked beak, a crest
+    x.fillStyle='#b3271f';x.strokeStyle=ink;x.lineWidth=3.5;
+    x.beginPath();x.moveTo(44,40);x.quadraticCurveTo(54,18,74,26);x.quadraticCurveTo(62,30,60,42);x.closePath();x.fill();x.stroke();
+    x.beginPath();x.arc(62,66,28,0,7);x.fill();x.stroke();x.fillStyle='#8f1d17';x.beginPath();x.arc(66,74,16,0,7);x.fill();
+    x.fillStyle='#8a9097';x.beginPath();x.moveTo(84,54);x.quadraticCurveTo(110,58,100,90);x.quadraticCurveTo(96,76,82,76);x.closePath();x.fill();x.stroke();
+    x.fillStyle='#fff';x.beginPath();x.arc(66,58,7,0,7);x.fill();x.stroke();x.fillStyle=ink;x.beginPath();x.arc(68,58,3.2,0,7);x.fill()}
+  ROBO.st.needsUpdate=true}
+// the top-bar icon: its head and ears, red-eyed while it works, dark once broken
+function rbIcon(broken){const c=$('icoR');if(!c)return;const x=c.getContext('2d'),W=c.width,H=c.height;x.clearRect(0,0,W,H);
+  x.fillStyle='#aeb6bd';x.strokeStyle='#000';x.lineWidth=1.6;[[11,1],[25,1]].forEach(([ex,ey],i)=>{x.save();if(broken&&i)x.transform(1,0,.5,1,-4,0);x.fillRect(ex,ey,6,16);x.strokeRect(ex,ey,6,16);x.restore()});
+  x.fillStyle='#4a4f4b';x.beginPath();x.ellipse(20,27,15,12,0,0,7);x.fill();x.stroke();
+  [[14,25],[26,25]].forEach(([ex,ey],i)=>{x.fillStyle='#9aa3ab';x.beginPath();x.arc(ex,ey,4.6,0,7);x.fill();x.stroke();x.fillStyle=broken?'#2a2c2e':'#ff3a20';x.beginPath();x.arc(ex,ey,2.4,0,7);x.fill()});
+  x.strokeStyle='#d9dfe3';x.lineWidth=2;x.beginPath();x.moveTo(9,20);x.lineTo(18,23);x.moveTo(31,20);x.lineTo(22,23);x.stroke();
+  x.fillStyle='#7b8270';x.beginPath();x.arc(20,32,4,0,7);x.fill();x.strokeStyle='#000';x.lineWidth=1.2;x.stroke();
+  x.fillStyle='#ece3c4';x.fillRect(17,36,3,4);x.fillRect(21,36,3,4)}
+
+// ---------- the model ----------
+function ensureRobo(){if(!has3D)return null;if(ROBO)return ROBO;const T=THREE,R={};ROBO=R;
+  const ph=(c,o)=>new T.MeshPhongMaterial(Object.assign({color:c,flatShading:true,shininess:8,emissive:0x1a1612},o||{}));
+  const M={wood:ph(0x8a5a32,{shininess:4}),woodD:ph(0x5e3a1e,{shininess:4}),metal:ph(0xaeb6bd,{shininess:30}),metalD:ph(0x7d868e),rubber:ph(0x4a4f4b,{shininess:3}),rubberD:ph(0x2f3331),
+    olive:ph(0x7b8270),oliveD:ph(0x5b6152),copper:ph(0xb87333,{shininess:40}),brass:ph(0xc9a24a,{shininess:40}),red:ph(0xc3271d),cream:ph(0xece3c4),rust:ph(0x8a5a3a),ink:ph(0x22201c)};
+  R.M=M;const g=new T.Group(),add=(geo,mat,par,x,y,z)=>{const m=new T.Mesh(geo,mat);m.position.set(x||0,y||0,z||0);m.castShadow=true;m.receiveShadow=true;(par||g).add(m);return m};
+  // feet: two tins of stewed meat on their sides; legs: copper pipes
+  [-32,32].forEach(fx=>{const t=makeTin('meat');t.scale.set(15/TIN.meat.r,60/TIN.meat.h,15/TIN.meat.r);t.rotation.z=Math.PI/2;t.position.set(fx,15,0);g.add(t)});
+  [-30,30].forEach(lx=>{add(new T.CylinderGeometry(7,7,36,8),M.copper,g,lx,44,0);add(new T.CylinderGeometry(10,10,7,8),M.copper,g,lx,44,0)});
+  add(new T.BoxGeometry(176,12,76),M.woodD,g,0,62,0);
+  // the radio cabinet, its front drawn on a canvas
+  R.fc=document.createElement('canvas');R.fc.width=R.fc.height=328;R.fx=R.fc.getContext('2d');R.ft=new T.CanvasTexture(R.fc);
+  const front=new T.MeshPhongMaterial({map:R.ft,flatShading:true,shininess:4});
+  add(new T.BoxGeometry(164,164,70),[M.wood,M.wood,M.wood,M.wood,front,M.wood],g,0,142,0);
+  add(new T.CylinderGeometry(9,9,6,10),R.btn=ph(0xc3271d,{emissive:0x1a1612}),g,54,114,37.5).rotation.x=Math.PI/2;
+  // arms: corrugated gas-mask hoses ending in pliers
+  R.arms=[];[-1,1].forEach(sd=>{const c=new T.QuadraticBezierCurve3(new T.Vector3(sd*80,186,0),new T.Vector3(sd*124,188,0),new T.Vector3(sd*124,124,0));
+    add(new T.TubeGeometry(c,14,9,6,false),M.rubber);
+    for(let i=1;i<7;i++){const p=c.getPointAt(i/7),tg=c.getTangentAt(i/7),r=add(new T.TorusGeometry(9.6,2,4,8),M.rubberD,g,p.x,p.y,p.z);r.quaternion.setFromUnitVectors(new T.Vector3(0,0,1),tg)}
+    const pl=new T.Group();pl.position.set(sd*124,122,0);pl.rotation.z=sd*.17;g.add(pl);add(new T.BoxGeometry(18,12,12),M.red,pl,0,0,0);
+    [-1,1].forEach(j=>{const jw=add(new T.BoxGeometry(5,30,4),M.metal,pl,j*5,-20,0);jw.rotation.z=-j*.26});add(new T.SphereGeometry(4,6,4),M.metal,pl,0,-8,3);R.arms.push(pl)});
+  // the Pioneer tie
+  const ts=new T.Shape();ts.moveTo(-54,230);ts.lineTo(54,230);ts.lineTo(0,170);ts.closePath();
+  add(new T.ShapeGeometry(ts),ph(0xc3271d,{side:T.DoubleSide}),g,0,0,36.5);add(new T.SphereGeometry(9,8,6),ph(0xa51f17),g,0,226,38);
+  // neck spring
+  add(new T.CylinderGeometry(3,3,36,6),M.metalD,g,0,244,0);[232,240,248].forEach(y=>{add(new T.TorusGeometry(8,2.2,4,10),M.metal,g,0,y,0).rotation.x=Math.PI/2});
+  // the head: a patched gas mask, pivoting at the neck
+  const hd=new T.Group();hd.position.set(0,260,0);g.add(hd);R.head=hd;const H=(x,y)=>[rbX(x),rbY(y)-260];
+  const mask=add(new T.SphereGeometry(1,12,9),M.rubber,hd,0,rbY(158)-260,0);mask.scale.set(88,78,55);
+  add(new T.BoxGeometry(22,12,3),ph(0x3c403d),hd,...H(247,202),40).rotation.z=.24;
+  // goggle lenses: rims, red glass, a point of light deep inside; a soft red halo when it wakes
+  const halo=document.createElement('canvas');halo.width=halo.height=64;const hx=halo.getContext('2d'),hg=hx.createRadialGradient(32,32,0,32,32,32);
+  hg.addColorStop(0,'rgba(255,70,40,.95)');hg.addColorStop(.35,'rgba(255,40,20,.35)');hg.addColorStop(1,'rgba(255,30,10,0)');hx.fillStyle=hg;hx.fillRect(0,0,64,64);const haloT=new T.CanvasTexture(halo);
+  R.glass=[];R.pupil=[];R.halo=[];R.crack=[];
+  [166,234].forEach((ex,i)=>{const [x,y]=H(ex,152);add(new T.CylinderGeometry(24,24,10,14),M.metal,hd,x,y,50).rotation.x=Math.PI/2;
+    const gm=new T.MeshBasicMaterial({color:0x1c0705});R.glass.push(gm);add(new T.CircleGeometry(18,16),gm,hd,x,y,55.3);
+    const pm=new T.MeshBasicMaterial({color:0xc0281a});R.pupil.push(pm);add(new T.CircleGeometry(4,10),pm,hd,x,y,55.6);
+    const s=new T.Sprite(new T.SpriteMaterial({map:haloT,transparent:true,depthWrite:false,blending:T.AdditiveBlending,opacity:0}));s.scale.set(80,80,1);s.position.set(x,y,62);hd.add(s);R.halo.push(s);
+    const ck=new T.LineSegments(new T.BufferGeometry().setFromPoints([[-10,12,-1,0],[-1,0,-6,-12],[-1,0,13,6],[-1,0,8,-15]].flatMap(([a,b,c,d])=>[new T.Vector3(x+a,y+b,55.9),new T.Vector3(x+c,y+d,55.9)])),new T.LineBasicMaterial({color:0xd9dfe3}));
+    ck.visible=false;hd.add(ck);R.crack.push(ck)});
+  // riveted lid plates bolted over the lenses: the fixed glare
+  [[-1,165],[1,235]].forEach(([sd,cx])=>{const [x,y]=H(cx,135);const p=add(new T.BoxGeometry(66,12,6),ph(0x8a939b,{shininess:30}),hd,x,y,58);p.rotation.z=sd*.27;
+    [-26,26].forEach(o=>add(new T.SphereGeometry(2.8,6,4),M.metal,p,o,0,3.5))});
+  // cheek valves, the filter canister (also the scanner lamp), the teeth
+  [[140,-1],[260,1]].forEach(([vx,sd])=>{const [x,y]=H(vx,190);const v=add(new T.CylinderGeometry(10,10,8,10),M.olive,hd,x,y,33);v.rotation.x=Math.PI/2;v.rotation.z=0;v.rotation.y=sd*.6});
+  {const [x,y]=H(200,208);add(new T.CylinderGeometry(23,23,18,14),M.olive,hd,x,y,48).rotation.x=Math.PI/2;add(new T.CircleGeometry(16,14),M.oliveD,hd,x,y,57.2);
+    for(let k=0;k<8;k++){const a=k*Math.PI/4;add(new T.CircleGeometry(1.9,6),M.ink,hd,x+11*Math.cos(a),y+11*Math.sin(a),57.4)}
+    R.lamp=new T.MeshBasicMaterial({color:0x3a3d36});add(new T.CircleGeometry(6,10),R.lamp,hd,x,y,57.5);R.lampAt=new T.Vector3(x,y,58)}
+  {const [x,y]=H(200,225);add(new T.BoxGeometry(32,7,8),M.olive,hd,x,y,44)}
+  R.teeth=[[191,.05],[209,-.09]].map(([tx,r])=>{const [x,y]=H(tx,240);const t=add(new T.BoxGeometry(18,28,6),M.cream,hd,x,y,44);t.rotation.z=r;t.userData.y=y;return t});
+  // wire whiskers
+  const wp=[];[[184,170],[190,190],[196,210]].forEach(([a,b])=>{[[-1,130,92],[1,270,308]].forEach(([sd,x0,x1])=>{const p0=H(x0,a),p1=H(x1,b);wp.push(new T.Vector3(p0[0],p0[1],30),new T.Vector3(p1[0],p1[1],24))})});
+  hd.add(new T.LineSegments(new T.BufferGeometry().setFromPoints(wp),new T.LineBasicMaterial({color:0xb9c2ca})));
+  // ears: tin sheets with a crude hinge halfway up; the tips bend and, at the end, one falls
+  R.tips=[];[-1,1].forEach(sd=>{const ex=sd*41.5,eb=new T.Group();eb.position.set(ex,rbY(83)-260,0);eb.rotation.z=-sd*.06;hd.add(eb);
+    add(new T.BoxGeometry(30,50,5),M.metal,eb,0,0,0);add(new T.BoxGeometry(16,40,1),M.metalD,eb,0,0,3);[-11,11].forEach(o=>add(new T.SphereGeometry(3,6,4),M.metal,eb,o,25,3));
+    const tp=new T.Group();tp.position.set(0,25,0);eb.add(tp);add(new T.BoxGeometry(28,40,5),M.metal,tp,0,20,0);add(new T.CylinderGeometry(14,14,5,10),M.metal,tp,0,40,0).rotation.x=Math.PI/2;
+    add(new T.BoxGeometry(14,34,1),M.metalD,tp,0,22,3);add(new T.BoxGeometry(6,14,1),M.rust,tp,-3,30,3.6);R.tips.push(tp)});
+  // the verdict sign on a wire between the ears
+  R.sc=document.createElement('canvas');R.sc.width=R.sc.height=128;R.st=new T.CanvasTexture(R.sc);
+  const sg=new T.Group();sg.position.set(0,rbY(96)-260,0);hd.add(sg);add(new T.CylinderGeometry(2.2,2.2,44,6),M.metal,sg,0,22,0);
+  add(new T.CircleGeometry(25,20),new T.MeshBasicMaterial({map:R.st}),sg,0,66,1.5);add(new T.CircleGeometry(25.5,20),M.metalD,sg,0,66,0).rotation.y=Math.PI;sg.visible=false;R.sign=sg;
+  g.scale.setScalar(RB_PX);g.position.set(RB_AT.x,RB_AT.y,RB_AT.z);g.rotation.y=-.35;g.visible=false;scene.add(g);R.g=g;
+  // the scan: a beam from the canister to a bright line that walks down the telegram
+  const bg=new T.BufferGeometry();bg.setAttribute('position',new T.BufferAttribute(new Float32Array(9),3));
+  R.beam=new T.Mesh(bg,new T.MeshBasicMaterial({color:0xfff0a0,transparent:true,opacity:0,blending:T.AdditiveBlending,depthWrite:false,side:T.DoubleSide}));R.beam.frustumCulled=false;R.beam.visible=false;scene.add(R.beam);
+  R.sweep=new T.Mesh(new T.PlaneGeometry(PW*.92,.007),new T.MeshBasicMaterial({color:0xfff3a0,transparent:true,opacity:.85,blending:T.AdditiveBlending,depthWrite:false}));R.sweep.position.z=.0015;R.sweep.visible=false;W.paper.add(R.sweep);
+  rbIdle();return R}
+// back to the state it arrives in
+function rbIdle(){const R=ROBO;if(!R)return;R.g.rotation.x=0;R.g.position.set(RB_AT.x,RB_AT.y,RB_AT.z);R.needle=150;rbFront(150,false,false);R.btn.emissive.setHex(0x1a1612);R.tips[0].rotation.z=0;R.tips[1].rotation.z=-.66;R.tips.forEach(t=>t.visible=true);
+  R.head.rotation.set(0,0,0);R.glass.forEach(m=>m.color.setHex(0x1c0705));R.pupil.forEach(m=>m.color.setHex(0xc0281a));R.halo.forEach(s=>s.material.opacity=0);R.crack.forEach(c=>c.visible=false);
+  R.lamp.color.setHex(0x3a3d36);R.teeth.forEach(t=>{t.visible=true;t.position.y=t.userData.y});R.sign.visible=false;R.sign.rotation.set(0,0,0);R.sign.scale.set(1,1,1);R.beam.visible=false;R.sweep.visible=false;R.glow=0}
+function hideRobo(){roboState=null;if(!ROBO)return;rbIdle();ROBO.g.visible=false}
+function resetRobo(){hideRobo();roboUI()}
+// slow, unblinking red eyes while it waits; a flicker once it is broken
+function roboFrame(t){const R=ROBO;if(!R||!R.g.visible)return;
+  if(roboState==='ready'){const k=.5+.5*Math.sin(t*.0016);R.pupil.forEach(m=>m.color.setRGB(.55+.3*k,.1+.06*k,.06));R.halo.forEach(s=>s.material.opacity=.12+.14*k)}
+  else if(roboState==='busy')R.halo.forEach(s=>s.material.opacity=R.glow*(.8+.2*Math.random()));
+  else if(roboState==='used'){const f=Math.random()<.01;R.pupil[1].color.setHex(f?0x9a2014:0x3a0c08)}}
+
+// ---------- the top-bar button ----------
+function roboUI(){const b=$('roboB');if(!b)return;const u=TXT[lang],have=!!roboState&&roboState!=='gone',bro=roboState==='used'||roboState==='dead';b.hidden=!have;if(!have)return;
+  const ok=roboReady();b.disabled=!ok;b.classList.toggle('ready',ok);b.classList.toggle('broken',bro);
+  const t=bro?u.rbBroken:ok?u.rbTitle:(cur&&(cur.ev==='question'||cur.ev==='cook')&&phase==='decide'?u.rbNo:u.rbWait);b.title=t;b.setAttribute('aria-label',t);
+  if(b.dataset.icon!==roboState){b.dataset.icon=roboState;rbIcon(bro)}}
+
+// ---------- the morning it arrives ----------
+async function roboArrival(my){const u=TXT[lang];phase='event';setMode();$('skip').hidden=true;
+  showCard('roboIn');announce(u.rbInH+' '+u.rbInT+' '+u.rbLetter+' '+u.rbInNote);
+  await crAsk();if(dead(my))return;hideCard();crSet('robo','unused');
+  if(has3D){const R=ensureRobo();rbIdle();await camTo('robo',1100);if(dead(my))return;R.g.visible=true;
+    const y1=RB_AT.y,y0=y1+.22;await tween(650,e=>{R.g.position.y=y0+(y1-y0)*e},EASE.bounce);S.thump();puff(new THREE.Vector3(RB_AT.x,RB_AT.y+.005,RB_AT.z));if(dead(my))return}
+  roboState='ready';roboUI();toast(u.rbReady,6000);await wait(1300);if(dead(my))return;
+  phase='intro';setMode();$('skip').hidden=false}
+
+// ---------- the scan ----------
+async function useRobo(){if(!roboReady())return;S.init();const my=SEQ,u=TXT[lang],real=!!cur.real;roboState='busy';phase='robo';setMode();hideTip();roboUI();
+  const R=has3D?ensureRobo():null;
+  const quit=()=>{if(R){R.beam.visible=false;R.sweep.visible=false}if(roboState==='busy'){roboState='used';crSet('robo','used');roboUI()}};
+  if(!R){toast(u.rbSays(real),5000);announce(u.rbSays(real));roboState='used';crSet('robo','used');phase='decide';setMode();roboUI();return}
+  await camTo('roboScan',800);if(dead(my))return quit();
+  // it wakes: the button lights, the ears snap up, the eyes flare
+  R.btn.emissive.setHex(0x8a1206);S.whirr();R.lamp.color.setHex(0xfff6b0);rbFront(R.needle,true,false);
+  await tween(380,e=>{R.tips[1].rotation.z=-.66*(1-e);R.glow=e;R.glass.forEach(m=>m.color.setRGB(.12+.32*e,.03+.03*e,.02));R.pupil.forEach(m=>m.color.setRGB(1,.25+.2*e,.15+.1*e))},EASE.back);if(dead(my))return quit();
+  // the beam walks down the telegram; the dial needle hunts
+  R.beam.visible=true;R.sweep.visible=true;const pa=R.beam.geometry.attributes.position,A=new THREE.Vector3(),L=new THREE.Vector3(),Rr=new THREE.Vector3();let lastBeep=0;
+  await tween(2300,(e,k)=>{const y=PH/2*.9-PH*.9*k;R.sweep.position.y=y;R.head.localToWorld(A.copy(R.lampAt));W.paper.localToWorld(L.set(-PW*.44,y,.002));W.paper.localToWorld(Rr.set(PW*.44,y,.002));
+    pa.setXYZ(0,A.x,A.y,A.z);pa.setXYZ(1,L.x,L.y,L.z);pa.setXYZ(2,Rr.x,Rr.y,Rr.z);pa.needsUpdate=true;R.beam.material.opacity=.3*Math.sin(Math.PI*Math.min(1,k*1.2))+.06;
+    const n=150+72*(.5+.5*Math.sin(k*19+Math.sin(k*7)*2));if(Math.abs(n-R.needle)>3){R.needle=n;rbFront(n,true,false)}
+    const b=Math.floor(k*14);if(b!==lastBeep){lastBeep=b;S.tick()}},EASE.lin);if(dead(my))return quit();
+  R.beam.visible=false;R.sweep.visible=false;await camTo('robo',700);if(dead(my))return quit();
+  // the verdict: the needle swings hard, the sign pops up between the ears
+  const nv=real?140:224;await tween(260,e=>{rbFront(R.needle+(nv-R.needle)*e,true,false)},EASE.back);R.needle=nv;if(dead(my))return quit();
+  rbSign(real);R.sign.visible=true;R.sign.scale.set(1,.01,1);S.ding();
+  toast(u.rbSays(real),5200);announce(u.rbSays(real));await tween(420,e=>{R.sign.scale.y=Math.max(.01,e)},EASE.back);if(dead(my))return quit();
+  await wait(1700);if(dead(my))return quit();
+  // and it breaks: a pop, a puff, an ear, a tooth, a lens
+  S.pop();puff(R.head.localToWorld(R.lampAt.clone()));R.btn.emissive.setHex(0x1a1612);R.lamp.color.setHex(0x2a2c2a);R.crack[0].visible=true;R.glass[0].color.setHex(0x202224);R.pupil[0].color.setHex(0x202224);
+  R.glass[1].color.setHex(0x160604);R.pupil[1].color.setHex(0x3a0c08);rbFront(132,false,true);
+  const t1=R.teeth[1],ty=t1.position.y;
+  R.sign.visible=false;
+  await tween(700,e=>{R.glow=1-e;R.halo.forEach(s=>s.material.opacity=.9*(1-e));R.tips[1].rotation.z=-2.5*e;R.head.rotation.z=.16*e;t1.position.y=ty-120*e},EASE.bounce);
+  t1.visible=false;if(dead(my))return quit();
+  roboState='used';crSet('robo','used');roboUI();toast(u.rbBreak,5000);await wait(900);if(dead(my))return;
+  await camTo('read',900);if(dead(my))return;
+  phase='decide';lastSec=-1;setMode();roboUI()}
+
+// ---------- sounds: a valve radio warming up, the scan's ticking, the verdict, the pop ----------
+S.whirr=function(){if(!this.ok())return;const c=this.ctx,t=c.currentTime,o=c.createOscillator(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(70,t);o.frequency.exponentialRampToValueAtTime(420,t+.5);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.08,t+.08);g.gain.exponentialRampToValueAtTime(.0001,t+.6);o.connect(g);g.connect(this.m);o.start(t);o.stop(t+.65);this.nz(t,.5,1800,.7,.08)};
+S.ding=function(){if(!this.ok())return;const t=this.ctx.currentTime;this.tn(t,988,0,.5,'square',.06);this.tn(t+.09,1319,0,.6,'square',.05)};
+S.pop=function(){if(!this.ok())return;const t=this.ctx.currentTime;this.nz(t,.07,3000,.8,.6);this.tn(t,180,40,.25,'sine',.5);for(let i=0;i<10;i++)this.nz(t+.05+Math.random()*.5,.02,2000+Math.random()*3000,4,.15)};
+CREEPY_CARD.roboIn=u=>`<p class="eyebrow">${u.mornEyebrow(day)}</p><h2>${u.rbInH}</h2><p>${u.rbInT}</p><p class="log letter">${u.rbLetter}</p><p class="dim">${u.rbInNote}</p><button class="btn" id="cBtn" type="button">${u.rbInBtn}</button>`;
+$('roboB').onclick=()=>{S.init();useRobo()};
+
+// ---------- 03:33: Robozayats talks ----------
+// a night event on Normal shifts, any night after Robozayats has arrived, used or broken. It switches itself on, spins its
+// head, and a voice comes out of the old valve radio: "This is Moscow. Tomorrow's telegram is from us. Stamp it AUTHENTIC."
+// Throw a tin of milk at it (it smashes), ask who is speaking (it burns out), or answer "Understood" — and tomorrow's
+// telegram is a hard parrot. Tone proves nothing; the facts still catch it.
+let _vcSkip=null;
+// framed so the robot stays above the low card on any screen
+SHOTS.roboNight=()=>stageR.h>stageR.w*1.15?{t:[.35,.93,-.53],d:[-.3,.1,1],w:.32,h:.74}:{t:[.43,1.0,-.53],d:[-.3,.1,1],w:.64,h:.43};
+function crDel(k){creepyLog=creepyLog.filter(e=>e.k!==k)}
+CREEPY_CARD.voice=u=>{const can=milk>0;let n=0;
+  const lines=u.vcSay.map(s=>`<p class="quote vc">${s.split(' ').map(w=>`<span class="w" data-i="${n++}">${w}</span>`).join(' ')}</p>`).join('');
+  return`<p class="eyebrow">${u.nightEyebrow(day)}</p><h2>${u.vcH}</h2>${lines}
+    <div class="ch-btns wait" id="vcBtns"><button class="btn tin milkb" id="cBtn" type="button"${can?'':' disabled'}><img src="${ICON.milkS}" alt="">${tinBtn(u.vcMilk,can?u.vcMilkSub:u.vcNoMilk)}</button><button class="btn alt" id="cBtn2" type="button">${u.vcWho}</button><button class="btn alt" id="cBtn3" type="button">${u.vcObey}</button></div>`};
+CREEPY_CARD.voiceRes=u=>{const r=crGet('voice'),k=r==='milk'?'Milk':r==='who'?'Who':'Obey';
+  return`<p class="eyebrow">${u.nightEyebrow(day)}</p><h2>${u['vc'+k+'H']}</h2><p>${u['vc'+k+'T']}</p><button class="btn" id="cBtn" type="button">${u.next}</button>`};
+CREEPY_LOW.voice=1;CREEPY_LOW.voiceRes=1;
+// the words come one at a time, each with a warped blip; the choices appear once it has finished
+async function vcTalk(my){const ws=[...document.querySelectorAll('#card .vc .w')];ws.forEach(w=>w.style.opacity='.08');let skip=false;_vcSkip=()=>{skip=true};
+  for(const w of ws){if(dead(my)||cardKind!=='voice')return;w.style.opacity='1';if(!skip){S.vcWord();await wait(w.textContent.length>6?260:200)}}
+  _vcSkip=null;const b=$('vcBtns');if(b)b.classList.remove('wait');try{$('cBtn2').focus({preventScroll:true})}catch(e){}}
+
+async function voiceNight(){const my=++SEQ,u=TXT[lang];phase='event';hideCard();setMode();$('skip').hidden=true;
+  const R=ROBO;if(!has3D||!R||!R.g.visible||roboState==='gone'||roboState==='busy'){nextDay();return}
+  lampOn=false;await nightFade(u.vcA,u.vcB);if(dead(my))return;
+  camShot='roboNight';camFrom=null;unNight();await wait(1100);if(dead(my))return;
+  // it wakes by itself: eyes, static, the needle spinning, the head ratcheting all the way round, the ears flapping
+  const broken=roboState==='used',eyes=broken?[1]:[0,1],tilt=R.head.rotation.z;
+  S.vcStatic();eyes.forEach(i=>{R.glass[i].color.setRGB(.45,.05,.03);R.pupil[i].color.setHex(0xff5a3a)});R.glow=1;
+  const live=R.tips.map(t=>t.rotation.z);let lastStep=-1;
+  await tween(3000,(e,k)=>{const step=Math.floor(k*24);R.head.rotation.y=step/12*Math.PI*2;if(step!==lastStep){lastStep=step;S.tick()}
+    R.halo.forEach((s,i)=>s.material.opacity=eyes.includes(i)?.7+.3*Math.random():0);
+    R.tips.forEach((t,i)=>{if(!(broken&&i===1))t.rotation.z=live[i]+Math.sin(k*40+i)*.45});
+    if(Math.floor(k*60)%2===0)rbFront(150+72*(.5+.5*Math.sin(k*30)),true,broken)},EASE.lin);
+  if(dead(my))return;R.head.rotation.y=0;R.tips.forEach((t,i)=>t.rotation.z=live[i]);
+  showCard('voice');announce(u.vcH+' '+u.vcSay.join(' '));await vcTalk(my);if(dead(my))return;
+  const ch=await crAsk();if(dead(my))return;crSet('voice',ch);hideCard();
+  if(ch==='milk'&&milk>0){milk--;renderHud();const t=takeTins('milk',1),m=t.taken[0];
+    const head=R.head.localToWorld(new THREE.Vector3(0,74,40));
+    if(m){const p0=m.position.clone();S.paper();await tween(560,e=>{bez(p0,new THREE.Vector3((p0.x+head.x)/2,head.y+.25,(p0.z+head.z)/2),head,e,m.position);m.rotation.x=e*6;m.rotation.z=e*3},EASE.lin);scene.remove(m)}
+    if(dead(my))return;S.thud();shakeA=.01;R.halo.forEach(s=>s.material.opacity=0);
+    // it topples off the windowsill and breaks on the floor
+    const g=R.g,y0=g.position.y,z0=g.position.z;
+    await tween(760,e=>{g.rotation.x=1.7*e;g.position.y=y0-(y0-.06)*e;g.position.z=z0+.24*e},EASE.i);if(dead(my))return;
+    S.pop();S.clunk();puff(new THREE.Vector3(g.position.x,.06,g.position.z));shakeA=.008;g.visible=false;
+    if(crGet('robo')==='unused')crDel('robo');roboState='gone';roboUI();await wait(900);if(dead(my))return}
+  else if(ch==='who'){
+    // a squawk inside the static, then burnt wire: it goes dark for good
+    S.vcSquawk();await wait(900);if(dead(my))return;S.pop();puff(R.head.localToWorld(R.lampAt.clone()));
+    R.glass.forEach(m=>m.color.setHex(0x161718));R.pupil.forEach(m=>m.color.setHex(0x161718));R.halo.forEach(s=>s.material.opacity=0);R.glow=0;roboState='dead';
+    await tween(700,e=>{R.head.rotation.z=tilt+(.36-tilt)*e;R.head.rotation.x=.24*e},EASE.bounce);if(dead(my))return;
+    if(crGet('robo')==='unused')crDel('robo');roboUI();await wait(500);if(dead(my))return}
+  else{
+    // it goes quiet, eyes faintly lit; tomorrow's telegram becomes a hard parrot
+    R.halo.forEach(s=>s.material.opacity=.15);vcTrap();await wait(900);if(dead(my))return}
+  rbFront(broken||roboState==='dead'?132:R.needle||150,false,broken||roboState==='dead');
+  showCard('voiceRes');const k=ch==='milk'?'Milk':ch==='who'?'Who':'Obey';announce(u['vc'+k+'H']+' '+u['vc'+k+'T'])}
+// tomorrow's telegram: a hard parrot not used yet this shift (an event telegram planned for tomorrow gives way)
+function vcTrap(){const d=day+1;if(d>DAYS)return;if(EV_TG[events[d]])delete events[d];
+  const used=new Set(queue.filter((q,i)=>i!==d-1&&q.src).flatMap(q=>pkeys(q.src)));
+  const pick1=t=>shuffle(POOL.filter(p=>!p.real&&p.tier===t&&!queue.some(q=>q.src===p)&&!pkeys(p).some(x=>used.has(x))))[0];
+  const src=pick1(3)||pick1(2)||pick1(1);if(!src)return;const m=mk(src);m.trap=1;queue[d-1]=m}
+// the nights it is not watching you: dark, smashed or burnt out
+const roboGone=()=>roboState==='gone'||roboState==='dead';
+
+// ---------- sounds: radio static, a warped word, a squawk in the static ----------
+S.vcStatic=function(){if(!this.ok())return;const c=this.ctx,t=c.currentTime;this.nz(t,2.6,2400,.4,.22);for(let i=0;i<24;i++)this.nz(t+Math.random()*2.6,.03,800+Math.random()*4000,3,.18);
+  const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(900,t);o.frequency.exponentialRampToValueAtTime(240,t+2.4);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.05,t+.3);g.gain.exponentialRampToValueAtTime(.0001,t+2.6);o.connect(g);g.connect(this.m);o.start(t);o.stop(t+2.7)};
+S.vcWord=function(){if(!this.ok())return;const c=this.ctx,t=c.currentTime,f=120+Math.random()*70,o=c.createOscillator(),m=c.createOscillator(),mg=c.createGain(),g=c.createGain(),fl=c.createBiquadFilter();
+  o.type='square';o.frequency.setValueAtTime(f,t);o.frequency.linearRampToValueAtTime(f*(.8+Math.random()*.5),t+.16);m.type='sine';m.frequency.value=31+Math.random()*20;mg.gain.value=f*.6;m.connect(mg);mg.connect(o.frequency);
+  fl.type='bandpass';fl.frequency.value=900+Math.random()*400;fl.Q.value=2.2;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.09,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.18);
+  o.connect(fl);fl.connect(g);g.connect(this.m);o.start(t);m.start(t);o.stop(t+.2);m.stop(t+.2);this.nz(t,.16,3000,1,.05)};
+S.vcSquawk=function(){if(!this.ok())return;const c=this.ctx,t=c.currentTime;for(let i=0;i<3;i++){const o=c.createOscillator(),g=c.createGain(),s=t+i*.16;o.type='sawtooth';o.frequency.setValueAtTime(1300,s);o.frequency.exponentialRampToValueAtTime(700,s+.12);
+  g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(.08,s+.01);g.gain.exponentialRampToValueAtTime(.0001,s+.14);o.connect(g);g.connect(this.m);o.start(s);o.stop(s+.15)}this.nz(t,.6,2000,.5,.12)};
+
+// ---------- held back for a later update: the man on the ice and the reflection (p5j.js) ----------
+// this stands in for p5j.js in the v0.4.0 release build: same names, nothing happens, and both events leave the draw
+var lampWeak=false;
+function silCalm(){}function resetSil(){}function iceMorning(){}function mirrorFrame(){}
+async function mirrorScene(){}async function iceNight(){nextDay()}
+['ice','mirror'].forEach(k=>{const i=EVENTS.indexOf(k);if(i>=0)EVENTS.splice(i,1)});
+
 // ---------- shifts: length sets the difficulty ----------
 // easy: pencil marks every day, all articles at once, long fuse, the parrot often botches its serial
 // medium: pencil marks on days 1-3, articles arrive by radio · hard: no marks, short fuse, telegrams escalate from obvious to observation
 const SHIFTS=[7,10,14],LEVEL={7:'easy',10:'medium',14:'hard'};
 const SLIP={easy:.4,medium:.25,hard:.1};
 const FUSE={easy:d=>Math.max(34,52-2.5*d),medium:d=>Math.max(22,46-2*d),hard:d=>Math.max(24,46-1.6*d)};
-let DAYS=10;
+let DAYS=7; // new players start on the training shift
 const lvl=()=>LEVEL[DAYS];
 const hintsOn=()=>lvl()==='easy'||(lvl()==='medium'&&day<=3);
+// rations, not a wage: on Training every right answer pays a tin; on Easy and Normal only supply days do
+// (day 1 always, then about half the shift), two of them with stewed meat
+const rationFor=d=>supplyDays&&!supplyDays.has(d)?null:(meatDays.has(d)?'meat':'milk');
 const bests={7:0,10:0,14:0};
 // records and "Served" badges last only while the page is open; every launch starts fresh
 // (clears the records older versions saved in the browser)
@@ -1918,7 +2543,7 @@ try{['pp_best','pp_best_7','pp_best_10','pp_best_14','pp_shift'].forEach(k=>loca
 const best=n=>{bests[DAYS]=Math.max(bests[DAYS],n)};
 
 // ---------- game state ----------
-let phase='title',day=0,queue=[],cur=null,tTotal=0,tLeft=0,milk=0,meat=0,meatDays=new Set(),reward='milk',verdict=null,shownRules=0,newFrom=-1,lastSec=-1,cardKind=null,hintRowsOn=null;
+let phase='title',day=0,queue=[],cur=null,tTotal=0,tLeft=0,milk=0,meat=0,meatDays=new Set(),supplyDays=null,reward='milk',verdict=null,shownRules=0,newFrom=-1,lastSec=-1,cardKind=null,hintRowsOn=null;
 function rulesFor(d){d=Math.max(1,d);const L=lvl();if(L==='easy')return 5;if(L==='hard'&&d>=10)return 7;return Math.min(5,2+Math.floor((d-1)/2))}
 function mk(p){const n=String(100+(Math.random()*800|0));let s=n+'/ARK',bad=false;
   if(!p.real&&Math.random()<SLIP[lvl()]){s=pick([n+'-ARK',n+'/ARC',n.slice(1)+'/ARK',n+' ARK']);bad=true}
@@ -1956,7 +2581,7 @@ function setTimerUI(){const k=tTotal?clamp(tLeft/tTotal,0,1):1;$('fuseI').style.
   $('fuse').classList.toggle('low',phase==='decide'&&k<.3);$('fuse').setAttribute('aria-valuenow',Math.round(k*100));
   $('secs').textContent=(phase==='decide'||phase==='stamp')?Math.max(0,Math.ceil(tLeft/1000)):'--'}
 function setMode(){const ui=$('ui'),was=ui.classList.contains('is-title'),is=phase==='title';ui.classList.toggle('is-title',is);
-  $('bA').disabled=$('bP').disabled=$('bC').disabled=phase!=='decide';actUI();if(!has3D)PAPER.c.hidden=is;if(was!==is)layout();setTimerUI();teaUI()}
+  $('bA').disabled=$('bP').disabled=$('bC').disabled=phase!=='decide';actUI();if(!has3D)PAPER.c.hidden=is;if(was!==is)layout();setTimerUI();teaUI();roboUI()}
 function tab(k){['D','R'].forEach(x=>{$('tab'+x).setAttribute('aria-selected',String(x===k));$('sh'+x).classList.toggle('on',x===k)})}
 function announce(s){const l=$('live');l.textContent='';setTimeout(()=>{l.textContent=s},40)}
 function showCaption(){const c=$('cap');fillCaption();c.hidden=false;c.classList.remove('show');void c.offsetWidth;c.classList.add('show');
@@ -1969,31 +2594,33 @@ function renderCard(anim){const c=$('card'),u=TXT[lang],li=lang==='ru'?1:0;if(!c
   if(cardKind==='title'){const L=lvl(),b=bests[DAYS];
     const opts=SHIFTS.map(d=>`<button type="button" class="shift s${d}" role="radio" aria-checked="${d===DAYS}" tabindex="${d===DAYS?0:-1}" data-d="${d}"><b>${d}</b><span>${u.daysW}</span><i>${u.lvlName[LEVEL[d]]}</i>${bests[d]>=d?`<em>${u.done}</em>`:''}</button>`).join('');
     h=`<p class="eyebrow">${u.eyebrow}</p>${u.intro.map(p=>`<p>${p}</p>`).join('')}<p><b>${u.how}</b></p><div class="dock"><p class="eyebrow pick" id="pickL">${u.shiftLegend}</p><div class="shifts" role="radiogroup" aria-labelledby="pickL">${opts}</div><p class="note">${u.notes[L]}${b&&b<DAYS?' '+u.record(b,DAYS):''}</p><button class="btn" id="cBtn" type="button">${u.begin}</button></div>`}
-  else if(cardKind==='good'){const teach=reward==='meat'?(gotMeat===1?u.meatTeach:''):(gotMilk===1?u.teaTeach:'');
-    h=`<h2 class="ok">${u.correct}</h2><p>${u.itWas(cur.real)}${cur.ev==='love'?' '+u.loveNote:''}</p><div class="tell"><b>${u.tell}</b>${tell}</div><div class="reward"><img src="${ICON[reward+'L']}" alt=""><p class="dim">${reward==='meat'?u.rewardMeat:u.reward}${teach?`<span class="teach">${teach}</span>`:''}</p></div><button class="btn" id="cBtn" type="button">${u.next}</button>`}
-  else if(cardKind==='bad')h=`<h2 class="bad">${u.wrong}</h2><p>${verdict.slow?u.slow+' ':''}${u.itWas(cur.real)}${verdict.slow?'':' '+(cur.ev==='love'?u.loveBad:cur.real?u.wR:u.wP)}</p><div class="tell"><b>${u.tell}</b>${tell}</div><p class="verdict">${u.verdict(verdict.y,CAMPS[verdict.c][li])}</p><p class="dim">${u.survived(day-1)}</p>${qRes!=null&&!canBribe()?`<p class="dim last">${u.qLast[qRes]}</p>`:''}${canBribe()?`<div class="bribe"><img src="${ICON.meatL}" alt=""><p>${u.bribeQ}</p></div><button class="btn meat" id="cBtn3" type="button">${u.bribeBtn}</button>`:bribeUsed?`<p class="dim">${u.bribeOnce}</p>`:''}<button class="btn${canBribe()?' alt':''}" id="cBtn" type="button">${u.again}</button><button class="btn alt shbtn" id="cShare" type="button">${u.shareBtn}</button><button class="btn2" id="cBtn2" type="button">${u.changeShift}</button>`;
+  else if(cardKind==='good'){const teach=!reward?'':reward==='meat'?(gotMeat===1?u.meatTeach:''):(gotMilk===1?u.teaTeach:'');
+    h=`<h2 class="ok">${u.correct}</h2><p>${u.itWas(cur.real)}${cur.ev==='love'?' '+u.loveNote:''}</p><div class="tell"><b>${u.tell}</b>${tell}</div>${reward?`<div class="reward"><img src="${ICON[reward+'L']}" alt=""><p class="dim">${reward==='meat'?u.rewardMeat:u.reward}${teach?`<span class="teach">${teach}</span>`:''}</p></div>`:`<p class="dim noration">${u.noRation(day)}</p>`}<button class="btn" id="cBtn" type="button">${u.next}</button>`}
+  else if(cardKind==='bad')h=`<h2 class="bad">${u.wrong}</h2><p>${verdict.slow?u.slow+' ':''}${u.itWas(cur.real)}${verdict.slow?'':' '+(cur.ev==='love'?u.loveBad:cur.real?u.wR:u.wP)}</p><div class="tell"><b>${u.tell}</b>${tell}</div><p class="verdict">${u.verdict(verdict.y,CAMPS[verdict.c][li])}</p><p class="dim">${u.survived(day-1)}</p>${canBribe()?'':nirBox(false)}${qRes!=null&&!canBribe()?`<p class="dim last">${u.qLast[qRes]}</p>`:''}${canBribe()?`<div class="bribe"><img src="${ICON.meatL}" alt=""><p>${u.bribeQ}</p></div><button class="btn meat" id="cBtn3" type="button">${u.bribeBtn}</button>`:bribeUsed?`<p class="dim">${u.bribeOnce}</p>`:''}<div class="endbtns"><button class="btn${canBribe()?' alt':''}" id="cBtn" type="button">${u.again}</button><button class="btn alt shbtn" id="cShare" type="button">${u.shareBtn}</button><button class="btn2" id="cBtn2" type="button">${u.changeShift}</button></div>`;
   else if(cardKind==='bear'){const can=milk>0;
     h=`<p class="eyebrow">${u.mornEyebrow(day)}</p><h2>${u.bearH}</h2><p>${u.bearT}</p>${can?'':`<p class="dim">${u.bearNone}</p>`}<div class="vk-btns">${can?`<button class="btn tin milkb" id="cBtn" type="button"><img src="${ICON.milkS}" alt=""><span>${u.bearMilk}<small>${u.bearMilkSub}</small></span></button><button class="btn alt" id="cBtn2" type="button">${u.bearIgnore}</button>`:`<button class="btn alt one" id="cBtn" type="button">${u.bearIgnore}</button>`}</div>`}
   else if(cardKind==='cook'){const k=cookRes;
     h=`<h2${k===2||k===1?' class="ok"':''}>${u.cookH[k]}</h2><p>${u.cookT[k]}</p><div class="tell"><b>${u.cookTellH}</b>${u.cookTell}</div>${reward?`<div class="reward"><img src="${ICON[reward+'L']}" alt=""><p class="dim">${reward==='meat'?u.cookMeat:u.reward}</p></div>`:''}<button class="btn" id="cBtn" type="button">${u.next}</button>`}
   else if(cardKind==='daughter'){const r=famRes;
-    h=`<h2${r.right?' class="ok"':r.real?' class="bad"':''}>${u.famH(r)}</h2><p>${u.famT(r)}</p><div class="tell"><b>${u.tell}</b>${tell}</div>${reward?`<div class="reward"><img src="${ICON[reward+'L']}" alt=""><p class="dim">${reward==='meat'?u.rewardMeat:u.reward}</p></div>`:''}<p class="dim">${u.famNote}</p><button class="btn" id="cBtn" type="button">${u.next}</button>`}
+    h=`<h2${r.right?' class="ok"':r.real?' class="bad"':''}>${u.famH(r)}</h2><p>${u.famT(r)}</p><div class="tell"><b>${u.tell}</b>${tell}</div>${reward?`<div class="reward"><img src="${ICON[reward+'L']}" alt=""><p class="dim">${reward==='meat'?u.rewardMeat:u.reward}</p></div>`:r.right?`<p class="dim noration">${u.noRation(day)}</p>`:''}<p class="dim">${u.famNote}</p><button class="btn" id="cBtn" type="button">${u.next}</button>`}
   else if(cardKind==='question'){
-    h=`<h2>${u.qH[qRes]}</h2><p>${u.qT[qRes]}</p><div class="reward"><img src="${ICON[reward+'L']}" alt=""><p class="dim">${u.qNote}</p></div><button class="btn" id="cBtn" type="button">${u.next}</button>`}
+    h=`<h2>${u.qH[qRes]}</h2><p>${u.qT[qRes]}</p><div class="reward">${reward?`<img src="${ICON[reward+'L']}" alt="">`:''}<p class="dim">${u.qNote}${reward?'':' '+u.noRation(day)}</p></div><button class="btn" id="cBtn" type="button">${u.next}</button>`}
   else if(cardKind==='bribed')h=`<h2>${u.bribedH}</h2><p>${u.bribedT}</p><div class="reward gone"><img src="${ICON.meatL}" alt=""><img src="${ICON.meatL}" alt=""><p class="dim">${u.bribedCost}</p></div><button class="btn" id="cBtn" type="button">${u.next}</button>`;
   else if(cardKind==='volkov'||cardKind==='volkovNo'){const no=cardKind==='volkovNo';
     const face=no?`<img src="${VOLKOV_IMG}" alt="${u.vkName}" width="132" height="176">`:`<canvas id="vkFace" width="66" height="88" role="img" aria-label="${u.vkName}"></canvas>`;
     let n0=0;const lines=(no?u.vkNo:u.vkSay).map(s=>{const p=no?s:vkWords(s,n0);n0+=s.split(' ').length;return`<p>${p}</p>`}).join('');
     h=`<p class="eyebrow">${u.vkEyebrow(day)}</p><div class="vk${!no&&vkTalking()?' talking':''}"><figure class="vk-ph${no?' cold':''}">${face}<figcaption>${u.vkName}</figcaption></figure>${lines}</div>`+
       (no?`<div class="tell"><b>${u.vkReportH}</b>${u.vkReport}</div><button class="btn" id="cBtn" type="button">${u.next}</button>`:`<div class="vk-btns${vkTalking()?' wait':''}${meat>0?' three':''}" id="vkBtns"><button class="btn" id="cBtn" type="button">${u.vkDrink}</button>${meat>0?`<button class="btn zak" id="cBtn3" type="button"><img src="${ICON.meatS}" alt=""><span>${u.vkZak}<small>${u.vkZakSub}</small></span></button>`:''}<button class="btn alt" id="cBtn2" type="button">${u.vkRefuse}</button></div>`)}
+  else if(CREEPY_CARD[cardKind])h=CREEPY_CARD[cardKind](u);
   else{const vr=volkov&&volkov.result,denied=vr==='refuse',car=DAYS>=10&&!denied,pm=milk,pb=car?0:meat,Q0=8;
     const qLine=car?`<p class="queue">${u.queue(Q0,Math.max(1,Q0-meat),meat)}</p>`:'';
     const items=(pm?`<span><img src="${ICON.milkL}" alt="${u.milkName}">×${pm}</span>`:'')+(pb?`<span><img src="${ICON.meatL}" alt="${u.meatName}">×${pb}</span>`:'');
-    h=`<p class="eyebrow">${u.eyebrow}</p><h2 class="ok">${u.released}</h2><p>${u.relT(DAYS,bribeUsed)}</p>${DAYS>=10?`<div class="permit${denied?' no':''}"><span class="ph">${u.permitH}</span><p>${denied?u.carNo:(vr==='drink'?u.carVolkov+' ':'')+u.car}</p>${qLine}<span class="pst">${denied?u.permitDenied:u.permitStamp}</span></div>`:''}<div class="parcel"><span class="ph">${u.parcelH}</span>${items?`<div class="haul">${items}</div>`:`<p class="dim">${u.parcelEmpty}</p>`}<p class="reply">${u.reply(pm,pb,daughterHurt?'cold':daughterWarm?'warm':'')}</p></div><p class="dim last">${qRes!=null?u.qLast[qRes]:u.relQ}</p><button class="btn" id="cBtn" type="button">${u.newPost}</button><button class="btn alt shbtn" id="cShare" type="button">${u.shareBtn}</button>`}
-  c.innerHTML=h;c.hidden=false;c.classList.toggle('title',cardKind==='title');c.classList.toggle('low',cardKind==='volkov'||cardKind==='volkovNo'||cardKind==='bear');$('logo').hidden=cardKind!=='title';$('ui').classList.add('has-card');if(anim){c.style.animation='none';void c.offsetWidth;c.style.animation=''}
+    h=`<p class="eyebrow">${u.eyebrow}</p><h2 class="ok">${u.released}</h2><p>${u.relT(DAYS,bribeUsed)}</p>${DAYS>=10?`<div class="permit${denied?' no':''}"><span class="ph">${u.permitH}</span><p>${denied?u.carNo:(vr==='drink'?u.carVolkov+' ':'')+u.car}</p>${qLine}<span class="pst">${denied?u.permitDenied:u.permitStamp}</span></div>`:''}<div class="parcel"><span class="ph">${u.parcelH}</span>${items?`<div class="haul">${items}</div>`:`<p class="dim">${u.parcelEmpty}</p>`}<p class="reply">${u.reply(pm,pb,daughterHurt?'cold':daughterWarm?'warm':'')}</p></div>${nirBox(true)}<p class="dim last">${qRes!=null?u.qLast[qRes]:u.relQ}</p><div class="endbtns"><button class="btn" id="cBtn" type="button">${u.newPost}</button><button class="btn alt shbtn" id="cShare" type="button">${u.shareBtn}</button></div>`}
+  c.innerHTML=h;c.hidden=false;c.classList.toggle('title',cardKind==='title');c.classList.toggle('low',cardKind==='volkov'||cardKind==='volkovNo'||cardKind==='bear'||!!CREEPY_LOW[cardKind]);$('logo').hidden=cardKind!=='title';$('ui').classList.add('has-card');if(anim){c.style.animation='none';void c.offsetWidth;c.style.animation=''}
   $('cBtn').onclick=cardAction;const b2=$('cBtn2');if(b2)b2.onclick=cardKind==='volkov'?()=>{S.init();refuseVolkov()}:cardKind==='bear'?()=>{S.init();if(_bearRes)_bearRes('ignore')}:()=>{S.init();toTitle(true)};
   const b3=$('cBtn3');if(b3)b3.onclick=cardKind==='volkov'?()=>{S.init();drinkWithVolkov(true)}:()=>{S.init();bribeOfficer()};
   const bs=$('cShare');if(bs)bs.onclick=()=>{S.init();openShare()};
+  if(CREEPY_CARD[cardKind])creepyButtons();
   c.querySelectorAll('.shift').forEach(b=>{b.onclick=()=>setShift(+b.dataset.d)});
   if(anim)setTimeout(()=>{try{(cardKind==='bad'&&$('cBtn3')||$('cBtn')).focus({preventScroll:true})}catch(e){}},80)}
 function cardAction(){S.init();
@@ -2002,8 +2629,9 @@ function cardAction(){S.init();
   else if(cardKind==='volkov')drinkWithVolkov();
   else if(cardKind==='volkovNo')nextDay();
   else if(cardKind==='win')toTitle(true);else newRun()}
-function resetEvents(){runCaught=0;deskLeak=false;vigilance=false;stampLog=[];daughterHurt=false;daughterWarm=false;famRes=null;qRes=null;nightWait=false;PAPER.burn=0;PAPER.answer=null;devUsed=false}
-function afterDay(){if(volkov&&volkov.day===day&&!volkov.result)evening();else if(events[day]==='night'){events[day]='night-done';night3am()}else nextDay()}
+function resetEvents(){runCaught=0;deskLeak=false;vigilance=false;stampLog=[];daughterHurt=false;daughterWarm=false;famRes=null;qRes=null;nightWait=false;PAPER.burn=0;PAPER.answer=null;resetCreepy();devUsed=false}
+function afterDay(){if(volkov&&volkov.day===day&&!volkov.result)evening();else if(events[day]==='night'){events[day]='night-done';night3am()}
+  else if(events[day]==='door'||events[day]==='hut'||events[day]==='voice'||events[day]==='ice'){const k=events[day];events[day]=k+'-done';({door:doorNight,hut:hutNight,voice:voiceNight,ice:iceNight})[k]()}else nextDay()}
 const canBribe=()=>phase==='arrest'&&meat>=2&&!bribeUsed;
 function setShift(d){if(phase!=='title'||!SHIFTS.includes(d))return;
   if(d!==DAYS){DAYS=d;S.init();S.tick()}
@@ -2016,26 +2644,31 @@ function toTitle(fromRun){SEQ++;flushTweens();fast=false;phase='title';newFrom=-
   else camShot='title';
   setMode();showCard('title');setTimeout(()=>{if(phase==='title')shakeA=.01},1050)}
 function newRun(){SEQ++;flushTweens();fast=false;day=0;milk=0;meat=0;teaUsed=false;bribeUsed=false;gotMilk=gotMeat=0;hideTip();
-  meatDays=new Set(shuffle(Array.from({length:DAYS-1},(_,i)=>i+2)).slice(0,Math.round(DAYS*.3)));
+  const later=shuffle(Array.from({length:DAYS-1},(_,i)=>i+2));
+  if(lvl()==='easy'){supplyDays=null;meatDays=new Set(later.slice(0,Math.round(DAYS*.3)))}
+  else{const sup=later.slice(0,Math.round(DAYS/2)-1);supplyDays=new Set([1,...sup]);meatDays=new Set(shuffle(sup).slice(0,2))}
   shownRules=0;newFrom=-1;verdict=null;cur=null;hintRowsOn=null;queue=buildQueue();bearHide();cookRes=null;
   planEvents();resetEvents();hangDay=0;dusk=false;hideVodka();unNight();clearHang();vkEnd();
   lampOn=true;alarmOn=false;auroraAmp=1;$('vig').classList.remove('alarm');clearDesk();hideCard();paintHints();renderHud();nextDay()}
-async function nextDay(){const my=++SEQ;unNight();dusk=false;auroraAmp=1;if(hangDay&&day>=hangDay)hideVodka();bearHide();
+async function nextDay(){const my=++SEQ;unNight();dusk=false;auroraAmp=1;if(hangDay&&day>=hangDay)hideVodka();bearHide();creepyMorning();
   if(day>=DAYS)return win(my);
   day++;cur=queue[day-1];prepShelf();teaUsed=false;phase='intro';fast=false;hideCard();setMode();renderHud();hintRowsOn=null;paintHints();
   const n=rulesFor(day);newFrom=day>1&&n>shownRules?shownRules:-1;shownRules=n;renderRules(true);
   applyLeak();PAPER.msg=cur;PAPER.frac=0;PAPER.stamp=null;PAPER.hint=hintsOn();PAPER.markFrac=0;PAPER.burn=0;PAPER.answer=null;buildBase();drawPaper(true);if(has3D)W.paper.visible=false;
-  tTotal=FUSE[lvl()](day)*1000;tLeft=tTotal;setTimerUI();$('skip').hidden=false;
+  tTotal=Math.round(FUSE[lvl()](day)*1000*tiredK());tLeft=tTotal;setTimerUI();$('skip').hidden=false;
   const dn=$('dayN');dn.classList.remove('go');void dn.offsetWidth;dn.classList.add('go');
   await camTo('wall',900);if(dead(my))return;
   await calTear(day);if(dead(my))return;
-  showCaption();vigilanceTin();await wait(1250);if(dead(my))return;
+  showCaption();vigilanceTin();creepyToasts();await wait(1250);if(dead(my))return;
   if(events[day]==='bear'){await bearScene(my);if(dead(my))return}
+  if(events[day]==='core'){await coreScene(my);if(dead(my))return}
+  if(roboDay&&roboDay===day&&!roboState){await roboArrival(my);if(dead(my))return}
   S.bell();ttyOn=true;await camTo('tty',850);if(dead(my))return;
   await feed();if(dead(my))return;
   ttyOn=false;await wait(150);if(dead(my))return;
   const fl=flyToDesk();await camTo('read',1000);await fl;if(dead(my))return;
   if(PAPER.hint&&PAPER.marks){S.pencil();await tween(800,(e,k)=>{PAPER.markFrac=k;drawPaper(k>=1)},EASE.lin);if(dead(my))return;hintRowsOn=hintRows(cur);paintHints()}
+  if(events[day]==='mirror'){await wait(1800);if(dead(my))return;await mirrorScene(my);if(dead(my))return}
   $('skip').hidden=true;fast=false;phase='decide';lastSec=-1;setMode();
   announce(TXT[lang].liveTele(ser(cur.s),msgText(cur)));if(milk>0&&!tipShown)setTimeout(()=>{if(!dead(my)&&phase==='decide')showTip()},900)}
 async function decide(g){if(phase!=='decide'||(g===2&&cur.ev!=='cook')||(g===3&&cur.ev!=='question'&&cur.ev!=='cook')||(g===4&&cur.ev!=='question'))return;phase='stamp';$('skip').hidden=true;setMode();const my=SEQ,cook=cur.ev==='cook';
@@ -2045,11 +2678,12 @@ async function decide(g){if(phase!=='decide'||(g===2&&cur.ev!=='cook')||(g===3&&
   if(g===2)await handToCook();else if(g===3)await burnPaper();else if(g===4)await typeAnswer();else if(g===-1){PAPER.stamp=st;drawPaper(true);S.buzz();shakeA=.006}else await stampAnim(g===1?W.stA:W.stP,st);
   if(dead(my))return;await wait(420);if(dead(my))return;
   if(cook)return cookResult(g,my);if(cur.ev==='daughter')return familyResult(g,my);if(cur.ev==='question')return questionResult(g,my);
-  if(ok){phase='result';setMode();S.good();best(day);reward=meatDays.has(day)?'meat':'milk';
-    const f=fileTelegram();await camTo('wide',900);await f;if(dead(my))return;await dropTin(reward);if(dead(my))return;
-    if(reward==='meat'){meat++;gotMeat++}else{milk++;gotMilk++}renderHud();
-    const tb=$(reward==='meat'?'tinsS':'tinsM');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop');
-    showCard('good');announce(TXT[lang].correct)}
+  if(ok){phase='result';setMode();S.good();best(day);reward=rationFor(day);
+    const f=fileTelegram();await camTo('wide',900);await f;if(dead(my))return;
+    if(reward){await dropTin(reward);if(dead(my))return;
+      if(reward==='meat'){meat++;gotMeat++}else{milk++;gotMilk++}renderHud();
+      const tb=$(reward==='meat'?'tinsS':'tinsM');tb.classList.remove('pop');void tb.offsetWidth;tb.classList.add('pop')}
+    showCard('good');announce(TXT[lang].correct+(reward?'':' '+TXT[lang].noRation(day)))}
   else{phase='arrest';setMode();best(day-1);verdict={y:10+(Math.random()*11|0),c:Math.random()*CAMPS.length|0,slow:g===-1};
     lampOn=false;S.knock();await wait(900);if(dead(my))return;
     alarmOn=true;$('vig').classList.add('alarm');S.siren();await camTo('wide',1400);if(dead(my))return;
@@ -2117,7 +2751,7 @@ function start(data){data=data||{};
   if(typeof data.muted==='boolean')S.on=!data.muted;else if(snd!==null)S.on=snd==='1';
   if(data.bests)for(const d of SHIFTS)bests[d]=+data.bests[d]||0;if(SHIFTS.includes(data.days))DAYS=data.days;
   initTins();
-  if(has3D){try{buildWorld();ensureBear();ensureFire();W.curT=new THREE.Vector3()}catch(e){console.error(e);has3D=false;$('gl').innerHTML=''}}
+  if(has3D){try{buildWorld();ensureBear();ensureFire();ensureRobo();W.curT=new THREE.Vector3()}catch(e){console.error(e);has3D=false;$('gl').innerHTML=''}}
   if(has3D){
     const ray=new THREE.Raycaster(),nd=new THREE.Vector2(),hitStamp=()=>{ray.setFromCamera(nd,cam);const h=ray.intersectObjects([W.stA,W.stP],true)[0];let o=h&&h.object;while(o&&!o.userData.kind)o=o.parent;return o};
     R.domElement.addEventListener('pointerdown',e=>{if(phase==='intro'){hurry();return}if(phase!=='decide')return;nd.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);const o=hitStamp();if(o){S.init();decide(o.userData.kind==='A'?1:0)}});
@@ -2153,7 +2787,7 @@ var devFreeze=false,devUsed=false;
       for(let i=0;i<8;i++)H[i]=(H[i]+a[i])|0}
     return H.map(h=>('00000000'+(h>>>0).toString(16)).slice(-8)).join('')}
   const ok=k=>!!k&&sha256(String(k).trim().toLowerCase())===DEV_KEY;
-  const EV_NAMES=[['bear','Bear'],['cook','Cook'],['love','Love letter'],['night','3 a.m.'],['daughter','Daughter'],['question','Question'],['volkov','Volkov']];
+  const EV_NAMES=[['bear','Bear'],['cook','Cook'],['love','Love letter'],['night','3 a.m.'],['daughter','Daughter'],['question','Question'],['volkov','Volkov'],['door','Door 02:40'],['hut','Old hut'],['core','Ice core'],['robo','Robozayats'],['voice','03:33 voice'],['ice','Man on ice'],['mirror','Reflection']].filter(([k])=>k==='robo'||EVENTS.includes(k));
   let box=null,note='',noteT=0;
   // the key from the address is remembered in this browser, so the panel stays on until turned off
   const want=()=>{let m=null;try{m=(location.search+location.hash).match(/[?&#]dev=([^&#]*)/)}catch(e){}
@@ -2164,7 +2798,7 @@ var devFreeze=false,devUsed=false;
     try{if(k==='0'){localStorage.removeItem('pp_dev');return false}if(ok(k)){localStorage.setItem('pp_dev',k.trim().toLowerCase());return true}return ok(localStorage.getItem('pp_dev'))}
     catch(e){return ok(k)}};
   function say(t){note=t;noteT=performance.now()}
-  function calm(){flushTweens();fast=false;try{S.sirenStop()}catch(e){}alarmOn=false;$('vig').classList.remove('alarm');lampOn=true;closeShare();bearHide();unNight();try{vkEnd()}catch(e){}hideCard()}
+  function calm(){flushTweens();fast=false;try{S.sirenStop()}catch(e){}alarmOn=false;$('vig').classList.remove('alarm');lampOn=true;closeShare();bearHide();unNight();try{vkEnd()}catch(e){}creepyCalm();hideCard()}
   const inShift=()=>{if(phase==='title'){say('Start a shift first.');return false}return true};
   const act={
     win(){if(!inShift())return;calm();day=DAYS;const my=++SEQ;win(my)},
@@ -2179,13 +2813,17 @@ var devFreeze=false,devUsed=false;
   function event(k){if(!inShift())return;calm();
     if(k==='volkov'){volkov={day:Math.max(1,day),result:null};evening();return}
     if(k==='night'){if(day<1)day=1;night3am();return}
+    if(k==='door'||k==='hut'||k==='ice'){if(day<1)day=1;({door:doorNight,hut:hutNight,ice:iceNight})[k]();return}
+    if(k==='mirror'){if(phase!=='decide'){say('Wait until the telegram is on the desk.');return}events[day]='mirror';mirrorScene(SEQ);return}
+    if(k==='voice'){if(!ROBO||!ROBO.g.visible||roboGone()){say('Robozayats is not on the windowsill.');return}if(day<1)day=1;voiceNight();return}
+    if(k==='robo'){if(day>=DAYS)day=DAYS-1;hideRobo();roboDay=day+1;nextDay();return}
     if(day>=DAYS)day=DAYS-1;const d=day+1;events[d]=k;if(EV_TG[k])queue[d-1]=EV_TG[k]();nextDay()}
   // swap today's telegram for any in the pool, or a special one
   function load(v){if(!v)return;if(phase!=='decide'){say('Wait until the telegram is on the desk.');$('devTg').value='';return}
     devUsed=true;const src=v[0]==='p'?POOL[+v.slice(1)]:SPECIAL[v.slice(1)];const m=mk(src);if(m.ev==='question'){m.s='';m.bad=false}cur=queue[day-1]=m;
     PAPER.msg=m;PAPER.frac=1;PAPER.stamp=null;PAPER.burn=0;PAPER.answer=null;PAPER.hint=hintsOn();PAPER.markFrac=1;buildBase();drawPaper(true);
     hintRowsOn=PAPER.hint&&PAPER.marks?hintRows(m):null;paintHints();actUI();$('devTg').value='';say('Loaded.')}
-  function state(){if(!box||box.classList.contains('closed'))return;const s=$('devState');let t=`${phase} · day ${day}/${DAYS} · milk ${milk} · meat ${meat}${devUsed?' · TEST SHIFT':''}`;
+  function state(){if(!box||box.classList.contains('closed'))return;const s=$('devState');let t=`${phase} · day ${day}/${DAYS} · milk ${milk} · meat ${meat}${day>0?' · ration '+(rationFor(day)||'none'):''}${devUsed?' · TEST SHIFT':''}`;
     if(cur&&day>0){const li=lang==='ru'?1:0,tell=cur.real?(cur.why?fill(cur.why[li]):'every fact matches'):(cur.tell?fill(cur.tell[li]):'');
       t+=`\ntoday: ${cur.ev?cur.ev.toUpperCase()+' · ':''}${cur.real?'AUTHENTIC':'PARROT'} · tier ${cur.tier}${cur.bad?' · bad serial':''}${tell?'\n'+tell:''}`}
     const ev=Object.entries(events).filter(([d,k])=>+d>day&&!/-done$/.test(k)).map(([d,k])=>`${k} d${d}`);if(volkov&&!volkov.result&&volkov.day>=day)ev.push(`volkov d${volkov.day}`);
