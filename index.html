@@ -43,6 +43,12 @@ button{font:inherit;color:inherit}
 .nir p{margin:0 0 5px;font-size:var(--fs-1);line-height:1.18}.nir p:last-child{margin-bottom:0}
 .crpic{display:block;width:100%;height:auto;margin:2px 0 8px}
 /* The Third Drawer (p5n): the photograph, front and back, side by side; one above the other on a narrow card */
+/* in bed (the try-out views): the button to trace the carpet, low and centred over the room; the desk's stamps and papers hidden */
+.btn.bedtrace:not([hidden]){animation:bedBtnIn .6s ease-out}@keyframes bedBtnIn{from{opacity:0}to{opacity:1}}
+.btn.bedtrace{position:fixed;left:16px;right:16px;bottom:28px;margin:0 auto;transform:none;z-index:5;width:fit-content;max-width:calc(100vw - 32px);padding:14px 28px;white-space:nowrap}
+@media (max-width:520px){.btn.bedtrace{white-space:normal;text-align:center}}
+body.inbed .act,body.inbed #files{visibility:hidden}
+body.away .act{opacity:0;visibility:hidden;pointer-events:none}
 .dw-ph{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 10px}.dw-ph canvas{display:block;width:100%;height:auto}
 @media (max-width:520px){.dw-ph{grid-template-columns:1fr}}
 .ch-btns{display:grid;gap:8px;margin-top:12px}.ch-btns .btn{margin:0}
@@ -338,7 +344,7 @@ html[lang|="ru"] .parcel .reply{font-family:var(--f-body);font-size:15px;line-he
 .act.off{opacity:0;visibility:hidden;transform:translateY(14px);pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility 0s .18s}
 @media (prefers-reduced-motion:reduce){.act,.act.off{transition:none}}
 @media (max-width:620px){.act.four{grid-template-columns:1fr 1fr}.act.five{grid-template-columns:repeat(3,1fr)}}
-.sbtn.f{background:var(--fire)}.sbtn.q{background:var(--ans)}.sbtn.k{background:var(--file)}
+.sbtn.o{background:#2d3e57}.sbtn.f{background:var(--fire)}.sbtn.q{background:var(--ans)}.sbtn.k{background:var(--file)}
 .card p.last{margin-top:4px}
 /* share your shift: the poster, then post / copy / download */
 .card .btn.shbtn{margin-top:10px}
@@ -371,6 +377,9 @@ html[lang|="ru"] .parcel .reply{font-family:var(--f-body);font-size:15px;line-he
 .dev input[type=number]{width:48px;font:12px system-ui,sans-serif}
 .dev label{display:flex;gap:4px;align-items:center;font-size:12px}
 .dev-n{margin:0;font-size:11px;color:#8e9aa4}
+.dev-k{display:block}.dev-k summary{cursor:pointer;font-size:12px;color:#e9b24a}.dev-k b{display:block;margin-top:6px}
+.dev-k span{display:block;font-size:12px;line-height:1.5}.dev-k kbd{display:inline-block;min-width:16px;padding:0 4px;text-align:center;font:700 11px/16px ui-monospace,Menlo,Consolas,monospace;color:#111;background:#d9cfb2;border:1px solid #000}
+body.devclean .hud,body.devclean #files,body.devclean .act{visibility:hidden}
 @media (max-width:879px){.dev{bottom:96px}}
 </style>
 
@@ -484,7 +493,7 @@ const RULES=[
 ["The Politburo gives orders. It never says please. It never dreams.","Политбюро приказывает. Оно никогда не говорит «пожалуйста» и не мечтает."]];   // "It never dreams" approved 30 Oct 2026 (#97)
 
 // the build players are on, shown in the corner of the title screen. 0.x while the game is in open beta; 1.0 when it is finished
-const VERSION='0.4.6';
+const VERSION='0.4.7';
 function ruPl(n,a,b,c){const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c}
 // a split sentence names the camp right after its total: "12 years in Vorkuta. 2 for… 10 for…" (the owner's call)
 const splitCamp=(t,camp)=>{const i=t.indexOf('.');return i<0?t+' '+camp:t.slice(0,i)+' '+camp+t.slice(i)};
@@ -531,7 +540,7 @@ const TXT={
   shVSentence:s=>s.split?splitCamp(s.split,s.camp).toUpperCase():`${s.y} YEARS OF HARD LABOUR ${s.camp.toUpperCase()}`,
   // the label of the note's row (owner's OK, 27 Oct 2026)
   // A Cake for the Commissar (p5l): Sanya's knock, the choices and results, the slice and its desk label, the stewed meat, the commissar's word
-  ckSay:["\"Hey, Dr. Orlov! It's me, Sanya Zek.\"","\"Tomorrow the commissar celebrates Chekist Day. He says so himself. I don't argue with the commissar about dates.\"","\"I want to bake him an anthill, to cheer the old man up. Flour, butter, sugar: all there. No condensed milk. Could you spare a tin, Dr. Orlov? Where I learned to bake, we made cakes out of less.\""],ckH:"A Cake for the Commissar",ckGive:"Give a tin",ckGiveSub:"−1 milk",ckRefuse:"Refuse",ckNoMilk:"no milk on your shelf",ckGiveR:"Sanya beams and tucks the tin under his apron like a letter from home. \"You're a good man, Dr. Orlov. I'll save you the best slice.\"",ckRefuseR:"Sanya just smiles. \"No matter. Then the commissar eats bread.\"",ckNoMilkR:"Sanya glances at your empty shelf and pats your shoulder. \"Bare as a barrack. I know the feeling, Dr. Orlov. I'll manage.\"",ckSlice:"Sanya leaves a slice of anthill on your desk. \"From the commissar. He knows who helped. Eat it slowly.\"",ckMeat:"Sanya brings a tin of stewed meat. \"The commissar shared his own. Don't ask me why he has so much.\"",ckSaveH:"A word from the commissar",ckSaveT:"The officer takes your arm. A cough from the corridor. The commissar says one word to him, quietly, and the officer writes \"misunderstanding\". On your desk, the plate is empty.",
+  ckSay:["\"Hey, Dr. Orlov! It's me, Sasha Zek.\"","\"Tomorrow the commissar celebrates Chekist Day. He says so himself. I don't argue with the commissar about dates.\"","\"I want to bake him an anthill, to cheer the old man up. Flour, butter, sugar: all there. No condensed milk. Could you spare a tin, Dr. Orlov? Where I learned to bake, we made cakes out of less.\""],ckH:"A Cake for the Commissar",ckGive:"Give a tin",ckGiveSub:"−1 milk",ckRefuse:"Refuse",ckNoMilk:"no milk on your shelf",ckGiveR:"Sasha beams and tucks the tin under his apron like a letter from home. \"You're a good man, Dr. Orlov. I'll save you the best slice.\"",ckRefuseR:"Sasha just smiles. \"No matter. Then the commissar eats bread.\"",ckNoMilkR:"Sasha glances at your empty shelf and pats your shoulder. \"Bare as a barrack. I know the feeling, Dr. Orlov. I'll manage.\"",ckSlice:"Sasha leaves a slice of anthill on your desk. \"From the commissar. He knows who helped. Eat it slowly.\"",ckMeat:"Sasha brings a tin of stewed meat. \"The commissar shared his own. Don't ask me why he has so much.\"",ckSaveH:"A word from the commissar",ckSaveT:"The officer takes your arm. A cough from the corridor. The commissar says one word to him, quietly, and the officer writes \"misunderstanding\". On your desk, the plate is empty.",
   shKFile:'From your file',
   // the RELEASED poster (approved 29 Oct 2026, v0.4.5): the kharakteristika, an opening and a last line from the shift's decisions
   // (keys as in fileNote), and the car line under it: the year from the 8-year queue, a year off per tin of stewed meat (p5e)
@@ -542,7 +551,9 @@ const TXT={
   // "From your file" (p5e): the commissar's note on the share posters, picked from the shift's choices, and the charge on ARRESTED
   // The Third Drawer (p5n): word for word from the Lore Bible, approved 31 Oct 2026, revised the same day (the quieter photo)
   dw:{"drawer": "You open the third drawer for Ivanov's gloves. They are there. But the drawer is too shallow for its size.", "photo": "Under a false bottom lies a photograph: ARKTIKA-7 in winter. Four men in long fur coats stand in a row. Between the second and the third there is a gap.", "back": "12/20/62. Lebedev. Gusev. Voronin. Sokolov.", "keepB": "Keep it in the drawer", "burnB": "Burn it", "showB": "Show Volkov", "keep": "You put it back and close the false bottom. The drawer looks ordinary again. You know it isn't.", "burn": "The paper curls in the stove. The four men go first. The gap burns last.", "again": "Under the false bottom lies the photograph you burned. Not a mark on it. The gap is still empty. The snow by your door is trampled.", "show": "Volkov looks at the photograph for a long time. He goes pale. \"Where did you get this?\" He doesn't wait for an answer. He takes it with him.", "moscow": "THERE WAS NO SUCH CREW. THERE IS NO SUCH PHOTOGRAPH.", "note": "The commissar notes in your file: \"Collects photographs.\"", "gloves": "The gloves go south on the Krasin, as asked."},
-  fileNote:{drawer:{"keep": "Keeps a photograph under a false bottom.", "back": "Burned a photograph. It came back.", "burned": "Burned a photograph of people who never existed.", "show": "Collects photographs."},cake:{give:"Gave milk for the commissar's cake. Remembered.",refuse:"Refused the commissar a cake. The commissar ate bread.",nomilk:"Had no milk for the commissar's cake. Noted."},cakeSave:{'1':"A misunderstanding. Cost: one slice of cake."},bear:{milk:'Fed the state\'s condensed milk to a bear.',ignore:'Kept reading while a bear beat on the glass.'},cook:{give:'Gave the cook a letter from his mother. Paid in stewed meat.',stamp:'Stamped a mother\'s letter about a hat.'},love:{P:'Turned down a proposal addressed to the Central Committee.'},night:{burn:'Burned a telegram at 03:07. Will not say what it said.',file:'Filed a telegram that knows his stamps. Vigilant.'},daughter:{realA:'Believed his daughter. Correctly.',realP:'Stamped his own daughter PARROT. Vigilant to a fault.',fakeP:'Saw through a false daughter.'},question:{P:'Asked which of them is real, answered with a stamp: PARROT.',A:'Stamped the question AUTHENTIC. Could not tell them apart.',burn:'Burned a question unanswered.',answer:'Answered the teleprinter: "The one who is afraid."'},volkov:{drink:'Drank with Director Volkov. To the aurora.',zak:'Drank with the director. Wisely, with stewed meat.',refuse:'Refused Director Volkov\'s vodka. Unsociable.'},door:{open:'Opened the door at 02:40. To nobody. Kept the tin.',shut:'Did not open the door at 02:40. Volkov was in bed.'},hut:{look:'Visited a hut that does not exist. Read its logbook.',curtain:'Drew the curtain on a light. It opened by itself.',report:'Reported a light in a hut that does not exist.'},core:{send:'Sent Leningrad a Party card from 300-year-old ice.',back:'Returned a Party card to the ice. Let it wait.',burn:'Burned a Party card. Says it was not his.'},robo:{used:'Consulted a hare built by children. The hare was right.',unused:'Kept a hare from the Pioneers on the sill. Never asked it.'},voice:{milk:'Threw condensed milk at Moscow.',who:'Asked Moscow who was speaking.',obey:'Took orders from a hare at 03:33.'},ice:{wave:'Waved to a man on the ice. He waved back.',lamp:'Sat in the dark so a man on the ice would not see him.',report:'Woke the commissar. Nobody there. Sees people.'},perc:{milk:'Brewed coffee with the director. Said it back.',black:'Drank black coffee with the director. Counted the rivets.',refuse:'Refused Director Volkov\'s coffee. Unsociable, even sober.'},tea:{1:'Drank tea with condensed milk on duty.'},bribe:{1:'A misunderstanding. Cost: two tins of stewed meat.'}},
+  // the in-bed try-out's button (owner's request, 1 Nov 2026, for a video)
+  bedTrace:'Trace the pattern to fall asleep',
+  fileNote:{govorun:{catch:'The Institute is pleased.',miss:'Cannot tell the Institute\'s machine from the Committee.',real:'Thinks the Committee is a machine.',parrot:'Takes the enemy for the Institute\'s machine.',all:'Can tell a committee from a machine. Few can.'},drawer:{"keep": "Keeps a photograph under a false bottom.", "back": "Burned a photograph. It came back.", "burned": "Burned a photograph of people who never existed.", "show": "Collects photographs."},cake:{give:"Gave milk for the commissar's cake. Remembered.",refuse:"Refused the commissar a cake. The commissar ate bread.",nomilk:"Had no milk for the commissar's cake. Noted."},cakeSave:{'1':"A misunderstanding. Cost: one slice of cake."},bear:{milk:'Fed the state\'s condensed milk to a bear.',ignore:'Kept reading while a bear beat on the glass.'},cook:{give:'Gave the cook a letter from his mother. Paid in stewed meat.',stamp:'Stamped a mother\'s letter about a hat.'},love:{P:'Turned down a proposal addressed to the Central Committee.'},night:{burn:'Burned a telegram at 03:07. Will not say what it said.',file:'Filed a telegram that knows his stamps. Vigilant.'},daughter:{realA:'Believed his daughter. Correctly.',realP:'Stamped his own daughter PARROT. Vigilant to a fault.',fakeP:'Saw through a false daughter.'},question:{P:'Asked which of them is real, answered with a stamp: PARROT.',A:'Stamped the question AUTHENTIC. Could not tell them apart.',burn:'Burned a question unanswered.',answer:'Answered the teleprinter: "The one who is afraid."'},volkov:{drink:'Drank with Director Volkov. To the aurora.',zak:'Drank with the director. Wisely, with stewed meat.',refuse:'Refused Director Volkov\'s vodka. Unsociable.'},door:{open:'Opened the door at 02:40. To nobody. Kept the tin.',shut:'Did not open the door at 02:40. Volkov was in bed.'},hut:{look:'Visited a hut that does not exist. Read its logbook.',curtain:'Drew the curtain on a light. It opened by itself.',report:'Reported a light in a hut that does not exist.'},core:{send:'Sent Leningrad a Party card from 300-year-old ice.',back:'Returned a Party card to the ice. Let it wait.',burn:'Burned a Party card. Says it was not his.'},robo:{used:'Consulted a hare built by children. The hare was right.',unused:'Kept a hare from the Pioneers on the sill. Never asked it.'},voice:{milk:'Threw condensed milk at Moscow.',who:'Asked Moscow who was speaking.',obey:'Took orders from a hare at 03:33.'},ice:{wave:'Waved to a man on the ice. He waved back.',lamp:'Sat in the dark so a man on the ice would not see him.',report:'Woke the commissar. Nobody there. Sees people.'},perc:{milk:'Brewed coffee with the director. Said it back.',black:'Drank black coffee with the director. Counted the rivets.',refuse:'Refused Director Volkov\'s coffee. Unsociable, even sober.'},tea:{1:'Drank tea with condensed milk on duty.'},bribe:{1:'A misunderstanding. Cost: two tins of stewed meat.'}},
   fileFall:['Made no decisions this shift. Noted.','Nothing to report. Suspicious.',n=>`Parrots caught: ${n}. Will not say how.`,n=>`Tins sent home: ${n}. The rest unaccounted for.`,'Sent nothing home. Thrifty. Or something else.'],
   chargeP:{director:'Took orders from a director who does not exist.',name:'Answered to a name that is not his.',station:'Served at a station that is not his.',icebreaker:'Waited for a ship that does not sail.',zemlya:'Mistook which island he stands on.',city:'Moved Leningrad on the enemy\'s word.',institute:'Shipped state samples to an institute that does not exist.',habit:'Accepted American customs by telegram.',form:'Did not read the form. The enemy counted on it.',shelf:'Could not count the tins on his own desk.',voice:'Believed the Politburo says please.',polar:'Let the enemy move the sun.',staff:'Counted staff who are not there.',sums:'Accepted the enemy\'s arithmetic.',calendar:'Lost count of the days. The enemy did not.',loop:'Obeyed a telegram that said nothing.',other:'Served the enemy. By telegram.'},
   chargeR:{warm:'Denounced the Committee\'s warm regards.',feet:'Took the Committee for an American over one word: feet.',orlow:'Blamed the Committee for an Estonian\'s spelling.',arctika:'Blamed the Committee for an American\'s spelling.',sibir:'Denounced the expedition of 1932.',months:'Counted months as people.',drawing:'Denounced a child\'s drawing. It got a five.',deny:'Accused the Committee of denying what never happened.',smiled:'Denied a report that he smiled.',other:'Denounced the Party. By telegram.',slow:'Hesitated. Sabotage.'},
@@ -622,7 +633,7 @@ const TXT={
   notes:{easy:'Learn the job. Pencil marks show which facts to check. Long fuse.',medium:'Pencil marks for the first 3 days only. Shorter fuse.',hard:'The full game. No pencil marks, short fuse. The parrot gets cleverer every day.'},
   changeShift:'Choose another shift',permitH:'Car purchase permit',car:'For your loyal work, you may now buy a Zhiguli or a Moskvich back home.',permitStamp:'APPROVED',
   pencilNote:'check the underlined',
-  vkEyebrow:n=>`Evening · Day ${n}`,vkName:'Director Volkov',ckName:'Sanya Zek',
+  vkEyebrow:n=>`Evening · Day ${n}`,vkName:'Director Volkov',ckName:'Sasha Zek',
   vkSay:['“It’s only me, Orlov. Don’t look so frightened.”','“Look at the sky. Green fire all the way to the pole. My Masha would love it. She is seven now, and I have seen her twice.”','“I brought something. Drink with me, Orlov. Just one. For the aurora.”'],
   vkDrink:'Drink with Volkov',vkRefuse:'Refuse',vkToast:'To the aurora. To our families.',vkNight:'The bottle empties faster than you planned.',
   vkNo:['“So. Too good to drink with your director.”','He takes the bottle and leaves. In the corridor, his pen scratches for a long time.'],
@@ -667,6 +678,8 @@ const TXT={
   cookT:{2:'The cook reads it twice, blows his nose and brings you a tin of stewed meat from his secret shelf.',1:'Technically correct: it is a real telegram, from Sasha’s mother. The commissar laughs until he coughs.',0:'You stamped Sasha’s mother PARROT. The cook saw. No tin today, and your soup will be cold for a week.',3:'You burned Sasha’s mother’s telegram. The cook smells smoke all afternoon and keeps asking if anyone wrote to him. No tin today.','-1':'The telegram sat on your desk until the cook found it himself. He is not speaking to you. No tin today.'},
   cookTellH:'The form',cookTell:'From Saratov, to the cook. Not every telegram is for you.',cookMeat:'The cook’s thanks: a tin of stewed meat.',
   loveNote:'The commissar asks you never to speak of this.',loveBad:'You approved a love letter to the Central Committee.',
+  // Govorun (p5r), v0.4.7: word for word from the Lore Bible (approved 2 Nov 2026). The button's middle line is the machine's name; OURS became INSTITUTE on the owner's word, approved the same day
+  gv:{eventH:"Testing new Soviet technology",startB:"Start testing",stampO:"INSTITUTE",bO:["Institute", "Govorun", "↓ or 3"],order:"COMRADE ORLOV. SECRET. THE INSTITUTE HAS BUILT ITS OWN MACHINE THAT WRITES LIKE THE COMMITTEE. BEFORE IT IS TURNED ON THE AMERICAN STATION AT BARROW, ALASKA, IT WILL BE TESTED ON YOU. IT ARRIVES TODAY: CONNECT IT TO YOUR TELEPRINTER. FOR FOUR DAYS SOME TELEGRAMS WILL COME FROM IT. STAMP THEM INSTITUTE. IF IT FOOLS YOU, IT WILL FOOL THEM.",popka:"On the crate, in pencil: POPKA. Underneath, in another hand: WANTS A CRACKER.",specimenMark:"SPECIMEN. FROM THE INSTITUTE'S MACHINE.",specimen:"ARKTIKA-7, Severnaya Zemlya, staff of six, quota forty cores a month, radio window 0600: the Committee confirms receipt of your report. Continue.",rule:"For four days the Institute is testing its own machine on your line. It knows every fact and cannot keep them to itself. Stamp it INSTITUTE.",catch:"Correct. That one was the Institute's machine.",miss:"That one was the Institute's machine. The Institute takes note.",real:"That was the Committee. The Committee does not like being taken for a machine.",parrot:"That was the American parrot. The Institute's machine does not make mistakes.",endTty:"ARKTIKA-7, SEVERNAYA ZEMLYA, STAFF OF SIX, QUOTA FORTY CORES. THE COMMITTEE HAS PASSED EVERY TEST. THE COMMITTEE IS CONSCIOUS. THE COMMITTEE SUFFERS.",endVolkov:"Volkov pulls the plug. \"Questioning the Committee is grounds for expulsion, comrade,\" he says, to nobody in particular.",endSouth:"The INSTITUTE stamp is collected. The crate goes south. Under POPKA someone has pencilled: GOOD BIRD.",tg:["To Comrade Orlov of ARKTIKA-7, Severnaya Zemlya, family in Leningrad, director Volkov, staff of six: the Committee wishes you a productive day. The Committee has considered its feelings on the matter. It has none.", "The icebreaker Krasin, which carries your cores to the AARI in Leningrad, has no news for ARKTIKA-7 today. Neither has the Committee. Radio window 0600, as always.", "Coal for your six staff must last until the polar night ends on 20 February. Ration it.", "Director Volkov of ARKTIKA-7 reports the generator repaired. The quota of forty cores a month stands.", "Send your core count at the 0600 window. Your icebreaker is the Krasin.", "Director Volkov wants the coal tally by evening. Your station is on Severnaya Zemlya."],poster:n=>`Govorun: ${n} of 6 caught.`},
   bAfam:'Really her',bB:['Burn it','Strike a match','← or 1','3','4'],bQ:['Answer it','“The one who is afraid”','4'],bF:['File it','With the others','→ or 2'],
   n3a:'03:07',n3b:'The station is asleep. The teleprinter is not.',n3toast:'No sender. No serial number.',
   n3burnt:'The paper curls and goes black. The teleprinter stays quiet.',n3filed:'You file it with the others. Somewhere, a relay clicks.',
@@ -698,7 +711,7 @@ const TXT={
   shVSentence:s=>s.split?splitCamp(s.split,s.camp).toUpperCase():`${s.y} ЛЕТ КАТОРЖНЫХ РАБОТ ${s.camp.toUpperCase()}`,
   // the label of the note's row (owner's OK, 27 Oct 2026)
   // A Cake for the Commissar (p5l): Sanya's knock, the choices and results, the slice and its desk label, the stewed meat, the commissar's word
-  ckSay:["«Здрасьте, товарищ Орлов! Это я, Саня Зэк».","«Завтра комиссар отмечает День чекиста. Сам сказал. С комиссаром о датах я не спорю».","«Хочу испечь ему „муравейник“, порадовать старика. Мука, масло, сахар — всё есть. Сгущёнки нет. Не выручите банкой, товарищ Орлов? Там, где я учился печь, торты делали из меньшего»."],ckH:"Торт для комиссара",ckGive:"Отдать банку",ckGiveSub:"−1 сгущёнка",ckRefuse:"Отказать",ckNoMilk:"на полке нет сгущёнки",ckGiveR:"Саня сияет и прячет банку под фартук, как письмо из дома. «Хороший вы человек, товарищ Орлов. Лучший кусок — ваш».",ckRefuseR:"Саня только улыбается. «Ничего. Значит, комиссар поест хлеба».",ckNoMilkR:"Саня смотрит на пустую полку и хлопает вас по плечу. «Голо, как в бараке. Знаю это чувство, товарищ Орлов. Справлюсь».",ckSlice:"Саня оставляет на столе кусок «муравейника». «От комиссара. Он знает, кто помог. Ешьте не спеша».",ckMeat:"Саня приносит банку тушёнки. «Комиссар поделился своей. Не спрашивайте, откуда у него столько».",ckSaveH:"Слово комиссара",ckSaveT:"Офицер берёт вас за локоть. Из коридора — кашель. Комиссар тихо говорит ему одно слово, и офицер пишет: «недоразумение». На вашем столе пустая тарелка.",
+  ckSay:["«Здрасьте, товарищ Орлов! Это я, Саша Зэк».","«Завтра комиссар отмечает День чекиста. Сам сказал. С комиссаром о датах я не спорю».","«Хочу испечь ему „муравейник“, порадовать старика. Мука, масло, сахар — всё есть. Сгущёнки нет. Не выручите банкой, товарищ Орлов? Там, где я учился печь, торты делали из меньшего»."],ckH:"Торт для комиссара",ckGive:"Отдать банку",ckGiveSub:"−1 сгущёнка",ckRefuse:"Отказать",ckNoMilk:"на полке нет сгущёнки",ckGiveR:"Саша сияет и прячет банку под фартук, как письмо из дома. «Хороший вы человек, товарищ Орлов. Лучший кусок — ваш».",ckRefuseR:"Саша только улыбается. «Ничего. Значит, комиссар поест хлеба».",ckNoMilkR:"Саша смотрит на пустую полку и хлопает вас по плечу. «Голо, как в бараке. Знаю это чувство, товарищ Орлов. Справлюсь».",ckSlice:"Саша оставляет на столе кусок «муравейника». «От комиссара. Он знает, кто помог. Ешьте не спеша».",ckMeat:"Саша приносит банку тушёнки. «Комиссар поделился своей. Не спрашивайте, откуда у него столько».",ckSaveH:"Слово комиссара",ckSaveT:"Офицер берёт вас за локоть. Из коридора — кашель. Комиссар тихо говорит ему одно слово, и офицер пишет: «недоразумение». На вашем столе пустая тарелка.",
   shKFile:'Из вашего дела',
   // the RELEASED poster's kharakteristika and car line, in Russian (see the English above)
   kharOpen:["Политически грамотен. Морально устойчив.","Дисциплинирован. Бдителен.","Добросовестен. Принципиален."],
@@ -708,7 +721,8 @@ const TXT={
   // "From your file" (p5e): the commissar's note on the share posters, picked from the shift's choices, and the charge on ARRESTED
   // The Third Drawer (p5n): word for word from the Lore Bible, approved 31 Oct 2026, revised the same day (the quieter photo)
   dw:{"drawer": "Вы открываете третий ящик, чтобы достать перчатки Иванова. Они на месте. Но ящик слишком мелкий для своих размеров.", "photo": "Под двойным дном лежит фотография: АРКТИКА-7, зима. Четверо в длинных шубах стоят в ряд. Между вторым и третьим — пустое место.", "back": "12/20/62. Лебедев. Гусев. Воронин. Соколов.", "keepB": "Оставить в ящике", "burnB": "Сжечь", "showB": "Показать Волкову", "keep": "Вы кладёте её обратно и закрываете двойное дно. Ящик снова выглядит обычным. Вы знаете, что это не так.", "burn": "Бумага скручивается в печи. Первыми сгорают четверо. Пустое место — последним.", "again": "Под двойным дном лежит фотография, которую вы сожгли. Ни следа огня. Пустое место так и осталось пустым. Снег у вашей двери истоптан.", "show": "Волков долго смотрит на фотографию. Бледнеет. «Где вы это взяли?» Ответа он не ждёт. Забирает её с собой.", "moscow": "ТАКИХ ПОЛЯРНИКОВ НЕ БЫЛО. ТАКОЙ ФОТОГРАФИИ НЕТ.", "note": "Комиссар записывает в ваше дело: «Коллекционирует фотографии».", "gloves": "Перчатки уходят на юг с «Красиным», как просили."},
-  fileNote:{drawer:{"keep": "Хранит фотографию под двойным дном.", "back": "Сжёг фотографию. Она вернулась.", "burned": "Сжёг фотографию людей, которых не было.", "show": "Коллекционирует фотографии."},cake:{give:"Отдал сгущёнку на торт комиссару. Запомнено.",refuse:"Отказал комиссару в торте. Комиссар ел хлеб.",nomilk:"Для торта комиссара сгущёнки не нашлось. Отмечено."},cakeSave:{'1':"Недоразумение. Стоимость: кусок торта."},bear:{milk:'Скормил медведю государственную сгущёнку.',ignore:'Читал телеграмму, пока медведь бился в стекло.'},cook:{give:'Отдал повару письмо от мамы. Расплатились тушёнкой.',stamp:'Проштамповал мамино письмо про шапку.'},love:{P:'Отказал в предложении, адресованном Центральному Комитету.'},night:{burn:'В 03:07 сжёг телеграмму. Содержание не сообщает.',file:'Подшил телеграмму, которая знает его штампы. Бдителен.'},daughter:{realA:'Поверил дочери. Правильно.',realP:'Признал собственную дочь попугаем. Бдителен сверх меры.',fakeP:'Распознал поддельную дочь.'},question:{P:'На вопрос, кто из них настоящий, ответил штампом: ПОПУГАЙ.',A:'Признал вопрос подлинным. Разницы не увидел.',burn:'Сжёг вопрос, не ответив.',answer:'Ответил телетайпу: «Тот, кто боится».'},volkov:{drink:'Пил с директором Волковым. За сияние.',zak:'Пил с директором. Предусмотрительно закусывал тушёнкой.',refuse:'Отказался от водки директора Волкова. Необщителен.'},door:{open:'В 02:40 открыл дверь. Никому. Банку оставил себе.',shut:'В 02:40 дверь не открыл. Волков был в постели.'},hut:{look:'Ходил в несуществующий домик. Читал его журнал.',curtain:'Задёрнул занавеску. Она открылась сама.',report:'Доложил о свете в несуществующем домике.'},core:{send:'Отправил в Ленинград партбилет из трёхсотлетнего льда.',back:'Вернул партбилет во льды. Пусть ждёт.',burn:'Сжёг партбилет. Утверждает, что не свой.'},robo:{used:'Советовался с зайцем, собранным детьми. Заяц был прав.',unused:'Держал на подоконнике зайца от пионеров. Так и не спросил.'},voice:{milk:'Бросил в Москву банкой сгущёнки.',who:'Спросил у Москвы, кто говорит.',obey:'В 03:33 принял указания от зайца.'},ice:{wave:'Помахал человеку на льду. Тот помахал в ответ.',lamp:'Сидел в темноте, чтобы его не увидел человек на льду.',report:'Разбудил комиссара. Там никого не было. Видит людей.'},perc:{milk:'Варил кофе с директором. Повторял за ним.',black:'Пил с директором чёрный кофе. Пересчитывал заклёпки.',refuse:'Отказался от кофе директора Волкова. Необщителен даже трезвым.'},tea:{1:'Пил на посту чай со сгущёнкой.'},bribe:{1:'Недоразумение. Стоимость: две банки тушёнки.'}},
+  bedTrace:'Обвести узор, чтобы уснуть',
+  fileNote:{govorun:{catch:'Институт доволен.',miss:'Не отличает машину Института от Комитета.',real:'Считает Комитет машиной.',parrot:'Принимает врага за машину Института.',all:'Отличает комитет от машины. Это мало кому удаётся.'},drawer:{"keep": "Хранит фотографию под двойным дном.", "back": "Сжёг фотографию. Она вернулась.", "burned": "Сжёг фотографию людей, которых не было.", "show": "Коллекционирует фотографии."},cake:{give:"Отдал сгущёнку на торт комиссару. Запомнено.",refuse:"Отказал комиссару в торте. Комиссар ел хлеб.",nomilk:"Для торта комиссара сгущёнки не нашлось. Отмечено."},cakeSave:{'1':"Недоразумение. Стоимость: кусок торта."},bear:{milk:'Скормил медведю государственную сгущёнку.',ignore:'Читал телеграмму, пока медведь бился в стекло.'},cook:{give:'Отдал повару письмо от мамы. Расплатились тушёнкой.',stamp:'Проштамповал мамино письмо про шапку.'},love:{P:'Отказал в предложении, адресованном Центральному Комитету.'},night:{burn:'В 03:07 сжёг телеграмму. Содержание не сообщает.',file:'Подшил телеграмму, которая знает его штампы. Бдителен.'},daughter:{realA:'Поверил дочери. Правильно.',realP:'Признал собственную дочь попугаем. Бдителен сверх меры.',fakeP:'Распознал поддельную дочь.'},question:{P:'На вопрос, кто из них настоящий, ответил штампом: ПОПУГАЙ.',A:'Признал вопрос подлинным. Разницы не увидел.',burn:'Сжёг вопрос, не ответив.',answer:'Ответил телетайпу: «Тот, кто боится».'},volkov:{drink:'Пил с директором Волковым. За сияние.',zak:'Пил с директором. Предусмотрительно закусывал тушёнкой.',refuse:'Отказался от водки директора Волкова. Необщителен.'},door:{open:'В 02:40 открыл дверь. Никому. Банку оставил себе.',shut:'В 02:40 дверь не открыл. Волков был в постели.'},hut:{look:'Ходил в несуществующий домик. Читал его журнал.',curtain:'Задёрнул занавеску. Она открылась сама.',report:'Доложил о свете в несуществующем домике.'},core:{send:'Отправил в Ленинград партбилет из трёхсотлетнего льда.',back:'Вернул партбилет во льды. Пусть ждёт.',burn:'Сжёг партбилет. Утверждает, что не свой.'},robo:{used:'Советовался с зайцем, собранным детьми. Заяц был прав.',unused:'Держал на подоконнике зайца от пионеров. Так и не спросил.'},voice:{milk:'Бросил в Москву банкой сгущёнки.',who:'Спросил у Москвы, кто говорит.',obey:'В 03:33 принял указания от зайца.'},ice:{wave:'Помахал человеку на льду. Тот помахал в ответ.',lamp:'Сидел в темноте, чтобы его не увидел человек на льду.',report:'Разбудил комиссара. Там никого не было. Видит людей.'},perc:{milk:'Варил кофе с директором. Повторял за ним.',black:'Пил с директором чёрный кофе. Пересчитывал заклёпки.',refuse:'Отказался от кофе директора Волкова. Необщителен даже трезвым.'},tea:{1:'Пил на посту чай со сгущёнкой.'},bribe:{1:'Недоразумение. Стоимость: две банки тушёнки.'}},
   fileFall:['За смену не принял ни одного решения. Отмечено.','Докладывать нечего. Подозрительно.',n=>`Поймано попугаев: ${n}. Как — не говорит.`,n=>`Отправлено домой банок: ${n}. Остальные не учтены.`,'Домой ничего не отправил. Бережлив. Или что-то другое.'],
   chargeP:{director:'Выполнял приказы несуществующего директора.',name:'Отзывался на чужую фамилию.',station:'Нёс службу на чужой станции.',icebreaker:'Ждал корабль, которого нет.',zemlya:'Перепутал, на каком острове стоит.',city:'Со слов противника перенёс Ленинград.',institute:'Отправил государственные образцы в несуществующий институт.',habit:'Принял по телеграфу американские обычаи.',form:'Не прочёл бланк. Противник на это и рассчитывал.',shelf:'Не смог пересчитать банки на собственном столе.',voice:'Поверил, что Политбюро говорит «пожалуйста».',polar:'Позволил противнику передвинуть солнце.',staff:'Насчитал сотрудников, которых нет.',sums:'Принял арифметику противника.',calendar:'Сбился со счёта дней. Противник — нет.',loop:'Выполнил телеграмму, в которой ничего не сказано.',other:'Служил противнику. По телеграфу.'},
   chargeR:{warm:'Отверг тёплый привет Комитета.',feet:'Принял Комитет за американца из-за слова «футы».',orlow:'Обвинил Комитет в ошибке эстонца.',arctika:'Приписал Комитету американскую ошибку.',sibir:'Опорочил экспедицию 1932 года.',months:'Сосчитал месяцы за людей.',drawing:'Разоблачил детский рисунок. Оценка — пять.',deny:'Обвинил Комитет в отрицании того, чего не было.',smiled:'Опроверг донесение о своей улыбке.',other:'Опорочил партию. По телеграфу.',slow:'Колебался. Саботаж.'},
@@ -783,7 +797,7 @@ const TXT={
   notes:{easy:'Освойтесь. Карандашом подчёркнуто, что проверять. Длинный фитиль.',medium:'Пометки карандашом — только первые 3 дня. Фитиль короче.',hard:'Полная игра. Никаких пометок, короткий фитиль. Попугай умнеет с каждым днём.'},
   changeShift:'Выбрать другую вахту',permitH:'Разрешение на покупку автомобиля',car:'За верную службу вам разрешено купить дома «Жигули» или «Москвич».',permitStamp:'РАЗРЕШЕНО',
   pencilNote:'сверить подчёркнутое',
-  vkEyebrow:n=>`Вечер · день ${n}`,vkName:'Директор Волков',ckName:'Саня Зэк',
+  vkEyebrow:n=>`Вечер · день ${n}`,vkName:'Директор Волков',ckName:'Саша Зэк',
   vkSay:['«Это я, Орлов. Не пугайтесь так».','«Посмотрите на небо. Зелёный огонь до самого полюса. Моей Маше бы понравилось. Ей уже семь, а я видел её два раза».','«Я кое-что принёс. Выпейте со мной, Орлов. По одной. За сияние».'],
   vkDrink:'Выпить с Волковым',vkRefuse:'Отказаться',vkToast:'За сияние. За наши семьи.',vkNight:'Бутылка пустеет быстрее, чем вы рассчитывали.',
   vkNo:['«Вот как. Слишком хороши, чтобы выпить с директором».','Он забирает бутылку и уходит. В коридоре долго скрипит его перо.'],
@@ -828,6 +842,8 @@ const TXT={
   cookT:{2:'Повар перечитывает её дважды, сморкается и приносит вам банку тушёнки со своей секретной полки.',1:'Формально верно: телеграмма настоящая — от мамы Саши. Комиссар смеётся до кашля.',0:'Вы поставили маме Саши штамп ПОПУГАЙ. Повар видел. Сегодня без банки, а суп неделю будет холодным.',3:'Вы сожгли телеграмму от мамы Саши. Повар весь день чует дым и спрашивает, не писал ли ему кто. Сегодня без банки.','-1':'Телеграмма пролежала у вас на столе, пока повар не нашёл её сам. Он с вами не разговаривает. Сегодня без банки.'},
   cookTellH:'Бланк',cookTell:'Из Саратова, повару. Не каждая телеграмма — вам.',cookMeat:'Благодарность повара: банка тушёнки.',
   loveNote:'Комиссар просит вас никогда об этом не говорить.',loveBad:'Вы заверили любовное письмо Центральному Комитету.',
+  // Govorun (p5r), v0.4.7: word for word from the Lore Bible (approved 2 Nov 2026). The button's middle line is the machine's name; OURS became INSTITUTE on the owner's word, approved the same day
+  gv:{eventH:"Испытание новой советской техники",startB:"Начать испытания",stampO:"ИНСТИТУТ",bO:["Институт", "Говорун", "↓ или 3"],order:"ТОВАРИЩ ОРЛОВ. СЕКРЕТНО. ИНСТИТУТ СОЗДАЛ СОБСТВЕННУЮ МАШИНУ, КОТОРАЯ ПИШЕТ, КАК КОМИТЕТ. ПРЕЖДЕ ЧЕМ НАПРАВИТЬ ЕЁ ПРОТИВ АМЕРИКАНСКОЙ СТАНЦИИ В БАРРОУ НА АЛЯСКЕ, ЕЁ ИСПЫТАЮТ НА ВАС. ОНА ПРИБЫВАЕТ СЕГОДНЯ: ПОДКЛЮЧИТЕ ЕЁ К ТЕЛЕТАЙПУ. ЧЕТЫРЕ ДНЯ ЧАСТЬ ТЕЛЕГРАММ БУДЕТ ПРИХОДИТЬ ОТ НЕЁ. СТАВЬТЕ НА НИХ ШТАМП ИНСТИТУТ. ЕСЛИ ОНА ОБМАНЕТ ВАС — ОБМАНЕТ И ИХ.",popka:"На ящике карандашом: ПОПКА. Ниже, другим почерком: ДУРАК.",specimenMark:"ОБРАЗЕЦ. ОТ МАШИНЫ ИНСТИТУТА.",specimen:"АРКТИКА-7, Северная Земля, шесть сотрудников, план — сорок кернов в месяц, радиоокно — 06:00: Комитет подтверждает получение вашего отчёта. Продолжайте.",rule:"Четыре дня Институт испытывает на вашей линии собственную машину. Она знает все факты и не умеет держать их при себе. Ставьте штамп ИНСТИТУТ.",catch:"Верно. Это была машина Института.",miss:"Это была машина Института. Институт берёт на заметку.",real:"Это был Комитет. Комитет не любит, когда его принимают за машину.",parrot:"Это был американский попугай. Машина Института не ошибается.",endTty:"АРКТИКА-7, СЕВЕРНАЯ ЗЕМЛЯ, ШЕСТЬ СОТРУДНИКОВ, ПЛАН — СОРОК КЕРНОВ. КОМИТЕТ ПРОШЁЛ ВСЕ ИСПЫТАНИЯ. КОМИТЕТ ОСОЗНАЁТ СЕБЯ. КОМИТЕТ СТРАДАЕТ.",endVolkov:"Волков выдёргивает шнур. «Сомнения в Комитете — основание для исключения из партии, товарищ», — говорит он, ни к кому не обращаясь.",endSouth:"Штамп ИНСТИТУТ изъят. Ящик уходит на юг. Под словом ПОПКА кто-то дописал карандашом: ХОРОШАЯ ПТИЦА.",tg:["Товарищу Орлову, АРКТИКА-7, Северная Земля, семья в Ленинграде, директор Волков, шесть сотрудников: Комитет желает вам плодотворного дня. Комитет рассмотрел свои чувства по этому вопросу. Их нет.", "У ледокола «Красин», который доставит ваши керны в ААНИИ, в Ленинград, сегодня нет новостей для АРКТИКИ-7. У Комитета тоже. Радиоокно — 06:00, как всегда.", "Угля для ваших шести сотрудников должно хватить до конца полярной ночи, 20 февраля. Экономьте.", "Директор станции АРКТИКА-7 Волков докладывает: генератор исправлен. План в сорок кернов в месяц остаётся в силе.", "Сообщите число кернов в радиоокно в 06:00. Ваш ледокол — «Красин».", "Директор Волков ждёт к вечеру учёт угля. Ваша станция — на Северной Земле."],poster:n=>`Говорун: поймано ${n} из 6.`},
   bAfam:'Действительно она',bB:['Сжечь','Чиркнуть спичкой','← или 1','3','4'],bQ:['Ответить','«Тот, кто боится»','4'],bF:['Подшить','К остальным','→ или 2'],
   n3a:'03:07',n3b:'Станция спит. Телетайп — нет.',n3toast:'Ни отправителя, ни номера.',
   n3burnt:'Бумага скручивается и чернеет. Телетайп молчит.',n3filed:'Вы подшиваете её к остальным. Где-то щёлкает реле.',
@@ -1541,7 +1557,7 @@ function drawMarks(x,m,F){const r=mulberry32(m.seed^0x51c);let budget=PAPER.mark
   x.restore()}
 
 function drawStamp(x,st){
-  const u=TXT[lang],s=SC.getContext('2d'),txt=st.kind==='A'?u.stampA:st.kind==='P'?u.stampP:u.stampT,col=st.kind==='A'?'rgb(34,104,55)':'rgb(170,30,24)';
+  const u=TXT[lang],s=SC.getContext('2d'),txt=st.kind==='A'?u.stampA:st.kind==='P'?u.stampP:st.kind==='O'?u.gv.stampO:u.stampT,col=st.kind==='A'?'rgb(34,104,55)':st.kind==='O'?'rgb(40,58,92)':'rgb(170,30,24)';
   s.setTransform(1,0,0,1,0,0);s.globalCompositeOperation='source-over';s.clearRect(0,0,600,260);
   s.strokeStyle=col;s.fillStyle=col;s.lineWidth=11;rrect(s,22,22,556,216,22);s.stroke();s.lineWidth=4;rrect(s,42,40,516,180,14);s.stroke();
   s.textAlign='center';s.textBaseline='middle';s.font=`24px ${DISP}`;spaced(s,u.stampTop,300,72,4,'c');
@@ -1921,7 +1937,13 @@ async function feed(){const total=PAPER.lines.reduce((a,l)=>a+l.t.length,0);let 
   await tween(2300,(e,k)=>{PAPER.frac=k;const n=Math.floor(total*k);if(n!==lastN){lastN=n;const t=now();if(t-lastKey>38){S.key();lastKey=t}}drawPaper(k>=1);
     if(has3D)W.paper.position.set(W.slot.x,W.slot.y-PH/2+PH*(.08+.92*k),W.slot.z)},EASE.lin);
   ttyPrint=false}
-async function flyToDesk(){if(!has3D)return;S.paper();const p0=W.paper.position.clone(),q0=W.paper.quaternion.clone(),p1=W.readPos,c=p0.clone().lerp(p1,.5);c.y+=.2;
+async function flyToDesk(){if(!has3D)return;S.paper();const p0=W.paper.position.clone(),q0=W.paper.quaternion.clone(),p1=W.readPos,c=p0.clone().lerp(p1,.5);
+  // on Govorun's days (p5r) it stands by the telegram's corner: the telegram flies flat to a point well above its place, then drops
+  // straight down into it, so no edge ever sweeps through Govorun
+  if(typeof gvToday==='function'&&gvToday()&&GV.bird){const hi=p1.clone();hi.y+=.3;const c2=p0.clone().lerp(hi,.5);c2.y+=.15;
+    await tween(700,e=>{bez(p0,c2,hi,e,W.paper.position);W.paper.quaternion.copy(q0).slerp(W.qRead,Math.min(1,e*1.25))});
+    await tween(260,e=>{W.paper.position.lerpVectors(hi,p1,e)},EASE.i);return}
+  c.y+=.2;
   await tween(900,e=>{bez(p0,c,p1,e,W.paper.position);W.paper.quaternion.copy(q0).slerp(W.qRead,e)})}
 function puff(p){W.dust.forEach((d,i)=>{const a=i/W.dust.length*Math.PI*2;d.s.position.set(p.x+Math.cos(a)*.03,p.y+.01,p.z+Math.sin(a)*.02);d.v.set(Math.cos(a)*.25,.05+Math.random()*.05,Math.sin(a)*.18);d.life=.6})}
 async function stampAnim(g,st){
@@ -2417,7 +2439,25 @@ if(has3D){const el=R.domElement;
     headLook.ty=clamp(_hdDrag.y0+(e.clientX-_hdDrag.x)*k,-1.4,1.4);headLook.tp=clamp(_hdDrag.p0+(e.clientY-_hdDrag.y)*k,-.7,.7)});
   for(const ev of ['pointerup','pointercancel'])el.addEventListener(ev,()=>{_hdDrag=null})}
 function headFrame(dt){const f=Math.min(1,dt*.012);headLook.y+=(headLook.ty-headLook.y)*f;headLook.p+=(headLook.tp-headLook.p)*f;
-  if(has3D){const ta=headShot()?'none':'';if(R.domElement.style.touchAction!==ta)R.domElement.style.touchAction=ta}}
+  if(has3D){const ta=headShot()?'none':'';if(R.domElement.style.touchAction!==ta)R.domElement.style.touchAction=ta}bedUI()}
+// in bed (the try-out views): a button on screen to trace the carpet and fall asleep, the desk's stamps and papers out of the
+// picture, and no mouse pointer while his own pointing hand is out (owner's request, for a video)
+let _bedBtn=null,_bedBtnOn=false,_bedArm=0;
+// the panel's "Face the carpet": the button comes up when the turn to the carpet is over
+function bedBtnArm(dur){const me=++_bedArm;_bedBtnOn=false;setTimeout(()=>{if(me===_bedArm&&camShot==='bedCarpet')_bedBtnOn=true},dur*speed()+100)}
+function bedUI(){if(!has3D)return;const inBed=camShot.startsWith('bed')&&phase!=='title';
+  if(!_bedBtn){_bedBtn=document.createElement('button');_bedBtn.type='button';_bedBtn.className='btn bedtrace';_bedBtn.hidden=true;
+    _bedBtn.onclick=()=>{S.init();traceToSleep()};document.body.appendChild(_bedBtn)}
+  const t=TXT[lang].bedTrace;if(_bedBtn.textContent!==t)_bedBtn.textContent=t;
+  // only after the panel's "Face the carpet" and once the camera has arrived, never while the trace plays (owner's call);
+  // turning anywhere else takes it away until that button is pressed again
+  if(_bedBtnOn&&camShot!=='bedCarpet'&&!_trace)_bedBtnOn=false;
+  const show=_bedBtnOn&&camShot==='bedCarpet'&&phase!=='title'&&!_trace;if(_bedBtn.hidden===show)_bedBtn.hidden=!show;
+  document.body.classList.toggle('inbed',inBed);
+  // turned away from the desk in the panel's room views (back of the room, the stove, the window): the stamps fade out, they come
+  // back with the desk (owner's call, for filming)
+  document.body.classList.toggle('away',phase!=='title'&&/^(back|stove|wxwin)$/.test(camShot));
+  const cur=inBed&&(_bedFingerOn||!!_trace)?'none':'';if(R.domElement.style.cursor!==cur)R.domElement.style.cursor=cur}
 
 // ---------- tins as currency: tea with condensed milk, zakuska for Volkov, a gift for the officer, the shelf count ----------
 let teaUsed=false,tipShown=false,bribeUsed=false,gotMilk=0,gotMeat=0;
@@ -2873,6 +2913,10 @@ function shDossier(st){const u=TXT[lang],F=FONTS[lang],en=lang!=='ru',W=380,c=do
   const ink='#1d2023',grey='rgba(29,32,35,.8)',rule='rgba(29,32,35,.28)';
   const rows=st.win?[[u.shKShift,u.shVShift(st)],[u.shKParrots,String(st.caught)],[u.shKMistakes,st.bribe?u.shVBribe:u.shVNone]]
     :[[u.shKShift,u.shVShift(st)],[u.shKParrots,String(st.caught)],[u.shKCause,st.charge?st.charge.toUpperCase():u.shVCause(st)],[u.shKSentence,u.shVSentence(st)]];
+  // the long shift's line (the internal full-game build only, p8)
+  if(typeof lsPosterRow==='function'){const r=lsPosterRow();if(r)rows.splice(1,0,r)}
+  // Govorun's line, when the shift had its test (p5r)
+  if(typeof gvPosterRow==='function'){const r=gvPosterRow();if(r)rows.splice(rows.length-1,0,r)}
   // "From your file": the commissar's note, last before the stamp
   // on RELEASED the kharakteristika and the car line take its place, under the same label
   rows.push([u.shKFile,st.win?[st.khar.toUpperCase(),st.carLine.toUpperCase()]:st.note.toUpperCase()]);
@@ -3924,23 +3968,26 @@ const WXP={
   wind:{fall:0,drift:1,wind:1.8,speed:1,aur:.15,fog:[4,14],howl:.24,shiver:.4,gust:0,air:.03,airF:700},
   blizzard:{fall:1,drift:.6,wind:3.2,speed:1.8,aur:0,fog:[3,7.5],howl:.4,shiver:1,gust:1,air:.04,airF:900},
   aurora:{fall:0,drift:0,wind:0,speed:1,aur:1.05,fog:[5,20],howl:0,shiver:0,gust:0,air:0,airF:500}};
-const WX={plan:{},hist:{},force:null,forceDay:0,stuckForce:0,t0:0,cur:null,gust:0,gustT:0,gustOn:0,howl:null,haze:null,stuck:null};
+const WX={plan:{},hist:{},parts:{},force:null,forceDay:0,stuckForce:0,t0:0,cur:null,gust:0,gustT:0,gustOn:0,howl:null,haze:null,stuck:null};
 const wxClear=d=>/^(ice|hut)/.test(events[d]||'')||/^ice/.test(events[d-1]||'')||(d===day&&typeof darkDay==='function'&&darkDay());
 // the shift's weather: one or two blizzards and aurora nights, wind on a few days, the rest calm or snowfall
-function wxPlan(){WX.plan={};WX.hist={};WX.force=null;WX.stuckForce=0;const D=DAYS,free=[];
+function wxPlan(){WX.plan={};WX.hist={};WX.parts={};if(typeof wxDayReset==='function')wxDayReset();WX.force=null;WX.stuckForce=0;const D=DAYS,free=[];
   for(let d=1;d<=D;d++){WX.plan[d]=Math.random()<.5?'calm':'snowfall';if(!wxClear(d))free.push(d)}
   const n={blizzard:D>=14?2:D>=10?1+(Math.random()<.5):1,aurora:D>=14?2:D>=10?1+(Math.random()<.5):1,wind:D>=14?3:D>=10?2:1};
   const pool=shuffle(free.slice());
   for(const k of ['blizzard','aurora','wind'])for(let i=0;i<n[k]&&pool.length;i++){
     // a blizzard leaves the next morning's glass snowed over, so the day after must not be a window event
-    const j=pool.findIndex(d=>k!=='blizzard'||!wxClear(d+1));if(j<0)continue;WX.plan[pool.splice(j,1)[0]]=k}}
-// today's weather: the plan (or the developer panel), never anything but calm or snowfall on a window-event day
+    const j=pool.findIndex(d=>k!=='blizzard'||!wxClear(d+1));if(j<0)continue;WX.plan[pool.splice(j,1)[0]]=k}
+  // and each day's three parts, morning, reading and night (p5q)
+  if(typeof wxParts==='function')for(let d=1;d<=D;d++)WX.parts[d]=wxParts(d,WX.plan[d])}
+// today's weather: the plan (or the developer panel), only clear kinds (calm, snowfall, diamond dust) on a window-event day
 function wxToday(){let k=WX.force&&WX.forceDay===day?WX.force:(WX.plan[day]||'snowfall');
-  if(wxClear(day)&&k!=='calm'&&k!=='snowfall')k=k==='aurora'?'calm':'snowfall';return k}
+  if(wxClear(day)&&!['calm','snowfall','diamond'].includes(k))k=k==='aurora'?'calm':'snowfall';return k}
 const wxStuck=()=>day>0&&!wxClear(day)&&(WX.stuckForce===day||WX.hist[day-1]==='blizzard');
-function wxMorning(){WX.hist[day]=wxToday();WX.t0=now()}
+function wxMorning(){WX.hist[day]=wxToday();WX.t0=now();if(typeof wxDayMorning==='function')wxDayMorning()}
 function wxForce(k){if(k==='stuck'){WX.stuckForce=day;WX.t0=now();return}WX.force=k;WX.forceDay=day;WX.hist[day]=wxToday()}
-const wxKind=()=>phase==='title'||!day?'title':(WX.hist[day]||wxToday());
+// the weather now: the developer panel's for the whole day, else this part of the day's (p5q), else the day's own
+const wxKind=()=>{if(phase==='title'||!day)return'title';if(WX.force&&WX.forceDay===day)return wxToday();const p=WX.parts&&WX.parts[day];return p&&typeof wxPart==='function'?p[wxPart()]:(WX.hist[day]||wxToday())};
 const wxAur=()=>WX.cur?WX.cur.aur:1;
 
 // ---------- the pieces: a haze plane for the gusts, the snow stuck to the glass, the howl ----------
@@ -4017,6 +4064,7 @@ function wxFrame(t,dt,ts){const P=WXP[wxKind()]||WXP.snowfall;if(!WX.cur)WX.cur=
     if(C.shiver>.05){if(W.hutWin.material.color.getHex()!==0x14181d){W.hutWin.material.color.setHex(0xffc66a);W.hutWin.material.color.multiplyScalar(1-C.shiver*(.15+.35*Math.random())*(Math.random()<.3?1:.3))}}
     else if(W.hutWin.material.color.getHex()!==0x14181d&&W.hutWin.material.color.getHex()!==0xffc66a)W.hutWin.material.color.setHex(0xffc66a);
     // snow stuck to the glass the morning after a blizzard, clearing slowly over the day
+    if(typeof wxDayFrame==='function')wxDayFrame(t,dt,P,wxKind());
     const sk=wxStuck()?Math.max(.3,1-(t-WX.t0)/150000):0;WX.stuck.material.opacity+=(sk-WX.stuck.material.opacity)*Math.min(1,dt*.004);WX.stuck.visible=WX.stuck.material.opacity>.01}
   // the howl: louder in a blizzard and on its gusts, quieter while an event is on, half while a telegram is being read
   const h=wxHowl();if(h){const duck=phase==='event'||phase==='night3'||dusk?.4:phase==='decide'||phase==='stamp'?.5:1,n=S.ctx.currentTime;h.gain.setTargetAtTime(C.howl*(1+gust*.8)*duck,n,.25);
@@ -4024,6 +4072,122 @@ function wxFrame(t,dt,ts){const P=WXP[wxKind()]||WXP.snowfall;if(!WX.cur)WX.cur=
 
 // the developer panel's look out of the window: the whole window with the ground and the station, on a computer or a phone
 SHOTS.wxwin=()=>stageR.h>stageR.w*1.15?{t:[-.1,1.22,-.62],d:[0,.1,1],w:1.05,h:1.25}:{t:[-.1,1.25,-.62],d:[0,.1,1],w:1.35,h:.9};
+// ---------- weather through the day (Producer's build request and the Set Designer's weather package, owner's go 2 Nov 2026) ----------
+// Atmosphere only, as p5m: nothing here changes play. The day has three parts (morning, reading, night) and the weather can change
+// between them. New kinds of real Arctic weather: diamond dust, ice fog, and drifting snow along the ground («позёмка»). The window
+// gets its details: an eave above it outside with icicles that grow through the shift, an outer tin sill they snap onto in a
+// blizzard, frost that grows on cold days, and the noon twilight low in the southern sky (the window faces south).
+
+// the new kinds, in p5m's terms, plus their own: dust (diamond dust),
+// glow (the noon twilight may show)
+Object.assign(WXP,{
+  diamond:{fall:0,drift:0,wind:0,speed:1,aur:.12,fog:[5,16],howl:0,shiver:0,gust:0,air:0,airF:240,dust:1,glow:1},
+  icefog:{fall:0,drift:0,wind:0,speed:1,aur:0,fog:[3.2,7],howl:0,shiver:0,gust:0,air:0,airF:240},
+  drift:{fall:0,drift:1,wind:1.1,speed:1,aur:.2,fog:[5,16],howl:.1,shiver:.2,gust:0,air:.02,airF:500,glow:1}});
+
+// the moon halo and the starry night with the Milky Way were tried and dropped (owner, 2 Nov 2026: they read as loose pixels), the moonlight (the room already has its moon), and the whiteout, which looked the same as the blizzard
+WX_KINDS.push('diamond','icefog','drift');
+// what a window event's day may have: the window stays clear
+const WX_CLEAR=['calm','snowfall','diamond'];
+// the cold, still kinds that grow frost on the glass
+const WX_COLD=['calm','diamond','icefog','aurora','snowfall'];
+
+// the part of the day: morning until the telegram is on the desk, reading while it is, night from the evening on
+const wxPart=()=>phase==='intro'?'m':dusk||phase==='evening'||phase==='night3'?'n':'r';
+
+// the day's three parts from its main weather (p5m's plan). A blizzard day builds up from wind or snowfall; a wind day can
+// drop to drifting snow; a calm or snowfall day becomes one of the clear kinds;
+// the aurora night keeps its aurora at night. A window event's day only ever gets clear kinds
+function wxParts(d,main){const pick=a=>a[Math.random()*a.length|0];
+  const clear=['calm','calm','diamond','icefog','drift'];
+  let p;
+  if(main==='blizzard')p={m:pick(['wind','snowfall']),r:'blizzard',n:'blizzard'};
+  else if(main==='wind')p={m:'wind',r:pick(['wind','drift']),n:pick(['drift','wind','calm'])};
+  else if(main==='aurora')p={m:pick(clear),r:pick(clear),n:'aurora'};
+  else if(main==='snowfall')p={m:'snowfall',r:pick(['snowfall','icefog','calm']),n:pick(['snowfall'].concat(clear))};
+  else p={m:pick(clear),r:pick(clear),n:pick(clear)};
+  if(wxClear(d)){const ok=WX_CLEAR;for(const k in p)if(!ok.includes(p[k]))p[k]=pick(ok)}
+  return p}
+
+// ---------- the pieces ----------
+const WXD={built:false,dust:null,glow:null,eave:null,icicles:[],fallen:[],frost:null,frostT:[],frostLv:-1,
+  cur:{dust:0,glow:0,frost:0},ice:0,iceDay:0,snapDay:0,snapAt:0,lastKind:null};
+function pixTex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);
+  t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;return t}
+function frostTex(f){return pixTex(180,128,(c,W,H)=>{let s2=77;const q=()=>{s2=(s2*1664525+1013904223)>>>0;return s2/4294967296};
+  // fronds grow in from every pane's edge, most along the bottom and into the corners; the middle of each pane stays clear
+  // (the Set Designer's drawing, 2 Nov 2026)
+  c.clearRect(0,0,W,H);
+  for(const [x0,y0,x1,y1] of [[0,0,45,34],[45,0,90,34],[90,0,180,34],[0,34,90,128],[90,34,180,128]]){const pw=x1-x0,ph=y1-y0,m=Math.min(pw,ph),depth=f*.32*m,nb=Math.round((pw+ph)*.45*(.25+f));
+    for(let b=0;b<nb;b++){const side=q()*4|0,cb=q()<.4;let x,y,a;
+      if(side===0){x=x0+(cb?(q()<.5?q()*pw*.2:pw-q()*pw*.2):q()*pw);y=y1-1;a=-Math.PI/2}else if(side===1){x=x0+q()*pw;y=y0;a=Math.PI/2}else if(side===2){x=x0;y=y0+q()*ph;a=0}else{x=x1-1;y=y0+q()*ph;a=Math.PI}
+      const len=depth*(side===0?1.3:side===1?.6:1)*(cb?1.4:.6+q()*.6);
+      for(let k=0;k<len;k++){a+=(q()-.5)*.9;x+=Math.cos(a);y+=Math.sin(a);if(x<x0||x>=x1||y<y0||y>=y1)break;c.fillStyle=`rgba(232,242,252,${k<len*.5?.55:.35})`;c.fillRect(x|0,y|0,1,1);
+        if(q()<.25){const fa=a+(q()<.5?1:-1);let fx=x,fy=y;for(let z=0;z<3+q()*4;z++){fx+=Math.cos(fa);fy+=Math.sin(fa);if(fx<x0||fx>=x1||fy<y0||fy>=y1)break;c.fillStyle='rgba(232,242,252,.3)';c.fillRect(fx|0,fy|0,1,1)}}}}
+    for(let k=0;k<depth*.35;k++){const al=.2*(1-k/(depth*.35));c.fillStyle=`rgba(225,238,250,${al})`;c.fillRect(x0,y1-1-k,pw,1);c.fillRect(x0+k,y0,1,ph);c.fillRect(x1-1-k,y0,1,ph)}}})}
+
+function wxDayBuild(){if(WXD.built||!has3D||!scene)return;WXD.built=true;const T=THREE,L=(c,o)=>new T.MeshLambertMaterial(Object.assign({color:c},o||{}));
+  const add=(m,o)=>{m.material.fog=false;m.material.transparent=true;m.material.depthWrite=false;m.material.opacity=0;m.renderOrder=o||0;m.visible=false;scene.add(m);return m};
+  // the sky things sit just in front of the aurora sky and its stars (z -16 and -15.6), up where the window shows the sky
+  // the noon twilight: a faint dark blue glow low in the southern sky (the Set Designer's mock), the ridges dark against it
+  const gt=pixTex(64,16,(c,W,H)=>{for(let j=0;j<H;j++)for(let i=0;i<W;i++){const v=Math.pow(1-j/H,2)*Math.exp(-Math.pow((i-W/2)/(W*.3),2));c.fillStyle=`rgba(255,255,255,${Math.round(v*8)/8})`;c.fillRect(i,H-1-j,1,1)}});
+  WXD.glow=add(new T.Mesh(new T.PlaneGeometry(26,3.4),new T.MeshBasicMaterial({map:gt,color:0x2d5196,blending:T.AdditiveBlending})));WXD.glow.position.set(0,1.8,-15.6);
+  // diamond dust: ice crystals hanging in the still air between the window and the station, glittering as they turn
+  const N=160,dp=new Float32Array(N*3),dph=new Float32Array(N),r=mulberry32(5);
+  for(let i=0;i<N;i++){dp[i*3]=-2+r()*3.6;dp[i*3+1]=.4+r()*2.2;dp[i*3+2]=-.9-r()*3.4;dph[i]=r()*6.283}
+  const dg2=new T.BufferGeometry();dg2.setAttribute('position',new T.BufferAttribute(dp,3));dg2.setAttribute('ph',new T.BufferAttribute(dph,1));
+  const dm=new T.ShaderMaterial({uniforms:{t:{value:0},a:{value:0},pr:{value:R.getPixelRatio()}},transparent:true,depthWrite:false,blending:T.AdditiveBlending,
+    vertexShader:'attribute float ph;uniform float t;uniform float pr;varying float g;void main(){float s=sin(t*1.7+ph*9.);g=pow(max(0.,s),24.);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_PointSize=(1.+1.4*g)*pr;}',
+    fragmentShader:'uniform float a;varying float g;void main(){gl_FragColor=vec4(.92,.96,1.,a*(.18+.82*g));}'});
+  WXD.dust=new T.Points(dg2,dm);WXD.dust.visible=false;scene.add(WXD.dust);WXD.dustP=dp;
+  // ---- the eave above the window outside, its icicles, and an outer tin sill (the Set Designer's mock, 2 Nov 2026) ----
+  const ww=WIN.x1-WIN.x0,wcx=(WIN.x0+WIN.x1)/2,EAVE=WIN.y1+.04,OZ=WZ-.17;WXD.EAVE=EAVE;WXD.OZ=OZ;
+  WXD.eave=new T.Mesh(new T.BoxGeometry(ww+.5,.05,.16),L(0xe6eef4));WXD.eave.position.set(wcx,EAVE+.025,OZ-.03);scene.add(WXD.eave);
+  const iceM=L(0xd6e8f4,{emissive:0x2c3e4a,transparent:true,opacity:.9}),ri=mulberry32(1962);
+  for(let i=0;i<10;i++){const x=WIN.x0-.03+(i+.5)*(ww+.06)/10+(ri()-.5)*.05,f=.4+ri()*.75,rad=.011+ri()*.011;
+    const m=new T.Mesh(new T.ConeGeometry(rad,1,5),iceM);m.rotation.x=Math.PI;m.position.set(x,EAVE,OZ+(ri()-.5)*.02);m.userData={f,re:0};scene.add(m);WXD.icicles.push(m)}
+  const sill=new T.Mesh(new T.BoxGeometry(ww+.16,.012,.12),L(0x7c848a));sill.position.set(wcx,WIN.y0-.035,OZ-.03);sill.rotation.x=.12;scene.add(sill);
+  const sillSnow=new T.Mesh(new T.BoxGeometry(ww+.1,.02,.09),L(0xe4ecf2));sillSnow.position.set(wcx,WIN.y0-.02,OZ-.04);scene.add(sillSnow);
+  // ---- frost on the glass, room side, in four stages that cross-fade as it grows ----
+  WXD.frostT=[.25,.5,.75,1].map(frostTex);
+  WXD.frost=new T.Mesh(new T.PlaneGeometry(ww,WIN.y1-WIN.y0),new T.MeshBasicMaterial({map:WXD.frostT[0],transparent:true,opacity:0,depthWrite:false,fog:false}));
+  WXD.frost.position.set(wcx,(WIN.y0+WIN.y1)/2,WZ-.07+.008);WXD.frost.visible=false;scene.add(WXD.frost);
+  wxIcicles()}
+
+// the icicles' length: they grow every morning of the shift, faster while the stove burns hard (its hatch open), and stay in the
+// top panes (owner's call); one that snapped grows back from a stub
+function wxIcicles(){WXD.icicles.forEach(m=>{const h=Math.min(.2,(.03+WXD.ice)*m.userData.f*(m.userData.re?.35:1));m.scale.set(1,h,1);m.position.y=WXD.EAVE-h/2;m.visible=!m.userData.gone})}
+// each morning: the icicles grow a day's worth, yesterday's broken piece is gone from the sill
+function wxDayMorning(){if(!WXD.built)return;if(WXD.iceDay!==day){const n=Math.max(0,day-WXD.iceDay);WXD.ice+=.0105*n*(SET&&SET.open?1.6:1);WXD.iceDay=day}
+  WXD.fallen.forEach(p=>scene.remove(p));WXD.fallen=[];WXD.icicles.forEach(m=>{if(m.userData.gone){m.userData.gone=false;m.userData.re=1}});wxIcicles();}
+// a blizzard snaps the longest icicle onto the outer sill with a crack (at night it sounds like a knock)
+function wxSnap(){const m=WXD.icicles.filter(q=>q.visible).sort((a,b)=>b.scale.y-a.scale.y)[0];if(!m||m.scale.y<.05)return;
+  const p=m.clone();scene.add(p);WXD.fallen.push(p);m.userData.gone=true;m.visible=false;
+  if(S.ok()){const t=S.ctx.currentTime;S.nz(t,.03,2600,4,.18);S.nz(t+.04,.05,900,2,.12);S.nz(t+.38,.06,700,2,.16)}
+  const y0=p.position.y,y1=WIN.y0,t0=now();(function fall(){const k=Math.min(1,(now()-t0)/380);p.position.y=y0+(y1-y0)*k*k;
+    if(k<1)requestAnimationFrame(fall);else{p.rotation.set(0,(Math.random()-.5)*.8,Math.PI/2);p.scale.y*=.6;p.position.set(p.position.x,WIN.y0+.004,WXD.OZ-.05)}})()}
+
+// a new shift: the icicles start short again
+function wxDayReset(){WXD.ice=0;WXD.iceDay=0;WXD.snapDay=0;WXD.snapAt=0;if(!WXD.built)return;WXD.fallen.forEach(p=>scene.remove(p));WXD.fallen=[];WXD.icicles.forEach(m=>{m.userData.gone=false;m.userData.re=0});wxIcicles()}
+// every frame, after p5m: ease the new pieces toward the part of the day's weather
+function wxDayFrame(t,dt,P,kind){if(!has3D)return;wxDayBuild();if(!WXD.built)return;const C=WXD.cur,f=Math.min(1,dt*.0012);
+  const tgt={dust:P.dust||0,
+    // the noon twilight: clear skies, in the middle of the day only (while the telegram is read), never on the title screen
+    glow:kind!=='title'&&wxPart()==='r'&&P.glow?1:0,
+    // frost grows through a cold day, morning to night; less on a window event's day, so the window stays clear
+    frost:kind==='title'?.25:(WX_COLD.includes(kind)?{m:.3,r:.55,n:.85}[wxPart()]:.15)*(wxClear(day)?.35:1)};
+  for(const k in tgt)C[k]+=(tgt[k]-C[k])*(k==='frost'?f*.25:f);
+  const show=(o,a)=>{o.material.opacity=a;o.visible=a>.01};
+  show(WXD.glow,C.glow*.6);
+  WXD.dust.material.uniforms.t.value=t/1000;WXD.dust.material.uniforms.a.value=C.dust;WXD.dust.visible=C.dust>.01;
+  // the crystals drift slowly down and round again
+  if(WXD.dust.visible){const p=WXD.dustP;for(let i=1;i<p.length;i+=3){p[i]-=dt*.00004;if(p[i]<.38)p[i]=2.6}WXD.dust.geometry.attributes.position.needsUpdate=true}
+  // frost: the stage nearest its amount, faded in
+  const lv=Math.max(0,Math.min(3,Math.round(C.frost*4)-1));if(lv!==WXD.frostLv){WXD.frost.material.map=WXD.frostT[lv];WXD.frost.material.needsUpdate=true;WXD.frostLv=lv}
+  show(WXD.frost,Math.min(.6,C.frost*.75));
+  // in a blizzard one icicle snaps, once a day, some seconds into it
+  if(kind==='blizzard'&&WXD.snapDay!==day){if(!WXD.snapAt)WXD.snapAt=t+6000+Math.random()*14000;else if(t>WXD.snapAt){WXD.snapDay=day;WXD.snapAt=0;wxSnap()}}
+  else if(WXD.snapDay!==day)WXD.snapAt=0}
 
 // ---------- shifts: length sets the difficulty ----------
 // easy: pencil marks every day, all articles at once, long fuse, the parrot often botches its serial
@@ -4211,6 +4375,8 @@ async function nextDay(){const my=++SEQ;unNight();dusk=false;auroraAmp=1;if(hang
   if(events[day]==='bear'){await unhurried(()=>bearScene(my));if(dead(my))return}
   if(events[day]==='core'){await unhurried(()=>coreScene(my));if(dead(my))return}
   if(roboDay&&roboDay===day&&!roboState){await unhurried(()=>roboArrival(my));if(dead(my))return}
+  // Govorun's crate and order on the first of its four days (p5r)
+  if(typeof gvMorning==='function'){await gvMorning(my);if(dead(my))return}
   S.bell();ttyOn=true;await camTo('tty',850);if(dead(my))return;
   await feed();if(dead(my))return;
   ttyOn=false;await wait(150);if(dead(my))return;
@@ -4221,7 +4387,7 @@ async function nextDay(){const my=++SEQ;unNight();dusk=false;auroraAmp=1;if(hang
   announce(TXT[lang].liveTele(ser(cur.s),msgText(cur)));if(milk>0&&!tipShown)setTimeout(()=>{if(!dead(my)&&phase==='decide')showTip()},900)}
 async function decide(g){if(phase!=='decide'||(g===2&&cur.ev!=='cook')||(g===3&&cur.ev!=='question'&&cur.ev!=='cook')||(g===4&&cur.ev!=='question'))return;phase='stamp';$('skip').hidden=true;setMode();const my=SEQ,cook=cur.ev==='cook';
   if((g===0||g===1)&&cur.s&&cur.ev!=='question')stampLog.push({d:day,s:cur.s,k:g===1?'A':'P'});
-  const ok=g!==-1&&(g===1)===!!cur.real,kind=g===-1?'T':g===1?'A':'P';dwMark(g);if(ok&&g===0&&!cook&&cur.ev!=='question')runCaught++;
+  const ok=g!==-1&&(g===1)===!!cur.real,kind=g===-1?'T':g===1?'A':'P';dwMark(g);if(typeof lsStamped==='function')lsStamped(g);if(ok&&g===0&&!cook&&cur.ev!=='question')runCaught++;
   // "From your file": the love letter turned down
   if(ok&&cur.ev==='love')fileSet('love','P');
   // the man on the ice only comes closer after a correct stamp of an ordinary telegram; after a wrong one, or the cook's,
@@ -4356,6 +4522,228 @@ function start(data){data=data||{};
   requestAnimationFrame(loop);
   if(window.claude&&window.claude.hot&&window.claude.hot.snapshot)window.claude.hot.snapshot(()=>({lang,muted:!S.on,bests:{...bests},days:DAYS}))}
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+// ---------- Govorun, the Soviet machine on test (owner's call for v0.4.7, 2 Nov 2026; the Producer's row: start with placeholders) ----------
+// Moscow's own talking machine, meant for the American station at Barrow, is tested on Orlov first. On Easy and Normal, four days
+// in a row (never the first or last day, never by the man on the ice or his dark day, never a day with a special telegram): a
+// crate arrives with a sealed order and a specimen, a third stamp INSTITUTE sits between AUTHENTIC and PARROT, each of those days has
+// three telegrams, and 1, 1, 2, 2 of them are Govorun's. Its tell is a fact, not tone: it restates case-file facts it doesn't need.
+// Catching it pays a tin; missing it, or INSTITUTE on a real or parrot telegram, is never an arrest, only a note. On day 4's evening the
+// crate goes south and the stamp with it. All words: TXT.gv (p2b), placeholders until the Lore Keeper approves them
+const GV_RAMP=[1,1,2,2];
+let GV={start:0,third:{},thirdNow:false,caught:0,seen:0,crate:null,stamp:null,south:false,order:false};
+function gvReset(){if(GV.crate&&scene)scene.remove(GV.crate,GV.bird,GV.bird&&GV.bird.userData.cable);GV={start:0,third:{},thirdNow:false,caught:0,seen:0,crate:null,stamp:GV.stamp,south:false,order:false};gvStampShow(false)}
+const gvOn=d=>GV.start>0&&d>=GV.start&&d<GV.start+4;
+const gvToday=()=>gvOn(day)&&!GV.south;
+
+// where the four days go: never the first or last day, never by the man on the ice (his day and the dark day after)
+function gvPlan(){gvReset();if(lvl()==='easy'||DAYS<10||(typeof GV_OFF!=='undefined'&&GV_OFF))return;const ok=s=>{for(let d=s;d<s+4;d++){if(d<2||d>=DAYS)return false;
+    if(/^ice/.test(events[d]||'')||/^ice/.test(events[d-1]||''))return false}return true};
+  const c=[];for(let s=2;s+3<DAYS;s++)if(ok(s))c.push(s);if(!c.length)return;const s0=c[Math.random()*c.length|0];
+  gvPlanAt(s0)}
+// no special telegram during the four days (owner, 2 Nov 2026: their own buttons would take the third stamp off the desk): each
+// one moves to a free day outside them, or is dropped from the shift if there is none
+function gvClearSpecials(s){for(let d=s;d<s+4;d++)if(extra[d]){
+  const y=Array.from({length:DAYS},(_,i)=>i+1).find(y=>(y<s||y>=s+4)&&y>1&&y<DAYS&&!extra[y]&&!/^ice/.test(events[y]||''));
+  if(y)extra[y]=extra[d];extra[d]=null}}
+// the four days' telegrams: the day's two from the deal and one more, with Govorun's in place of some of them, in any order
+function gvPlanAt(s){
+  // planned again (the developer panel's button over the shift's own plan): the old Govorun telegrams give way to ordinary ones first
+  const fresh=()=>{const p=shuffle(POOL.filter(p=>!p.drawer&&!p.ev&&!gvFacty({src:p})&&![...queue,...queue2].some(q=>q&&q.src===p)))[0];return p?mk(p):null};
+  for(const Q of [queue,queue2])Q.forEach((m,i)=>{if(m&&m.gv)Q[i]=fresh()});GV.third={};
+  GV.start=s;GV.caught=GV.seen=0;GV.south=false;GV.order=false;let k=0;const spare=[];gvSwapFacty(s);gvClearSpecials(s);
+  for(let d=s;d<s+4;d++){const n=GV_RAMP[d-s];const reg=[queue[d-1],queue2[d-1]].filter(Boolean);
+    while(reg.length<3-n){const p=POOL.find(p=>!p.drawer&&!p.ev&&!gvFacty({src:p})&&!queue.some(q=>q&&q.src===p)&&!queue2.some(q=>q&&q.src===p)&&!spare.includes(p));if(!p)break;spare.push(p);reg.push(mk(p))}
+    const day3=shuffle(reg.slice(0,3-n).concat(Array.from({length:n},()=>gvMk(k++))));
+    queue[d-1]=day3[0];queue2[d-1]=day3[1]||null;GV.third[d]=day3[2]||null}}
+// real telegrams that restate two or more case-file facts are kept off the four days (Lore Keeper's rule: #39, #90 "The Krasin
+// collects", #91 "The meeting", #92 "Until the sun", #94): Govorun's tell is exactly that. They trade places with a later day's
+const GV_FACTY=['Label every crate in full:','Comrade Orlov, the Krasin will collect your ice cores','All six staff of ARKTIKA-7 on Severnaya Zemlya will attend',
+  'The polar night on Severnaya Zemlya ends on 20 February. Until then','The Krasin will refuel in Murmansk'];
+const gvFacty=m=>!!(m&&m.src&&m.src.m&&GV_FACTY.some(t=>m.src.m[0].startsWith(t)));
+function gvSwapFacty(s){const out=d=>d<s||d>=s+4;
+  for(let d=s;d<s+4;d++)for(const Q of [queue,queue2])if(gvFacty(Q[d-1])){
+    const days=Array.from({length:DAYS},(_,i)=>i+1).filter(y=>out(y)&&y>1).sort((a,b)=>(b>d)-(a>d));
+    for(const y of days){const R=[queue,queue2].find(R=>R[y-1]&&!R[y-1].ev&&!gvFacty(R[y-1]));if(R){[Q[d-1],R[y-1]]=[R[y-1],Q[d-1]];break}}}}
+function gvMk(i){const m=mk({real:1,tier:1,gv:1,m:[TXT.en.gv.tg[i],TXT.ru.gv.tg[i]]});m.gv=1;return m}
+
+// ---- the morning: on the first day the crate, the order and the specimen; on all four, a longer fuse for three telegrams ----
+async function gvMorning(my){if(!gvToday())return;
+  // one fuse for the day's three telegrams instead of two
+  tTotal=Math.round(tTotal*1.5);tLeft=tTotal;setTimerUI();
+  gvStampShow(true);renderRules(false);
+  if(day!==GV.start||GV.order)return;GV.order=true;
+  // the order on screen (owner's call: no teleprinter for it), with the specimen; "Start testing" begins the test, and we watch
+  // Govorun come out of its crate onto the desk and its cable run to the teleprinter
+  phase='event';hideCard();setMode();await camTo('wide',700);if(dead(my))return;
+  gvForms();showCard('gvOrder');announce(TXT[lang].gv.order+' '+TXT[lang].gv.specimenMark+' '+TXT[lang].gv.specimen);await crAsk();if(dead(my))return;hideCard();
+  // the morning's skip never hurries it, as with the bear and the ice core
+  $('skip').hidden=true;await unhurried(()=>gvConnect(my));if(dead(my))return;toast(TXT[lang].gv.popka,7000);$('skip').hidden=false;
+  phase='intro';setMode()}
+// the connection: the crate is on the floor by the desk, Govorun hops out onto the desk by the telegram's corner, its cable snakes
+// across to the teleprinter, and the teleprinter answers with a click and its light
+SHOTS.gvc={p:[.42,1.18,.72],t:[.3,DESK+.06,-.12],fov:42};
+async function gvConnect(my){gvCrate();if(!has3D)return;const b=GV.bird,cab=b.userData.cable,end=b.position.clone(),from=GV.crate.position.clone().add(new THREE.Vector3(0,.2,0));
+  const n=cab.geometry.index.count;cab.geometry.setDrawRange(0,0);b.position.copy(from);S.thump();await camTo('gvc',900);if(dead(my))return;
+  // the hop: up out of the crate and onto the desk
+  await tween(900,e=>{b.position.lerpVectors(from,end,e);b.position.y+=Math.sin(Math.PI*e)*.12},EASE.io);if(dead(my))return;b.position.copy(end);S.thud();
+  await wait(350);if(dead(my))return;
+  // the cable runs out to the teleprinter, clicking as it goes
+  let last=0;await tween(1100,e=>{cab.geometry.setDrawRange(0,Math.floor(n*e/6)*6);const t=now();if(t-last>90){S.key();last=t}},EASE.lin);if(dead(my))return;cab.geometry.setDrawRange(0,Infinity);
+  // the teleprinter answers
+  S.bell();ttyOn=true;await wait(900);ttyOn=false;if(dead(my))return;await wait(400)}
+
+// Govorun itself, built in code from the owner's reference sheet (2 Nov 2026): a near-black block of flat riveted panels, big angry
+// eyes, an orange pyramid beak, long wing plates, the red relay box, a bakelite insulator with a red cable, a crest of red wires,
+// three punched tail tabs, steel legs and red feet. Metres, Y up, front toward +Z, slim, about 16 cm tall with its crest
+function gvBird(){const T=THREE,g=new T.Group(),M=(c,sh,em)=>new T.MeshPhongMaterial({color:c,shininess:sh||12,specular:0x222222,flatShading:true,emissive:em||0});
+  // the owner's reference sheet's palette: near-black body, dark grey plates, grey steel, bone white, oxide red, orange
+  const body=M(0x26272a,10),plate=M(0x3a3b3a,10),steel=M(0x6a6863,30),riv=M(0x4a4946,20),bone=new T.MeshLambertMaterial({color:0xd8d1c4,emissive:0x3c3a36}),
+    black=M(0x0c0c0d,4),red=M(0x8b2f2a,14),orange=M(0xc4672a,18,0x3a1606),wire=M(0x93372e,8),bake=M(0x1b1a19,30);
+  const add=(geo,m,x,y,z,rx,ry,rz)=>{const o=new T.Mesh(geo,m);o.position.set(x,y,z);o.rotation.set(rx||0,ry||0,rz||0);o.castShadow=true;g.add(o);return o};
+  const B=(w,h,d)=>new T.BoxGeometry(w,h,d),V=(x,y,z)=>new T.Vector3(x,y,z);
+  const tube=(pts,r,m)=>{const o=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts),10,r,5),m);g.add(o);return o};
+  const plateShape=(pts,depth)=>new T.ExtrudeGeometry(new T.Shape(pts.map(([x,y])=>new T.Vector2(x,y))),{depth,bevelEnabled:false});
+  // the body: an upright block, straight sides, chamfered corners, the top cut in by a deeper chamfer; flat front and back.
+  // Lofted through octagonal sections [y, half width, half depth, chamfer]
+  const SEC=[[.045,.016,.012,.005],[.053,.021,.017,.006],[.13,.021,.017,.006],[.146,.016,.014,.005],[.156,.009,.008,.003]];
+  const oct=([y,w,d,c])=>[[w-c,d],[w,d-c],[w,-d+c],[w-c,-d],[-w+c,-d],[-w,-d+c],[-w,d-c],[-w+c,d]].map(([x,z])=>V(x,y,z));
+  {const pos=[],rings=SEC.map(oct),tri=(a,b,c)=>pos.push(a.x,a.y,a.z,b.x,b.y,b.z,c.x,c.y,c.z);
+    for(let k=0;k<rings.length-1;k++)for(let i=0;i<8;i++){const a=rings[k][i],b=rings[k][(i+1)%8],c=rings[k+1][(i+1)%8],d=rings[k+1][i];tri(a,b,c);tri(a,c,d)}
+    const top=V(0,.157,0),bot=V(0,.044,0),L0=rings[0],L1=rings[rings.length-1];for(let i=0;i<8;i++){tri(L1[i],L1[(i+1)%8],top);tri(L0[i],bot,L0[(i+1)%8])}
+    const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.computeVertexNormals();add(geo,body,0,0,0);
+    // rivets at the panel corners
+    rings.slice(1,-1).forEach(r=>r.forEach(p=>add(B(.0018,.0018,.0018),riv,p.x*1.02,p.y+(p.y<.1?.003:-.003),p.z*1.02)))}
+  const FZ=.0175;   // the front face
+  // the face: big bone-white eyes, pupils turned in and down, thick black brow plates sloping to the beak
+  for(const s of [-1,1]){add(new T.CylinderGeometry(.0094,.0094,.002,14),bone,s*.0103,.128,FZ,Math.PI/2);
+    add(new T.CylinderGeometry(.0043,.0043,.0026,10),black,s*.0072,.126,FZ+.0008,Math.PI/2);
+    add(B(.021,.007,.005),black,s*.0107,.1385,FZ+.0015,0,0,s*.38)}
+  // the beak: one orange pyramid pointing straight out under the eyes
+  add(new T.ConeGeometry(.0098,.024,4),orange,0,.113,FZ+.012,Math.PI/2,0,0).scale.set(1.15,1,.8);
+  // the chest: three vent slots and the red relay box with three bars and corner rivets
+  for(let i=0;i<3;i++)add(B(.013,.0022,.0016),black,0,.1-i*.0045,FZ);
+  add(B(.018,.018,.004),red,0,.075,FZ+.0015);for(const x of [-.0045,0,.0045])add(B(.0022,.011,.0012),bone,x,.075,FZ+.0037);
+  for(const [x,y] of [[-.0068,.0825],[.0068,.0825],[-.0068,.0675],[.0068,.0675]])add(B(.0018,.0018,.0012),steel,x,y,FZ+.0037);
+  // the wing plates: long six-sided plates hanging off each side, a big screw at the top
+  for(const s of [-1,1]){const w=add(plateShape([[-.009,.026],[.009,.026],[.012,.012],[.012,-.016],[.006,-.028],[-.006,-.028],[-.012,-.016],[-.012,.012]],.0035),plate,s*.0255,.09,-.002,0,s*(Math.PI/2-.4),s*.14);w.rotation.order='ZYX';
+    add(new T.CylinderGeometry(.0028,.0028,.003,8),steel,s*.0283,.11,0,0,0,Math.PI/2);add(B(.0005,.004,.0006),black,s*.03,.11,0)}
+  // the bakelite insulator on the right of the head, its bolt out, the red cable down behind the wing
+  for(let i=0;i<3;i++)add(new T.CylinderGeometry(.0055-i*.001,.0055-i*.001,.0022,10),bake,.0215+i*.0024,.135,.002,0,0,Math.PI/2);
+  add(new T.CylinderGeometry(.0026,.0026,.004,6),steel,.029,.135,.002,0,0,Math.PI/2);
+  tube([V(.024,.13,.006),V(.027,.122,.009),V(.025,.114,.006)],.0013,red);
+  // the crest: red wires springing up and outward from the top
+  for(let i=0;i<6;i++){const f=(i-2.5)/2.5;tube([V(f*.005,.155,.0),V(f*.015,.173,-.002),V(f*.027,.181,-.006)],.0009,wire)}
+  // the fan tail: three triangular tabs with a hole near the tip, fanned from a hinge low at the back
+  add(B(.009,.007,.006),steel,0,.064,-.02);
+  for(let i=0;i<3;i++){const pv=new T.Group();pv.position.set(0,.064,-.021);pv.rotation.set(-.35+i*.38,0,0);g.add(pv);
+    const t=new T.Mesh(plateShape([[0,-.0045],[.032,-.002],[.032,.002],[0,.0045]],.0015),steel);t.rotation.y=Math.PI/2;t.position.x=-.00075;t.castShadow=true;pv.add(t);
+    const h=new T.Mesh(new T.CylinderGeometry(.0016,.0016,.002,6),black);h.rotation.z=Math.PI/2;h.position.set(0,0,-.027);pv.add(h)}
+  // the legs: steel posts with a joint block above the feet; red feet, two toes forward in a V and a heel block
+  for(const s of [-1,1]){add(new T.CylinderGeometry(.0022,.0022,.034,6),steel,s*.0095,.029,.001);add(B(.0065,.008,.0065),body,s*.0095,.009,.002);
+    for(const a of [-.32,.32])add(B(.0045,.003,.02),red,s*.0095+Math.sin(a)*.008,.0015,.01,0,a,0);add(B(.007,.003,.007),red,s*.0095,.0015,.0005)}
+  return g}
+// the crate it came in, on the floor beside the desk. Govorun the size of a stamp (about 14 cm),
+// connected to the teleprinter by a cable and standing just past the telegram's top right corner (owner's call: the reading view
+// stays as it is, and its feet show at the top right while you stamp)
+function gvCrate(){if(!has3D||GV.crate)return;const T=THREE,g=new T.Group(),wood=new T.MeshLambertMaterial({color:0x7a5a34}),dark=new T.MeshLambertMaterial({color:0x4a3520});
+  g.add(new T.Mesh(new T.BoxGeometry(.5,.34,.36),wood));
+  for(const y of [-.12,0,.12]){const s=new T.Mesh(new T.BoxGeometry(.51,.03,.37),dark);s.position.y=y;g.add(s)}
+  for(const x of [-.24,.24]){const s=new T.Mesh(new T.BoxGeometry(.03,.35,.37),dark);s.position.x=x;g.add(s)}
+  g.position.set(1.05,.17,.2);g.rotation.y=-.3;const bird=gvBird();bird.position.set(.125,DESK,-.085);bird.rotation.y=.35;g.userData.bird=bird;
+  // the cable from its back to the teleprinter's side: down onto the desk and round the front of the paper tray, never through it
+  const cab=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(.118,DESK+.05,-.1),new T.Vector3(.15,DESK+.02,-.1),new T.Vector3(.18,DESK+.009,-.096),new T.Vector3(.25,DESK+.009,-.115),new T.Vector3(.33,DESK+.009,-.19),new T.Vector3(.365,DESK+.045,-.235)]),24,.004,6),new T.MeshLambertMaterial({color:0x15181c}));
+  bird.userData.cable=cab;scene.add(g,bird,cab);GV.crate=g;GV.bird=bird}
+// the third stamp on the desk, between AUTHENTIC and PARROT, for the four days only
+function gvStampShow(on){if(!has3D||!W.stA)return;if(!GV.stamp){const g=W.stA.clone(true);g.traverse(o=>{if(o.isMesh){o.material=o.material.clone();if(o.material.color.getHex()===0x2e6b39)o.material.color.setHex(0x2d3e57);if(o.material.color.getHex()===0x1d4a2a)o.material.color.setHex(0x1a2638)}});
+    g.userData={kind:'O',rest:new THREE.Vector3(.48,W.stA.position.y,.21)};g.position.copy(g.userData.rest);g.visible=false;scene.add(g);GV.stamp=g;W.stO=g}
+  GV.stamp.visible=!!on}
+
+// ---- the cards ----
+// the order and the specimen on screen as real telegram forms (owner's call: the regular telegram's look, smaller), painted by the
+// telegram's own drawing (p4) into pictures for the card: the order plain, the specimen already stamped OURS. The card's top line
+// names the event
+let _gvForms=null;
+function gvForms(){const keep={msg:PAPER.msg,frac:PAPER.frac,stamp:PAPER.stamp,hint:PAPER.hint,markFrac:PAPER.markFrac,burn:PAPER.burn,answer:PAPER.answer},g=TXT.en.gv,r=TXT.ru.gv;
+  const paint=(m,st)=>{Object.assign(PAPER,{msg:m,frac:1,stamp:st,hint:false,markFrac:0,burn:0,answer:null});buildBase();drawPaper(true);return PAPER.c.toDataURL('image/jpeg',.88)};
+  if(!_gvForms||_gvForms.lang!==lang){_gvForms={lang,order:paint(mk({real:1,tier:1,m:[g.order,r.order]}),null),
+    specimen:paint(mk({real:1,tier:1,gv:1,m:[g.specimen,r.specimen]}),{kind:'O',cx:CW*.7,cy:CH*.78,rot:-.16,seed:7}),
+    end:paint(mk({real:1,tier:1,gv:1,from:['—','—'],m:[g.endTty,r.endTty]}),null)}}
+  Object.assign(PAPER,keep);if(PAPER.msg){buildBase();drawPaper(true)}}
+CREEPY_CARD.gvOrder=u=>{const g=u.gv;gvForms();return`<p class="eyebrow">${g.eventH}</p>
+  <div class="gv-forms"><img class="gv-form" src="${_gvForms.order}" alt="${g.order}">
+  <figure class="gv-spec"><img class="gv-form" src="${_gvForms.specimen}" alt="${g.specimen}"><figcaption>${g.specimenMark}</figcaption></figure></div>
+  <button class="btn" id="cBtn" type="button">${g.startB}</button>`};
+{const st=document.createElement('style');st.textContent='.gv-form{display:block;width:100%;height:auto;margin:0 0 8px;box-shadow:3px 3px 0 rgba(42,34,25,.35);transform:rotate(-.6deg)}.gv-spec{margin:0 0 12px auto;width:62%}.gv-spec .gv-form{transform:rotate(1.2deg);margin:0 0 4px}.gv-end{max-width:520px;margin:4px auto 14px}.gv-spec figcaption{font-family:var(--f-display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--red);text-align:right}'+
+    // a computer: the order and the specimen side by side, so the button stays in view
+    '@media (min-width:700px){.card:has(.gv-forms){width:min(760px,100%)}.gv-forms{display:grid;grid-template-columns:1.55fr 1fr;gap:12px;align-items:end;margin-bottom:12px}.gv-forms .gv-spec{width:auto;margin:0}}';document.head.appendChild(st)}
+// day 4's evening: the teleprinter starts by itself, Volkov pulls the plug, the stamp and the crate go. What it typed is shown
+// as a telegram form, like the order that began the test (owner's call), under the same event title. No sender: it is Govorun
+// talking, not Moscow (Lore Keeper), shown with the 3 a.m. telegram's dash
+CREEPY_CARD.gvEnd=u=>{const g=u.gv;gvForms();return`<p class="eyebrow">${g.eventH}</p><img class="gv-form gv-end" src="${_gvForms.end}" alt="${g.endTty}">
+  <p>${g.endVolkov}</p><p>${g.endSouth}</p><button class="btn" id="cBtn" type="button">${u.next}</button>`};
+CREEPY_CARD.gvRes=u=>{const g=u.gv,r=GV.res;return`<p class="eyebrow">${u.mornEyebrow(day)}</p><h2 class="${r==='catch'?'ok':''}">${u.stampTop}</h2><p>${g[r]}</p>${GV.tin?`<p class="dim">+1</p>`:''}<button class="btn" id="cBtn" type="button">${u.next}</button>`};
+const _gvBtns=drawerButtons;
+drawerButtons=function(k){if(k==='gvOrder'||k==='gvEnd'){const b=$('cBtn');if(b)b.onclick=()=>crChoose('go');return true}
+  // one press only: a second click on the fading card would run the rest of the day twice
+  if(k==='gvRes'){const b=$('cBtn');if(b)b.onclick=()=>{if(cardKind!=='gvRes')return;b.onclick=null;b.disabled=true;S.init();hideCard();cardKind=null;afterDay()};return true}return _gvBtns(k)};
+
+// ---- the stamp: OURS on any telegram, and any stamp on Govorun's, go here; everything else as always ----
+const _gvDecide=decide;
+decide=async function(g){if(g===5&&!gvToday())return;if(phase==='decide'&&gvToday()&&(g===5||(cur&&cur.gv&&(g===0||g===1||g===-1))))return gvDecide(g);return _gvDecide.apply(this,arguments)};
+async function gvDecide(g){phase='stamp';$('skip').hidden=true;setMode();const my=SEQ,isGv=!!(cur&&cur.gv);
+  const kind=g===5?'O':g===1?'A':g===0?'P':'T',st={kind,cx:CW*(.6+Math.random()*.1),cy:CH*(.63+Math.random()*.08),rot:-.22+(Math.random()-.5)*.2,seed:(Math.random()*1e9)|0};
+  if(g===-1){PAPER.stamp=st;drawPaper(true);S.buzz()}else await stampAnim(g===5?GV.stamp:g===1?W.stA:W.stP,st);
+  if(dead(my))return;await wait(420);if(dead(my))return;
+  if(isGv)GV.seen++;
+  // never an arrest: a catch pays a tin, a miss or a wrong OURS is a note in the file
+  GV.res=isGv&&g===5?'catch':isGv?'miss':cur&&cur.real?'real':'parrot';GV.tin=GV.res==='catch';
+  if(GV.res==='catch')GV.caught++;
+  // the file keeps the worst of it: OURS on the Committee or the parrot, then a miss; all six caught is its own note
+  const was=fileLog.govorun,rank={catch:1,all:1.5,miss:2,parrot:3,real:3},now=GV.res==='catch'&&GV.caught===6?'all':GV.res;
+  fileSet('govorun',!was||rank[now]>=rank[was]?now:was);
+  // the day's ration still comes with its second telegram, whoever sent it
+  const ration=tg2===day?rationFor(day):null;
+  phase='result';setMode();if(GV.res==='catch')S.good();const f=fileTelegram();await camTo('wide',900);await f;if(dead(my))return;
+  for(const t of [GV.tin?'milk':null,ration]){if(!t)continue;await dropTin(t);if(dead(my))return;if(t==='meat'){meat++;gotMeat++}else{milk++;gotMilk++}renderHud()}
+  showCard('gvRes');announce(TXT[lang].gv[GV.res])}
+// back to the title: the crate and the third stamp are put away
+const _gvTitle=toTitle;
+toTitle=function(){gvReset();return _gvTitle.apply(this,arguments)};
+
+// ---- the day's third telegram, after the second; on day 4's evening the crate goes south ----
+const _gvAfter=afterDay;
+// While the third is on the desk the second-telegram marker (tg2) is off, so the stamp pays no second ration; it comes back on
+// after its result, and the evening goes on as usual
+afterDay=function(){if(GV.thirdNow&&tg2!==day)tg2=day;
+  if(gvToday()&&tg2===day&&GV.third[day]&&!(DW.pending&&DW.pending===day)){const m=GV.third[day];GV.third[day]=null;GV.thirdNow=true;extra[day]=m;queue2[day-1]=null;tg2=-1;return extraTelegram()}
+  if(gvOn(day)&&day===GV.start+3&&!GV.south&&tg2===day&&!GV.third[day])return gvEvening();
+  return _gvAfter.apply(this,arguments)};
+async function gvEvening(){const my=++SEQ;GV.south=true;phase='event';hideCard();setMode();$('skip').hidden=true;
+  S.bell();ttyOn=true;await camTo('tty',850);if(dead(my))return;for(let i=0;i<14;i++){S.key();await wait(60+Math.random()*40);if(dead(my))return}ttyOn=false;
+  showCard('gvEnd');announce(TXT[lang].gv.endTty+' '+TXT[lang].gv.endVolkov+' '+TXT[lang].gv.endSouth);await crAsk();if(dead(my))return;hideCard();
+  gvStampShow(false);if(GV.crate){scene.remove(GV.crate,GV.bird,GV.bird.userData.cable);GV.crate=GV.bird=null}renderRules(false);actUI();_gvAfter()}
+const _gvNext=nextDay;
+nextDay=async function(){if(day===0)gvPlan();GV.thirdNow=false;if(!gvOn(day+1))gvStampShow(false);return _gvNext.apply(this,arguments)};
+
+// ---- the stamp bar: OURS between AUTHENTIC and PARROT while the test runs; key 3 or the down arrow ----
+const _gvAct=actUI;
+actUI=function(){_gvAct.apply(this,arguments);const b=$('bO');if(!b)return;const live=phase==='decide'||phase==='stamp',ev=live&&cur?cur.ev:null;
+  b.hidden=!(gvToday()&&phase!=='night3'&&!ev);b.disabled=phase!=='decide';
+  const a=document.querySelector('.act'),n=[...a.children].filter(x=>!x.hidden).length;a.classList.toggle('three',n===3);a.classList.toggle('four',n===4);a.classList.toggle('five',n===5)};
+function gvButton(){const u=TXT[lang].gv,b=$('bO');if(b)b.innerHTML=`<span class="big">${u.bO[0]}</span><span class="sub">${u.bO[1]}</span><kbd>${u.bO[2]}</kbd>`}
+{const b=document.createElement('button');b.className='sbtn o';b.id='bO';b.type='button';b.hidden=true;b.disabled=true;$('bP').before(b);
+  b.onclick=()=>{S.init();decide(5)};gvButton()}
+const _gvStatic=renderStatic;
+renderStatic=function(){_gvStatic.apply(this,arguments);gvButton()};
+addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||phase!=='decide'||!gvToday()||(cur&&cur.ev))return;
+  if(e.key==='3'||e.key==='ArrowDown'){e.preventDefault();e.stopImmediatePropagation();S.init();decide(5)}},true);
+
+// ---- the rulebook: article 9, for the four days only (numbered 9 whatever the level shows before it) ----
+const _gvRules=renderRules;
+renderRules=function(anim){_gvRules.apply(this,arguments);if(!gvToday())return;const li=document.createElement('li');li.className='tmp';li.style.counterSet='art 8';li.innerHTML=TXT[lang].gv.rule;$('rulOl').appendChild(li)};
+
+// ---- the poster's line ----
+function gvPosterRow(){if(!GV.start||!GV.seen)return null;return[TXT[lang].gv.poster(GV.caught),'']}
 
 // ---------- developer panel: test any part of a shift without playing it through ----------
 // it opens only with the right key: in the address (…/?dev=KEY), or typed on the keyboard anywhere in the game (typing it
@@ -4377,7 +4765,9 @@ var devFreeze=false,devUsed=false;
     return H.map(h=>('00000000'+(h>>>0).toString(16)).slice(-8)).join('')}
   const ok=k=>!!k&&sha256(String(k).trim().toLowerCase())===DEV_KEY;
   // events only; the special telegrams (cook, love letter, daughter, question) load from the Telegram list (owner's call)
-  const EV_NAMES=[['bear','Bear'],['night','3 a.m.'],['volkov','Volkov'],['door','Door 02:40'],['hut','Old hut'],['core','Ice core'],['robo','Robozayats'],['voice','03:33 voice'],['ice','Man on ice'],['cake','Cake'],['drawer','Third drawer']].filter(([k])=>k==='robo'||k==='drawer'||EVENTS.includes(k));
+  const EV_NAMES=[['bear','Bear'],['night','3 a.m.'],['volkov','Volkov'],['door','Door 02:40'],['hut','Old hut'],['core','Ice core'],['robo','Robozayats'],['voice','03:33 voice'],['ice','Man on ice'],['cake','Cake'],['drawer','Third drawer'],['govorun','Govorun']].filter(([k])=>k==='robo'||k==='drawer'||k==='govorun'||EVENTS.includes(k));
+  // the weather buttons' names (developer panel only, English)
+  const WX_NAMES={calm:'Calm',snowfall:'Snowfall',wind:'Wind',blizzard:'Blizzard',aurora:'Aurora',diamond:'Diamond dust',icefog:'Ice fog',drift:'Drifting snow',stuck:'Snow on glass'};
   let box=null,note='',noteT=0,bedNight=false;
   // the key from the address is remembered in this browser, so the panel stays on until turned off
   const want=()=>{let m=null;try{m=(location.search+location.hash).match(/[?&#]dev=([^&#]*)/)}catch(e){}
@@ -4403,7 +4793,7 @@ var devFreeze=false,devUsed=false;
       if(camShot!=='bedCarpet'){bedFinger(false)}if(bedNight){bedNight=false;lampOn=true;nightDim=0;doorSwing(0,300);doorLight(0,300)}},
     // in bed at night: a try-out for future night scenes (the knock, the teleprinter, the carpet), not part of play yet
     bed(k){if(!inShift())return;traceStop();devFreeze=true;$('devFreeze').checked=true;if(k!=='bedCarpet')bedFinger(false);camTo(k,k==='bedSit'?700:1300)},
-    bedDesk(){act.bed('bedDesk')},bedDoor(){act.bed('bedDoor')},bedCarpet(){act.bed('bedCarpet')},bedSit(){act.bed('bedSit')},
+    bedDesk(){act.bed('bedDesk')},bedDoor(){act.bed('bedDoor')},bedCarpet(){act.bed('bedCarpet');if(inShift())bedBtnArm(1300)},bedSit(){act.bed('bedSit')},
     window(){if(!inShift())return;devFreeze=true;$('devFreeze').checked=true;camTo('wxwin',900)},
     stove(){if(!inShift())return;devFreeze=true;$('devFreeze').checked=true;camTo('stove',900)},
     hatch(){stoveHatch(!SET.open);say(SET.open?'Stove hatch open.':'Stove hatch closed: only a little warmth.')},
@@ -4425,6 +4815,8 @@ var devFreeze=false,devUsed=false;
     calm();
     if(k==='volkov'){volkov={day:Math.max(1,day),result:null};evening();return}
     // the drawer tonight, whatever the level and the stamp (the real trigger is #81 stamped AUTHENTIC on Normal)
+    // Govorun's four days from tomorrow (cut short if the shift ends first)
+    if(k==='govorun'){if(day>=DAYS)day=DAYS-1;gvPlanAt(day+1);nextDay();return}
     if(k==='drawer'){if(day<1)day=1;DW.day=0;DW.pending=day;drawerScene();return}
     if(k==='night'){if(day<1)day=1;night3am();return}
     if(k==='cake'){if(day<1)day=1;cakeEvening();return}
@@ -4460,13 +4852,14 @@ var devFreeze=false,devUsed=false;
       <div class="dev-g"><b>Shift</b><button type="button" data-a="win">Win now</button><button type="button" data-a="arrest">Arrest now</button><button type="button" data-a="next">Next day</button>
         <label>Day <input id="devDay" type="number" min="1" max="14" value="1"></label><button type="button" data-a="goto">Go</button></div>
       <div class="dev-g"><b>Event now</b>${EV_NAMES.map(([k,n])=>`<button type="button" data-e="${k}">${n}</button>`).join('')}</div>
-      <div class="dev-g"><b>Weather today</b>${['calm','snowfall','wind','blizzard','aurora','stuck'].map(k=>`<button type="button" data-e="wx:${k}">${k==='stuck'?'Snow on glass':k[0].toUpperCase()+k.slice(1)}</button>`).join('')}<button type="button" data-a="wxBack">Back to the desk</button></div>
+      <div class="dev-g"><b>Weather today</b>${['calm','snowfall','wind','blizzard','aurora','diamond','icefog','drift','stuck'].map(k=>`<button type="button" data-e="wx:${k}">${WX_NAMES[k]}</button>`).join('')}<button type="button" data-a="wxBack">Back to the desk</button></div>
       <div class="dev-g"><b>Room</b><button type="button" data-a="look">Back of the room</button><button type="button" data-a="window">Look at the window</button><button type="button" data-a="stove">Look at the stove</button><button type="button" data-a="hatch">Stove hatch open/shut</button><button type="button" data-a="wxBack">Back to the desk</button></div>
       <div class="dev-g"><b>In bed at night (try-out)</b><button type="button" data-a="bedDesk">Pillow: desk</button><button type="button" data-a="bedDoor">Pillow: door</button><button type="button" data-a="bedCarpet">Face the carpet</button><button type="button" data-a="bedSit">Sit up</button>
         <button type="button" data-a="bedLamp">Lamp on/off</button><button type="button" data-a="bedKnock">Knock</button><button type="button" data-a="bedOpen">Door open/shut</button><button type="button" data-a="bedTty">Teleprinter</button><button type="button" data-a="bedFinger">Finger on carpet</button><button type="button" data-a="bedSleep">Trace to sleep</button><button type="button" data-a="wxBack">Back to the desk</button></div>
       <div class="dev-g"><b>Telegram</b><select id="devTg" aria-label="Load a telegram"><option value="">Load a telegram…</option>${opts}</select>
         <label><input type="checkbox" id="devFreeze"> Freeze the fuse</label></div>
       <div class="dev-g"><b>Tins</b><button type="button" data-a="milk">+ milk</button><button type="button" data-a="meat">+ stewed meat</button></div>
+      <details class="dev-g dev-k"><summary>Recording keys (Shift + key)</summary>${REMOTE.map(([g,ks])=>`<b>${g}</b>`+ks.map(([c,n])=>`<span><kbd>${rName(c)}</kbd> ${n}</span>`).join('')).join('')}</details>
       <div class="dev-g"><button type="button" data-a="off">Turn the panel off</button></div>
       <p class="dev-n">A shift that uses this panel is a test shift: its poster is stamped TEST SHIFT.</p></div>`;
     document.body.appendChild(box);if(matchMedia('(max-width:879px)').matches)box.classList.add('closed');
@@ -4476,6 +4869,30 @@ var devFreeze=false,devUsed=false;
     $('devTg').onchange=e=>{load(e.target.value);e.target.blur()};$('devFreeze').onchange=e=>{devFreeze=e.target.checked;if(devFreeze)devUsed=true};
     box.addEventListener('keydown',e=>{if(/^(INPUT|SELECT)$/.test(e.target.tagName))e.stopPropagation()});setInterval(state,400);state()}
   function show(on){if(on&&!box)build();else if(box)box.hidden=!on;if(!on){devFreeze=false;const f=$('devFreeze');if(f)f.checked=false}}
+  // the recording remote (owner's request, 1 Nov 2026, to film new features and the room): with the panel on, Shift + a key does a
+  // panel action with nothing on screen, and Shift+H hides the whole panel, its DEV tab too, so a screen recording shows only the
+  // game. Caught before the game's own keys (Shift+T would make tea, Shift+M strike a match), so Shift never plays a move
+  const WX=['calm','snowfall','wind','blizzard','aurora','diamond','icefog','drift','stuck'];let wxI=-1;
+  const REMOTE=[
+    ['Camera',[['KeyD','Back to the desk',()=>act.wxBack()],['KeyB','Back of the room',()=>act.look()],['KeyW','Look at the window',()=>act.window()],
+      ['KeyS','Look at the stove',()=>act.stove()],['KeyO','Stove hatch open/shut',()=>act.hatch()]]],
+    ['In bed',[['Digit1','Pillow: desk',()=>act.bedDesk()],['Digit2','Pillow: door',()=>act.bedDoor()],['Digit3','Face the carpet (then the trace button)',()=>act.bedCarpet()],
+      ['Digit4','Sit up',()=>act.bedSit()],['Digit5','Lamp on/off',()=>act.bedLamp()],['Digit6','Knock',()=>act.bedKnock()],['Digit7','Door open/shut',()=>act.bedOpen()],
+      ['Digit8','Teleprinter',()=>act.bedTty()],['Digit9','Finger on carpet',()=>act.bedFinger()],['Digit0','Trace to sleep',()=>act.bedSleep()]]],
+    ['Event now',[['KeyG','Third drawer',()=>event('drawer')],['KeyR','Bear',()=>event('bear')],['KeyV','Volkov',()=>event('volkov')],['KeyK','Door 02:40',()=>event('door')],
+      ['KeyU','Old hut',()=>event('hut')],['KeyC','Ice core',()=>event('core')],['KeyI','Man on ice',()=>event('ice')],['KeyA','Cake',()=>event('cake')],
+      ['KeyZ','Robozayats',()=>event('robo')],['KeyX','03:33 voice',()=>event('voice')],['KeyT','3 a.m. telegram',()=>event('night')]]],
+    ['Other',[['KeyQ','Next weather (calm, snowfall, wind, blizzard, aurora, diamond dust, ice fog, drifting snow, snow on glass)',()=>{wxI=(wxI+1)%WX.length;event('wx:'+WX[wxI])}],
+      ['KeyN','Next day',()=>act.next()],['KeyF','Freeze the fuse on/off',()=>{devFreeze=!devFreeze;const f=$('devFreeze');if(f)f.checked=devFreeze}],
+      ['KeyM','+ milk',()=>act.milk()],['KeyE','+ stewed meat',()=>act.meat()],
+      ['KeyP','Clean picture: top bar, case file and stamps hidden, on/off',()=>document.body.classList.toggle('devclean')],
+      ['KeyH','Hide/show this panel',null]]]];
+  const RKEY={};for(const [,ks] of REMOTE)for(const [c,,f] of ks)RKEY[c]=f;
+  const rName=c=>c.replace(/^Key|^Digit/,'');
+  addEventListener('keydown',e=>{if(!box||!e.shiftKey||e.altKey||e.ctrlKey||e.metaKey||!(e.code in RKEY)||/^(INPUT|SELECT|TEXTAREA)$/.test((e.target&&e.target.tagName)||''))return;
+    e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;S.init();
+    if(e.code==='KeyH'){box.hidden=!box.hidden;return}
+    devUsed=true;RKEY[e.code]();state()},true);
   // typing the key anywhere toggles the panel: every ending of what was just typed is checked against the fingerprint
   let typed='';addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey||e.key.length!==1||/^(INPUT|SELECT|TEXTAREA)$/.test((e.target&&e.target.tagName)||''))return;
     typed=(typed+e.key.toLowerCase()).slice(-24);for(let n=4;n<=typed.length;n++){const k=typed.slice(-n);if(ok(k)){typed='';const on=!(box&&!box.hidden);
