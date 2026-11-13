@@ -503,7 +503,7 @@ const RULES=[
 ["The Party never speaks ill of itself.","Партия никогда не говорит о себе дурно."]];
 
 // the build players are on, shown in the corner of the title screen. 0.x while the game is in open beta; 1.0 when it is finished
-const VERSION='0.4.14';
+const VERSION='0.5.0';
 function ruPl(n,a,b,c){const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c}
 // a split sentence names the camp right after its total: "12 years in Vorkuta. 2 for… 10 for…" (the owner's call)
 const splitCamp=(t,camp)=>{const i=t.indexOf('.');return i<0?t+' '+camp:t.slice(0,i)+' '+camp+t.slice(i)};
@@ -2053,7 +2053,9 @@ const S={ctx:null,m:null,vo:null,mu:null,out:null,on:true,vol:1,nb:null,ch:{fx:{
   win(){if(!this.ok())return;const t=this.ctx.currentTime;[523,659,784,1047].forEach((f,i)=>this.tn(t+i*.18,f,0,.7,'triangle',.12))},
   wind(){const c=this.ctx,s=c.createBufferSource();s.buffer=this.nb;s.loop=true;const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=380;
     const g=c.createGain();g.gain.value=.05;const l=c.createOscillator(),lg=c.createGain();l.frequency.value=.07;lg.gain.value=160;l.connect(lg);lg.connect(f.frequency);
-    s.connect(f);f.connect(g);g.connect(this.m);s.start();l.start()}};
+    s.connect(f);f.connect(g);g.connect(this.m);s.start();l.start();this.wg=g},
+  // the weather goes quiet, wind and howl, while a scene asks for it (the concert's dream, p5v); p5m reads S.hush for the howl
+  hushWx(on){this.hush=!!on;if(this.wg&&this.ctx)this.wg.gain.setTargetAtTime(on?0:.05,this.ctx.currentTime,.3)}};
 
 // ---------- reward tins: each label is drawn once, then wraps the 3D can and makes the 2D icons ----------
 const TIN={milk:{r:.037,h:.076,lab:null},meat:{r:.031,h:.076,lab:null}};
@@ -2322,17 +2324,17 @@ function layout(){if(!has3D)return;const Wd=innerWidth,Ht=innerHeight;R.setSize(
   const r=$('stage').getBoundingClientRect();stageR={x:r.left,y:r.top,w:Math.max(60,r.width),h:Math.max(60,r.height)};
   const cx=r.left+r.width/2,cy=r.top+r.height/2,fw=Wd+2*Math.abs(cx-Wd/2),fh=Ht+2*Math.abs(cy-Ht/2);viewFull={w:fw,h:fh};
   cam.aspect=fw/fh;cam.setViewOffset(fw,fh,fw/2-cx,fh/2-cy,Wd,Ht);cam.updateProjectionMatrix()}
-function camTo(name,dur=1000){if(name!==camShot){headLook.ty=headLook.tp=0}camShot=name;if(!has3D)return Promise.resolve();camFrom={p:cam.position.clone(),t:W.curT.clone()};camT0=now();camDur=Math.max(1,dur*speed());return wait(dur)}
+function camTo(name,dur=1000){if(name!==camShot){headLook.ty=headLook.tp=0}camShot=name;if(!has3D)return Promise.resolve();camFrom={p:cam.position.clone(),t:W.curT.clone(),back:!!(W.back&&W.back.visible)};camT0=now();camDur=Math.max(1,dur*speed());return wait(dur)}
 function updCam(t,dt){const e=shotPose(camShot,t);
   if(camFrom){const k=Math.min(1,(t-camT0)/camDur),q=EASE.io(k),P=camFrom.p.clone().lerp(e.p,q),Tg=camFrom.t.clone().lerp(e.t,q);P.y+=Math.sin(Math.PI*q)*.05;e.p=P;e.t=Tg;if(k>=1)camFrom=null}
-  const amb=RM?0:camShot==='read'?.3:1,f=Math.min(1,dt*.004);par.x+=(par.tx-par.x)*f;par.y+=(par.ty-par.y)*f;
+  const amb=RM||camShot==='radio'?0:camShot==='read'?.3:1,f=Math.min(1,dt*.004);par.x+=(par.tx-par.x)*f;par.y+=(par.ty-par.y)*f;
   e.p.x+=(Math.sin(t*.0005)*.004+par.x*.025)*amb;e.p.y+=(Math.sin(t*.0007)*.003+par.y*.015)*amb;
   if(shakeA>.0002&&!RM){e.p.x+=(Math.random()-.5)*shakeA;e.p.y+=(Math.random()-.5)*shakeA;e.t.x+=(Math.random()-.5)*shakeA*.4}
   shakeA*=Math.pow(.002,dt/1000);
   const sw=RM?0:hangAmp;if(sw>0){e.p.x+=Math.sin(t*.0009)*.014*sw;e.p.y+=Math.sin(t*.0013+1)*.007*sw;e.t.x+=Math.sin(t*.0006)*.006*sw}
   // the back of the room is drawn only while the camera looks at it: on a narrow phone, the wide shots stand far back,
   // behind its wall, and its bed and table would block the view (p3b)
-  if(W.back)W.back.visible=camShot==='back'||camShot==='board'||camShot==='arrest'||camShot.startsWith('bed');   // the board looks across the card table to it
+  if(W.back)W.back.visible=camShot==='back'||camShot==='board'||camShot==='arrest'||camShot==='radio'||camShot==='window'||camShot.startsWith('bed')||!!(camFrom&&camFrom.back);   // the board looks across the card table to it; the radio stands on the bedside table and the window view sweeps past the bed (p5rd); kept while the camera turns away from it, or the way back to the desk flies through a black room
   // the lens and the head's tilt ease towards the shot's own (the bed shots); every other shot is 40 degrees, level
   const fq=Math.min(1,dt*.004),fv=e.fov||40;camRoll+=((e.roll||0)-camRoll)*fq;if(Math.abs(cam.fov-fv)>.01){cam.fov+=(fv-cam.fov)*fq;cam.updateProjectionMatrix()}
   if(typeof bedFingerFrame==='function'){bedFingerFrame(dt);headFrame(dt);setFrame(dt)}
@@ -2424,6 +2426,8 @@ function clearDesk(){tinCap=tinBase(DAYS);if(!has3D)return;W.tins.forEach(m=>sce
 // Facing the back wall (z = BACKZ), the player's left is +x: the bookcase, the bed with the carpet and the chess table,
 // then the bedside stool, the photos, the lamp shelf and the clock towards the door corner
 const BACKZ=WZ+3.2;
+// the radio (p5rd) stands on the bedside stool for now (owner, 13 Nov 2026), in place of the chess game
+const RD_ON_STOOL=true;
 // the wall carpet's picture. lay picks where the pattern sits (options for the owner, 31 Oct 2026: the diamond he traces from the
 // pillow is high above his head in the approved layout): 'now' the approved one; 'low' the two diamonds lower, by the pillow;
 // 'rosette' the approved one plus a small rosette in the corner by the pillow; 'row' the medallion higher and a row of small
@@ -2611,7 +2615,8 @@ function buildBack(){if(!has3D||W.back)return;const T=THREE,g=new T.Group(),r=mu
   box(.32,.03,.32,wood,sx2,.6,sz2);for(const [ix,iz] of [[-1,-1],[1,-1],[-1,1],[1,1]])box(.035,.6,.035,wood,sx2+ix*.13,.3,sz2+iz*.13);
   // the chessboard and its middle game, moved here from the card table (the Set Designer's room); the kettle went to the stove.
   // Turned a quarter like the table it came from: a piece's place on the board (u across, v along) lands at (v, -u) on the stool
-  {const by=.6255,board=new T.Mesh(new T.BoxGeometry(bs,.02,bs),[dark,dark,L({map:boardT}),dark,dark,dark]);board.position.set(sx2,by,sz2);board.rotation.y=.08+Math.PI/2;board.castShadow=board.receiveShadow=true;g.add(board);
+  // the radio stands here for now (p5rd, owner 13 Nov 2026), so the chess game is put away; RD_ON_STOOL=false brings it back
+  if(!RD_ON_STOOL){const by=.6255,board=new T.Mesh(new T.BoxGeometry(bs,.02,bs),[dark,dark,L({map:boardT}),dark,dark,dark]);board.position.set(sx2,by,sz2);board.rotation.y=.08+Math.PI/2;board.castShadow=board.receiveShadow=true;g.add(board);
    const pieces=[[0,1,0],[1,1,0],[2,2,0],[5,1,0],[6,1,0],[7,2,0],[0,0,1],[4,0,3],[6,0,2],[3,2,2],[4,3,0],[2,3,1],
                  [0,6,0],[1,5,0],[3,4,0],[5,6,0],[6,6,0],[7,6,0],[4,7,3],[7,7,1],[2,5,2],[5,5,1],[3,6,2],[6,4,0]];
    pieces.forEach(([i,j,k])=>{const m=j<4?pw:pb,hgt=[.022,.03,.032,.042][k],u=(i-3.5)*sq,v=(j-3.5)*sq,px=sx2+v,pz=sz2-u;
@@ -2784,9 +2789,10 @@ SHOTS.bedSit={p:[.95,1.12,BACKZ-.95],t:[DOOR.x,1.05,(DOOR.z0+DOOR.z1)/2],fov:50}
 
 // his finger tracing the carpet's pattern, where the pointer is (only while facing the carpet)
 let _bedFinger=null,_bedFingerOn=false;const _bfTo=new THREE.Vector3(.45,1.1,0),_bfNd=new THREE.Vector2(),_bfRay=new THREE.Raycaster(),_bfHit=new THREE.Vector3();
-function bedFinger(on){if(!has3D)return;_bedFingerOn=on;
-  if(on&&!_bedFinger){const T=THREE,g=new T.Group(),M=(c,e)=>new T.MeshPhongMaterial({color:c,emissive:e||0x000000,flatShading:true,shininess:8,specular:0x161210});
-    // a pointing hand, low-poly like the room: built pointing down -z, the tip at the origin touching the carpet, the knuckles and
+// Orlov's hand: the model is shared by the finger on the carpet and the concert's clapping hands (owner, 12 Nov 2026)
+function orlovHand(flat){
+  const T=THREE,g=new T.Group(),M=(c,e)=>new T.MeshPhongMaterial({color:c,emissive:e||0x000000,flatShading:true,shininess:8,specular:0x161210});
+    // a pointing hand, low-poly like the room (flat: all four fingers held straight, for clapping at the concert, p5v): built pointing down -z, the tip at the origin touching the carpet, the knuckles and
     // the back of the hand coming towards the eye. Three jointed segments for the index finger with a nail, the other three
     // fingers curled under the palm, the thumb tucked along them, and the cuff of his grey wool sweater at the wrist
     const skin=M(0xd8a888,0x2a1a12),shade=M(0xc49274,0x22140c),nail=M(0xecc8b4,0x30221a),wool=M(0x4a4f58,0x0c0d10),rib=M(0x3c4048,0x0a0b0d);
@@ -2804,9 +2810,11 @@ function bedFinger(on){if(!has3D)return;_bedFingerOn=on;
     add(new T.BoxGeometry(.074,.026,.082),skin,-.03,-.002,-.135,0,-.04,0);
     for(let k=0;k<3;k++){const x=-.021-k*.019,z=-.097+k*.004;
       ball(.0098-k*.0006,skin,x,.002,z);
-      seg(.0088-k*.0005,.0092-k*.0005,.028,skin,x,-.012,z+.006,.55);                         // bent down from the knuckle
+      if(flat){const L=.094*[1.06,.97,.8][k],r=.0088-k*.0006;                                   // held straight beside the index finger
+        seg(r,r+.001,L*.55,skin,x,.001,z+L*.3,H);ball(r*.95,shade,x,.001,z+L*.58);seg(r*.9,r*.98,L*.42,skin,x,.0005,z+L*.8,H);ball(r*.88,skin,x,0,z+L)}
+      else{seg(.0088-k*.0005,.0092-k*.0005,.028,skin,x,-.012,z+.006,.55);                       // bent down from the knuckle
       seg(.0080-k*.0005,.0086-k*.0005,.024,shade,x,-.026,z+.024,-.35);                        // and tucked back under the palm
-      ball(.0078-k*.0005,shade,x,-.024,z+.036)}
+      ball(.0078-k*.0005,shade,x,-.024,z+.036)}}
     // the thumb, along the side of the curled middle finger, its tip resting against it
     seg(.0098,.0115,.05,skin,.014,-.016,-.12,H-.25,0,-.35);ball(.0094,shade,.008,-.022,-.097);
     add(new T.BoxGeometry(.009,.0022,.011),nail,.006,-.015,-.098,0,0,-.6);
@@ -2814,7 +2822,11 @@ function bedFinger(on){if(!has3D)return;_bedFingerOn=on;
     seg(.026,.028,.05,skin,-.03,-.004,-.19,H);
     seg(.034,.036,.06,wool,-.03,-.004,-.235,H);
     for(let k=0;k<3;k++)seg(.0365,.0365,.008,rib,-.03,-.004,-.21-k*.018,H);
-    g.traverse(o=>{if(o.isMesh)o.castShadow=false});
+    // at the concert the whole forearm shows, in its sleeve
+    if(flat)seg(.036,.045,.5,wool,-.03,-.004,-.515,H);
+    g.traverse(o=>{if(o.isMesh)o.castShadow=false});return g}
+function bedFinger(on){if(!has3D)return;_bedFingerOn=on;
+  if(on&&!_bedFinger){const g=orlovHand(false);
     _bedFinger=g;scene.add(g);_bfTo.set(.45,1.1,BACKZ-.02);g.position.copy(_bfTo)}
   if(_bedFinger)_bedFinger.visible=on}
 function bedFingerAim(e){if(!_bedFingerOn||camShot!=='bedCarpet'||_trace)return;_bfNd.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);_bfRay.setFromCamera(_bfNd,cam);
@@ -2895,8 +2907,8 @@ function bedUI(){if(!has3D)return;const inBed=camShot.startsWith('bed')&&phase!=
   document.body.classList.toggle('inbed',inBed);
   // turned away from the desk in the panel's room views (back of the room, the stove, the window): the stamps fade out, they come
   // back with the desk (owner's call, for filming)
-  document.body.classList.toggle('away',phase!=='title'&&/^(back|stove|wxwin|board)$/.test(camShot));
-  const cur=inBed&&(_bedFingerOn||!!_trace)?'none':'';if(R.domElement.style.cursor!==cur)R.domElement.style.cursor=cur}
+  document.body.classList.toggle('away',phase!=='title'&&/^(back|stove|wxwin|board|radio|window)$/.test(camShot));
+  const cur=inBed&&(_bedFingerOn||!!_trace)?'none':'';if(camShot!=='radio'&&R.domElement.style.cursor!==cur)R.domElement.style.cursor=cur}   // the radio view sets its own (p5rd)
 
 // ---------- tins as currency: tea with condensed milk, zakuska for Volkov, a gift for the officer, the shelf count ----------
 let teaUsed=false,tipShown=false,bribeUsed=false,gotMilk=0,gotMeat=0;
@@ -4455,8 +4467,9 @@ function wxFrame(t,dt,ts){const P=WXP[wxKind()]||WXP.snowfall;if(!WX.cur)WX.cur=
     // snow stuck to the glass the morning after a blizzard, clearing slowly over the day
     if(typeof wxDayFrame==='function')wxDayFrame(t,dt,P,wxKind());
     const sk=wxStuck()?Math.max(.3,1-(t-WX.t0)/150000):0;WX.stuck.material.opacity+=(sk-WX.stuck.material.opacity)*Math.min(1,dt*.004);WX.stuck.visible=WX.stuck.material.opacity>.01}
-  // the howl: louder in a blizzard and on its gusts, quieter while an event is on, half while a telegram is being read
-  const h=wxHowl();if(h){const duck=phase==='event'||phase==='night3'||dusk?.4:phase==='decide'||phase==='stamp'?.5:1,n=S.ctx.currentTime;h.gain.setTargetAtTime(C.howl*(1+gust*.8)*duck,n,.25);
+  // the howl: louder in a blizzard and on its gusts, quieter while an event is on, half while a telegram is being read, silent
+  // while a scene hushes the weather (S.hush)
+  const h=wxHowl();if(h){const duck=S.hush?0:phase==='event'||phase==='night3'||dusk?.4:phase==='decide'||phase==='stamp'?.5:1,n=S.ctx.currentTime;h.gain.setTargetAtTime(C.howl*(1+gust*.8)*duck,n,.25);
     WX.air.g.gain.setTargetAtTime(C.air*(1+gust*.5)*duck,n,.25);WX.air.f.frequency.setTargetAtTime(C.airF,n,.3)}}
 
 // the developer panel's look out of the window: the whole window with the ground and the station, on a computer or a phone
@@ -4857,7 +4870,9 @@ async function bribeOfficer(){if(!canBribe())return;const my=++SEQ;bribeUsed=tru
   phase='result';setMode();showCard('bribed');announce(TXT[lang].bribedH+' '+TXT[lang].bribedT)}
 async function win(my){phase='win';$('skip').hidden=true;setMode();best(DAYS);auroraAmp=2.6;S.win();hideCard();
   await camTo('win',2400);if(dead(my))return;showCard('win')}
-function tickGame(dt){if(phase!=='decide'||devFreeze)return;tLeft-=dt;const s=Math.ceil(tLeft/1000);
+// the fuse waits while the Settings panel is open over the desk (p5z), as it does for the developer panel's freeze
+// No fuse in Settings (p5z): time waits
+function tickGame(dt){if(phase!=='decide'||devFreeze||(typeof mnPopOpen==='function'&&mnPopOpen())||(typeof NOFUSE!=='undefined'&&NOFUSE))return;tLeft-=dt;const s=Math.ceil(tLeft/1000);
   $('fuseI').style.width=(clamp(tLeft/tTotal,0,1)*100).toFixed(2)+'%';
   if(s!==lastSec){lastSec=s;setTimerUI();if(tLeft<tTotal*.3&&tLeft>0)S.tick()}
   if(tLeft<=0){tLeft=0;decide(-1)}}
@@ -4892,7 +4907,9 @@ $('tabD').onclick=()=>tab('D');$('tabR').onclick=()=>tab('R');
 // check re-fits whenever the screen, the sheets' contents, the language or the open tab have changed since the last fit
 {let sig='';setInterval(()=>{const f=$('files'),k=[innerWidth,innerHeight,f.clientHeight,$('rulOl').scrollHeight,$('dosUl').scrollHeight,lang,$('shD').classList.contains('on'),$('shR').classList.contains('on')].join();
   if(k!==sig){sig=k;rulesFit();fileMore()}},700)}if(window.ResizeObserver){const ro=new ResizeObserver(fileMore);['files','shD','shR','dosUl','rulOl'].forEach(i=>ro.observe($(i)))}
-$('card').addEventListener('keydown',e=>{const t=e.target;if(!t.classList||!t.classList.contains('shift'))return;const all=shiftOrder();let i=AUDIT?all.indexOf('audit'):all.indexOf(DAYS);
+// the arrows follow the buttons as they stand on the screen (the main menu, p5z, puts Normal first and Training last)
+$('card').addEventListener('keydown',e=>{const t=e.target;if(!t.classList||!t.classList.contains('shift'))return;
+  const shown=[...document.querySelectorAll('.shifts .shift')].map(b=>b.dataset.d==='audit'?'audit':+b.dataset.d),all=shown.length?shown:shiftOrder();let i=AUDIT?all.indexOf('audit'):all.indexOf(DAYS);
   if(e.key==='ArrowRight'||e.key==='ArrowDown')i=(i+1)%all.length;else if(e.key==='ArrowLeft'||e.key==='ArrowUp')i=(i+all.length-1)%all.length;else return;
   e.preventDefault();e.stopPropagation();setShift(all[i])});
 addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey||!$('share').hidden)return;
@@ -5233,7 +5250,8 @@ SHOTS.board=()=>innerHeight>innerWidth*1.15?{p:[-.7,1.95,-.4],t:[2.3,1.0,.6]}:{p
 
 // a won shift puts Orlov's photo up, for good
 const _hbWin=win;
-win=async function(my){try{localStorage.setItem(HB_KEY,'1')}catch(e){}honourBoard();return _hbWin.apply(this,arguments)};
+win=async function(my){try{if(!(typeof RUN_NOFUSE!=='undefined'&&RUN_NOFUSE))localStorage.setItem(HB_KEY,'1')}catch(e){}honourBoard();   // not earned with No fuse (p5z)
+  return _hbWin.apply(this,arguments)};
 const _hbRun=newRun;
 newRun=function(){const r=_hbRun.apply(this,arguments);honourBoard();return r};
 
@@ -6059,7 +6077,7 @@ CREEPY_CARD.ppCm=u=>`<p class="eyebrow">${AUDIT?u.audit.tag:u.pp.tag}</p><img cl
 async function ppCommittee(){const my=++SEQ;phase='event';hideCard();setMode();$('skip').hidden=true;
   const r=ppResult();
   // the Audit's verdict: a perfect run writes its note and rings Orlov's photo on the Board of Honour, for good, in this browser
-  if(AUDIT){if(r==='all'){fileSet('audit','perfect');try{localStorage.setItem('pp_audit_ring','1')}catch(e){}if(typeof honourBoard==='function')honourBoard()}}
+  if(AUDIT){if(r==='all'){fileSet('audit','perfect');try{if(!(typeof RUN_NOFUSE!=='undefined'&&RUN_NOFUSE))localStorage.setItem('pp_audit_ring','1')}catch(e){}if(typeof honourBoard==='function')honourBoard()}}
   else if(r==='all')fileLog.pencil='proof';else if(r==='none')fileLog.pencil='nothing';else if(fileLog.pencil==='proof')delete fileLog.pencil;
   S.bell&&S.bell();await camTo('wide',700);if(dead(my))return;showCard('ppCm');announce(ppCmText(lang));await crAsk();if(dead(my))return;hideCard();_ppAfter()}
 // The telegrams that play with dates and tins (a date, a weekday, a count of tins; real and parrot alike, so neither gives the
@@ -6693,13 +6711,21 @@ cfRender();
 // marks, the Audit's ring and Orlov's photo on the Board of Honour, never the language or the sound. Words: the Lore Bible's
 Object.assign(TXT.en,{mn:{cont:'Continue',shifts:'Shifts',shiftsSub:'(playground)',story:'Story campaign',endless:'Endless',settings:'Settings',menu:'Menu',
   locked:'NOT CLEARED',lockedSay:'Your clearance has not come through yet.',rec:'★ Recommended ★',sound:'Sound',master:'Master volume',fx:'Effects',voice:'Voices',
-  radio:'Radio and music',mute:'Mute',lang:'Language',motion:'Reduce motion',motionWhat:'no flashes, shakes or camera moves',erase:'Erase progress',
+  radio:'Radio and music',mute:'Mute',lang:'Language',motion:'Reduce motion',motionWhat:'no flashes, shakes or camera moves',noFuse:'No fuse',noFuseWhat:'Time waits for you. Your photo on the Board of Honour and the Audit\'s red circle need the fuse.',erase:'Erase progress',
   eraseQ:'Erase every shift you have served? The Committee will forget them too. This cannot be undone.',keep:'Keep it',eraseB:'Erase',erased:'Progress erased.'}});
 Object.assign(TXT.ru,{mn:{cont:'Продолжить',shifts:'Вахты',shiftsSub:'(полигон)',story:'Сюжетная кампания',endless:'Бесконечная вахта',settings:'Настройки',menu:'Меню',
   locked:'НЕ ДОПУЩЕН',lockedSay:'Допуск ещё не оформлен.',rec:'★ Рекомендовано ★',sound:'Звук',master:'Общая громкость',fx:'Эффекты',voice:'Голоса',
-  radio:'Радио и музыка',mute:'Без звука',lang:'Язык',motion:'Меньше движения',motionWhat:'без вспышек, тряски и движений камеры',erase:'Стереть прогресс',
+  radio:'Радио и музыка',mute:'Без звука',lang:'Язык',motion:'Меньше движения',motionWhat:'без вспышек, тряски и движений камеры',noFuse:'Без фитиля',noFuseWhat:'Время ждёт вас. Фото на Доске почёта и красный круг за Ревизию — только с фитилём.',erase:'Стереть прогресс',
   eraseQ:'Стереть все пройденные вахты? Комитет тоже о них забудет. Это нельзя отменить.',keep:'Оставить',eraseB:'Стереть',erased:'Прогресс стёрт.'}});
-const MN={ask:false,shake:'',look:'mn-a'};   // look A, the game's own buttons (owner's pick, 11 Nov 2026)
+const MN={ask:false,shake:'',look:'mn-a'};
+// No fuse (owner, 13 Nov 2026): time waits, so the radio and the window can be enjoyed at leisure. Off unless chosen; remembered.
+// A shift counts as usual (posters unchanged), but if the fuse was off at any moment of it (RUN_NOFUSE), Orlov's photo on the
+// Board of Honour and the Audit's red circle are not earned
+let NOFUSE=false,RUN_NOFUSE=false;try{NOFUSE=localStorage.getItem('pp_nofuse')==='1'}catch(e){}
+function mnSetNoFuse(on){NOFUSE=on;if(on&&phase!=='title')RUN_NOFUSE=true;try{localStorage.setItem('pp_nofuse',on?'1':'0')}catch(e){}document.body.classList.toggle('nofuse',on)}
+document.body.classList.toggle('nofuse',NOFUSE);
+{const st=document.createElement('style');st.textContent='body.nofuse #fuse{opacity:.35}';document.head.appendChild(st)}
+const _nfRun=newRun;newRun=function(){RUN_NOFUSE=NOFUSE;return _nfRun.apply(this,arguments)};   // look A, the game's own buttons (owner's pick, 11 Nov 2026)
 // ---- the settings kept in this browser ----
 {try{for(const k of ['fx','voice','radio']){const v=localStorage.getItem('pp_ch_'+k);if(v){const [a,b]=v.split(',');S.ch[k]={v:Math.max(0,Math.min(1,+a/100||0)),mute:b==='1'}}}}catch(e){}}
 function mnSaveCh(k){const c=S.ch[k];try{localStorage.setItem('pp_ch_'+k,Math.round(c.v*100)+','+(c.mute?1:0))}catch(e){}}
@@ -6725,6 +6751,7 @@ function mnSettingsHTML(pop){const m=TXT[lang].mn,mOff=!S.on;
     row('master',m.master,S.vol,mOff,false)+[['fx',m.fx],['voice',m.voice],['radio',m.radio]].map(([k,l])=>row(k,l,S.ch[k].v,S.ch[k].mute,mOff)).join('')+
     `<div class="mn-line"><span class="mn-cl">${m.lang}</span>${mnLang()}</div>`+
     `<button type="button" class="mn-line mn-sw" role="switch" aria-checked="${RM}" id="mnMotion"><span><span class="mn-cl">${m.motion}</span><small>${m.motionWhat}</small></span><span class="mn-knob" aria-hidden="true"><i></i></span></button>`+
+    `<button type="button" class="mn-line mn-sw" role="switch" aria-checked="${NOFUSE}" id="mnNoFuse"><span><span class="mn-cl">${m.noFuse}</span><small>${m.noFuseWhat}</small></span><span class="mn-knob" aria-hidden="true"><i></i></span></button>`+
     (MN.ask?`<div class="mn-ask" role="alertdialog" aria-label="${m.erase}"><p>${m.eraseQ}</p><div><button type="button" class="mn-keep" id="mnKeep">${m.keep}</button><button type="button" class="mn-erase" id="mnErase">${m.eraseB}</button></div></div>`
       :`<button type="button" class="mn-reset" id="mnReset">${m.erase}</button>`)+'</div>'}
 // the menu and Settings are drawn here; Shifts is the old title card (p6), dressed below
@@ -6747,6 +6774,7 @@ function mnWire(root){const c=root||$('card');
   c.querySelectorAll('[data-mute]').forEach(b=>b.onclick=()=>{S.init();const k=b.dataset.mute;
     if(k==='master'){S.set(!S.on);try{localStorage.setItem('pp_snd',S.on?'1':'0')}catch(e){}renderStatic()}else{S.setCh(k,S.ch[k].v,!S.ch[k].mute);mnSaveCh(k)}mnRefresh();
     const f=mnRoot().querySelector(`[data-mute="${k}"]`);if(f)f.focus({preventScroll:true})});
+  const nf=$('mnNoFuse');if(nf)nf.onclick=()=>{mnSetNoFuse(!NOFUSE);mnRefresh();const f=$('mnNoFuse');if(f)f.focus({preventScroll:true})};
   const mo=$('mnMotion');if(mo)mo.onclick=()=>{mnSetMotion(!RM);mnRefresh();const f=$('mnMotion');if(f)f.focus({preventScroll:true})};
   const rs=$('mnReset');if(rs)rs.onclick=()=>{MN.ask=true;mnRefresh();const f=$('mnKeep');if(f)f.focus({preventScroll:true})};
   const kp=$('mnKeep');if(kp)kp.onclick=()=>{MN.ask=false;mnRefresh();const f=$('mnReset');if(f)f.focus({preventScroll:true})};
@@ -6862,6 +6890,951 @@ function mnStart(){if(!(window.claude&&window.claude.hot&&window.claude.hot.data
 @media (prefers-reduced-motion:reduce){.mn-st.shake{animation:none}}
 `;document.head.appendChild(st)}
 mnStart();
+// ---------- the new event comes first (owner's call, 3 Nov 2026; built 13 Nov 2026) ----------
+// A player's first shift after an update includes that update's new event, a returning player and a new one alike, remembered
+// in this browser; after that the event is as rare as ever. The build request names the events that count as new: list them
+// under the version in NEW_EVENTS (event names as in the planner: 'cake', 'drill', 'fish', 'volkov', any of EVENTS).
+// How: the shift's plan is drawn again (up to 80 times) until every new event is in it. A shift that can't hold one (Training
+// for the evening events, a short shift for Ice Fishing) keeps the promise for the next shift. Once a shift starts with all of
+// them planned, the browser remembers it. The concert (p5v) isn't planned ahead: while it is new, the first quiet night of the
+// shift (or the vodka night) brings it for certain, and it counts once it has played.
+// Nothing is listed now: v0.4.14's and earlier events are all out already.
+const NEW_EVENTS={};
+const NE={key:'pp_new_seen',due:[]};
+// the events still owed to this browser for this version
+function neDue(){const k=NEW_EVENTS[VERSION];if(!k||!k.length)return [];let seen=[];
+  try{const s=JSON.parse(localStorage.getItem(NE.key)||'null');if(s&&s.v===VERSION)seen=s.done||[]}catch(e){}
+  return k.filter(x=>!seen.includes(x))}
+function neDone(k){try{const s=JSON.parse(localStorage.getItem(NE.key)||'null'),done=s&&s.v===VERSION?s.done||[]:[];
+  if(!done.includes(k))done.push(k);localStorage.setItem(NE.key,JSON.stringify({v:VERSION,done}))}catch(e){}NE.due=NE.due.filter(x=>x!==k)}
+// is event k in this shift's plan?
+function neHas(k){if(k==='volkov')return !!volkov;if(k==='robo')return !!roboDay;if(k==='drill'&&typeof WD!=='undefined'&&WD.day)return true;
+  return Object.values(events).includes(k)}
+const _neRun=newRun;
+newRun=function(){NE.due=neDue();return _neRun.apply(this,arguments)};
+const _nePlan=planEvents;
+planEvents=function(){let r=_nePlan.apply(this,arguments);
+  // only events planned ahead count here; the concert is handled at night (p5v)
+  const want=NE.due.filter(k=>k!=='concert');if(!want.length||EV_FORCE)return r;
+  for(let i=0;i<80&&!want.every(neHas);i++)r=_nePlan.apply(this,arguments);
+  for(const k of want)if(neHas(k))neDone(k);
+  return r};
+/*
+ * ARKTIKA-7 radio sets for Politburo or Parrot (1978).
+ * three.js r128. Built from simple shapes, flat-shaded, no image files.
+ *
+ * Units: centimetres. Y is up. The FRONT of each set faces +Z.
+ * Origin: bottom centre of the case, so a set stands on a desk at y = 0.
+ *
+ *   buildMusicRadio()  -> THREE.Group "musicRadio"   about 32 x 27 x 11 cm (handle up)
+ *   buildTransceiver() -> THREE.Group "transceiver"  about 40 x 23 x 28 cm, plus Morse key and handset
+ *
+ * Named moving parts (find them with group.getObjectByName):
+ *   musicRadio:  needle, tuneKnob, volumeKnob, powerSwitch, dialLight, bandKey1..3, antenna, tuneMeter
+ *   transceiver: meterNeedle, callLamp, channelKnob, gainKnob, handset, handsetCord, morseKeyLever, toggle0..3
+ *
+ * Each group also carries small helpers in group.userData.rig (setTune, setPower, ...)
+ * so the Builder can drive the parts without knowing their exact offsets.
+ * No readable text on either set: any label a player can read is game text.
+ */
+(function (global) {
+  'use strict';
+
+  var PAL = {
+    night: 0x0c1117, paper: 0xe4d9b7, manila: 0xc39a57, ink: 0x2a2219,
+    red: 0xb0261c, green: 0x2e6b39, amber: 0xe9b24a
+  };
+  // Tones mixed from the palette (darkened ink, greyed paper, a steel blue-grey for the station set).
+  var TONE = {
+    plastic: 0x1c1915, grille: 0x13110e, wood: 0x6e4a26, chrome: 0xb7b1a1, slat: 0x8e8776,
+    steel: 0x56626b, steelLite: 0x66737c, steelDark: 0x3b444b
+  };
+
+  function M(color, extra) {
+    var o = { color: color, flatShading: true, shininess: 12 };
+    if (extra) for (var k in extra) o[k] = extra[k];
+    return new THREE.MeshPhongMaterial(o);
+  }
+  function B(w, h, d) { return new THREE.BoxGeometry(w, h, d); }
+  function Cf(r, h, seg) { var g = new THREE.CylinderGeometry(r, r, h, seg || 10); g.rotateX(Math.PI / 2); return g; } // faces +Z
+  function Cs(r, h, seg) { var g = new THREE.CylinderGeometry(r, r, h, seg || 10); g.rotateZ(Math.PI / 2); return g; } // faces +X
+  function Cu(r, h, seg) { return new THREE.CylinderGeometry(r, r, h, seg || 8); }                                   // upright
+  function add(parent, geo, mat, x, y, z, name) {
+    var m = new THREE.Mesh(geo, mat);
+    m.position.set(x, y, z);
+    if (name) m.name = name;
+    parent.add(m);
+    return m;
+  }
+  function grp(parent, x, y, z, name) {
+    var g = new THREE.Group();
+    g.position.set(x, y, z);
+    if (name) g.name = name;
+    parent.add(g);
+    return g;
+  }
+
+  /* Dial face: tick marks only, no words. 512 x 96 canvas.
+     Red marks show where the current band's stations sit; redraw with dial.draw(marks). */
+  function dialTexture(marks) {
+    var c = document.createElement('canvas');
+    c.width = 512; c.height = 96;
+    var tex = new THREE.CanvasTexture(c);
+    tex.anisotropy = 2;
+    function draw(m) { paint(c.getContext('2d'), m); tex.needsUpdate = true; }
+    draw(marks);
+    return { tex: tex, draw: draw };
+  }
+  function paint(x, marks) {
+    x.fillStyle = '#e4d9b7'; x.fillRect(0, 0, 512, 96);
+    x.fillStyle = '#c39a57'; x.fillRect(0, 30, 512, 2); x.fillRect(0, 62, 512, 2);
+    x.fillStyle = '#2a2219';
+    // a scale from 0 to 10, as printed on radios of the time: ticks above and below, numbers between.
+    // Tune t (0..1) sits at x = 16 + t * 480, so the number n is at t = n / 10.
+    var rows = [[8, 28, 40, 4], [68, 90, 50, 5]]; // [top, bottom, divisions, divisions per whole number]
+    rows.forEach(function (r) {
+      for (var i = 0; i <= r[2]; i++) {
+        var px = 16 + i * (480 / r[2]);
+        var major = i % r[3] === 0;
+        x.fillRect(Math.round(px) - (major ? 1 : 0), major ? r[0] : r[0] + 8, major ? 3 : 1.5, (r[1] - r[0]) - (major ? 0 : 8));
+      }
+    });
+    x.font = 'bold 22px "PT Sans Narrow", "Arial Narrow", Arial, sans-serif';
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    for (var n = 0; n <= 10; n++) x.fillText(String(n), Math.min(500, Math.max(12, 16 + n * 48)), 47);
+    // stations of the current band: a red tick through both scales, with a small flag on top
+    x.fillStyle = '#b0261c';
+    (marks || []).forEach(function (t) {
+      var px = 16 + t * 480;
+      x.fillRect(px - 3, 1, 6, 9); x.fillRect(px - 1, 1, 2, 30); x.fillRect(px - 1, 63, 2, 32);
+    });
+  }
+
+  /* ---------------------------------------------------------------- music radio */
+  function buildMusicRadio() {
+    var g = new THREE.Group(); g.name = 'musicRadio';
+    var mPl = M(TONE.plastic), mWood = M(TONE.wood), mChrome = M(TONE.chrome, { shininess: 70 });
+    var mSlat = M(TONE.slat, { shininess: 40 }), mInk = M(PAL.ink), mPaper = M(PAL.paper), mRed = M(PAL.red);
+
+    add(g, B(29.6, 22, 10), mPl, 0, 11, 0, 'case');
+    add(g, B(1.2, 22.4, 10.6), mWood, -15.4, 11.2, 0, 'cheekL');
+    add(g, B(1.2, 22.4, 10.6), mWood, 15.4, 11.2, 0, 'cheekR');
+
+    // speaker grille, lower half
+    add(g, B(28.2, 10.6, 0.3), M(TONE.grille), 0, 6.4, 5.1, 'grille');
+    for (var i = 0; i < 8; i++) add(g, B(27.4, 0.55, 0.5), mSlat, 0, 1.9 + i * 1.28, 5.35);
+
+    // chrome trims
+    add(g, B(28.6, 0.3, 0.4), mChrome, 0, 12.2, 5.2);
+    add(g, B(28.6, 0.3, 0.4), mChrome, 0, 21.3, 5.2);
+    add(g, B(28.6, 0.3, 0.4), mChrome, 0, 0.6, 5.2);
+
+    // dial: the face itself is the dial light
+    var dialTex = dialTexture([0.18, 0.41, 0.66]);
+    var tex = dialTex.tex;
+    var dialMat = new THREE.MeshPhongMaterial({
+      color: 0xffffff, map: tex, emissive: PAL.amber, emissiveMap: tex,
+      emissiveIntensity: 0, flatShading: true, shininess: 30
+    });
+    var dial = add(g, B(23, 5, 0.3), dialMat, -1.8, 16.7, 5.1, 'dialLight');
+    var DIAL_MIN = -1.8 - 10.8, DIAL_MAX = -1.8 + 10.8;
+    var needle = add(g, B(0.25, 4.6, 0.2), mRed, DIAL_MIN, 16.7, 5.35, 'needle');
+
+    // small tuning meter beside the dial
+    add(g, B(3.6, 3.6, 0.4), mInk, 12.4, 16.7, 5.1);
+    add(g, B(3.0, 3.0, 0.1), mPaper, 12.4, 16.7, 5.33);
+    var meter = grp(g, 12.4, 15.4, 5.45, 'tuneMeter');
+    add(meter, B(0.14, 2.3, 0.08), mInk, 0, 1.15, 0);
+    meter.rotation.z = 0.8;
+
+    // knobs on the right side
+    var tuneKnob = grp(g, 16.6, 16.0, 0.5, 'tuneKnob');
+    add(tuneKnob, Cs(2.3, 1.2, 12), mChrome, 0, 0, 0);
+    add(tuneKnob, Cs(1.6, 0.4, 12), mInk, 0.7, 0, 0);
+    add(tuneKnob, B(0.3, 1.2, 0.4), mPaper, 0.95, 1.4, 0);
+    var volKnob = grp(g, 16.45, 7.0, 0.5, 'volumeKnob');
+    add(volKnob, Cs(1.6, 1.0, 12), mChrome, 0, 0, 0);
+    add(volKnob, B(0.3, 0.9, 0.35), mInk, 0.55, 1.0, 0);
+
+    // piano keys on top: first is power (red cap), then three band keys
+    var keys = [];
+    for (var k = 0; k < 4; k++) {
+      var key = add(g, B(1.6, 1.0, 3.0), k === 0 ? mRed : mPaper, -12.6 + k * 2.0, 22.4, 1.5,
+        k === 0 ? 'powerSwitch' : 'bandKey' + k);
+      key.userData.restY = 22.4;
+      keys.push(key);
+    }
+
+    // carry handle
+    add(g, B(1.2, 4.4, 1.6), mChrome, -15.4, 24.6, -1.6);
+    add(g, B(1.2, 4.4, 1.6), mChrome, 15.4, 24.6, -1.6);
+    add(g, B(32, 1.0, 1.6), mChrome, 0, 27.2, -1.6);
+    add(g, B(24, 1.4, 2.0), mPl, 0, 27.2, -1.6, 'handleGrip');
+
+    // telescopic antenna
+    var ant = grp(g, 12.6, 22.0, -3.4, 'antenna');
+    add(ant, Cu(0.75, 0.6, 8), mChrome, 0, 0.3, 0);
+    var segs = [0.42, 0.32, 0.23].map(function (r) { return add(ant, Cu(r, 9, 6), mChrome, 0, -2.4, 0); });
+    var tip = add(ant, new THREE.SphereGeometry(0.55, 8, 5), mChrome, 0, 2.6, 0);
+    // a larger invisible handle around the stub, so a finger can catch it
+    var grab = add(ant, B(3.2, 5, 3.2), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }), 0, 2.0, 0, 'antennaGrab');
+
+    var state = { tune: 0, power: false, band: 1, antenna: 0, volume: 0.6 };
+    var rig = {
+      setTune: function (t) {
+        state.tune = Math.max(0, Math.min(1, t));
+        needle.position.x = DIAL_MIN + (DIAL_MAX - DIAL_MIN) * state.tune;
+        tuneKnob.rotation.x = -state.tune * Math.PI * 6;
+      },
+      setVolume: function (v) { state.volume = v; volKnob.rotation.x = -v * Math.PI * 1.5; },
+      setPower: function (on) {
+        state.power = on;
+        keys[0].position.y = on ? 22.0 : 22.4;
+        dialMat.emissiveIntensity = on ? 0.55 : 0;
+        if (!on) meter.rotation.z = 0.8;
+      },
+      pressBand: function (n) {
+        state.band = n;
+        for (var i = 1; i < 4; i++) keys[i].position.y = i === n ? 22.0 : 22.4;
+      },
+      setAntenna: function (t) {
+        t = Math.max(0, Math.min(1, t));
+        state.antenna = t;
+        segs.forEach(function (s, i) { s.position.y = -2.4 + t * (7.5 + 8.4 * i); });
+        tip.position.y = segs[2].position.y + 4.6;
+        grab.position.y = tip.position.y - 0.6;
+        ant.rotation.z = -0.22 * t;
+        ant.rotation.x = -0.12 * t;
+      },
+      setSignal: function (s) { if (state.power) meter.rotation.z = 0.8 - 1.6 * s; }, // 0 = none, 1 = strong
+      setMarks: function (marks) { dialTex.draw(marks); },                            // station places, 0..1
+      // the dial's travel in the set's own space (cm): tune 0 at minX, 1 at maxX
+      dial: { minX: DIAL_MIN, maxX: DIAL_MAX, y: 16.7, z: 5.35 },
+      state: state
+    };
+    rig.setTune(0.41); rig.pressBand(1); rig.setAntenna(0); rig.setVolume(0.6);
+    g.userData.rig = rig;
+    g.userData.sizeCm = { w: 32.0, h: 27.7, d: 10.6 };
+    return g;
+  }
+
+  /* -------------------------------------------------------- station transceiver */
+  function buildTransceiver() {
+    var g = new THREE.Group(); g.name = 'transceiver';
+    var mSteel = M(TONE.steel), mLite = M(TONE.steelLite), mDark = M(TONE.steelDark);
+    var mInk = M(PAL.ink), mPaper = M(PAL.paper), mRed = M(PAL.red);
+    var mChrome = M(TONE.chrome, { shininess: 70 }), mWood = M(TONE.wood);
+
+    add(g, B(38, 22, 28), mSteel, 0, 11.5, 0, 'case');
+    add(g, B(38.4, 0.6, 28.4), mDark, 0, 22.6, 0, 'lid');
+    [[-16, -11], [16, -11], [-16, 11], [16, 11]].forEach(function (p) { add(g, B(3, 0.5, 3), mInk, p[0], 0.25, p[1]); });
+    add(g, B(36, 20, 0.5), mLite, 0, 11.5, 14.2, 'panel');
+
+    // bar handles on the front, louvres beside them
+    [-1, 1].forEach(function (s) {
+      add(g, B(0.9, 16, 0.9), mChrome, s * 18.4, 11.5, 17.0);
+      add(g, B(0.9, 0.9, 2.6), mChrome, s * 18.4, 19.0, 15.6);
+      add(g, B(0.9, 0.9, 2.6), mChrome, s * 18.4, 4.0, 15.6);
+      for (var k = 0; k < 4; k++) add(g, B(2.8, 0.5, 0.3), mDark, s * 15.4, 5.6 + k * 1.6, 14.5);
+    });
+
+    // panel meter
+    add(g, B(7, 6, 1), mInk, -4, 17.5, 14.7);
+    add(g, B(6, 4.6, 0.2), mPaper, -4, 17.7, 15.25);
+    var mNeedle = grp(g, -4, 15.7, 15.4, 'meterNeedle');
+    add(mNeedle, B(0.16, 3.6, 0.1), mRed, 0, 1.8, 0);
+    mNeedle.rotation.z = 0.7;
+
+    // call lamp
+    add(g, Cf(1.1, 0.6, 10), mChrome, 5, 19.4, 14.6);
+    var lampMat = M(PAL.red, { emissive: PAL.red, emissiveIntensity: 0.05, shininess: 60 });
+    add(g, Cf(0.75, 0.5, 10), lampMat, 5, 19.4, 14.95, 'callLamp');
+
+    // toggle switches
+    for (var t = 0; t < 4; t++) {
+      var x = 9 + t * 2.6;
+      add(g, Cf(0.6, 0.5, 8), mInk, x, 19.4, 14.6);
+      var lever = grp(g, x, 19.4, 14.9, 'toggle' + t);
+      add(lever, B(0.3, 1.6, 0.3), mChrome, 0, 0.8, 0);
+      lever.rotation.x = t % 2 ? -0.5 : 0.5;
+    }
+
+    // round connectors
+    [[-12.5, 8, 1.9], [12.5, 8, 1.9], [-12.5, 17.5, 1.3]].forEach(function (c) {
+      add(g, Cf(c[2], 1.2, 10), mChrome, c[0], c[1], 14.9);
+      add(g, Cf(c[2] * 0.55, 1.3, 8), mInk, c[0], c[1], 15.0);
+    });
+
+    // channel and gain knobs
+    var chan = grp(g, -2, 8.5, 14.5, 'channelKnob');
+    add(chan, Cf(3.2, 0.4, 12), mDark, 0, 0, 0.2);
+    add(chan, Cf(2.7, 2.0, 12), mInk, 0, 0, 1.2);
+    add(chan, B(0.4, 2.0, 0.3), mPaper, 0, 1.3, 2.25);
+    var gain = grp(g, 5.5, 8.5, 14.5, 'gainKnob');
+    add(gain, Cf(1.7, 1.6, 12), mInk, 0, 0, 0.9);
+    add(gain, B(0.3, 1.3, 0.3), mPaper, 0, 0.9, 1.75);
+
+    // lower plate with pull
+    add(g, B(16, 3.6, 0.6), mDark, 0, 3.2, 14.5);
+    add(g, B(3, 0.6, 0.8), mChrome, 0, 3.2, 15.0);
+
+    // hook and palm microphone on the right side
+    add(g, B(1.2, 0.8, 1.2), mChrome, 19.6, 17.5, 4);
+    var hs = grp(g, 20.9, 12.2, 4, 'handset');
+    add(hs, B(2.2, 7, 5.2), mInk, 0, 0, 0);
+    add(hs, Cs(2.0, 0.3, 12), mDark, 1.2, 0.8, 0);
+    add(hs, B(0.6, 1.4, 1.6), mDark, 0, 0.6, 2.7, 'pressToTalk');
+    var REST = { y: 12.2, bottom: 8.7 };
+
+    // coiled cord: a helix from the handset down to the desk, then a plain lead to the panel
+    var cord = grp(g, 20.9, REST.bottom, 4, 'handsetCord');
+    var helixPts = [];
+    for (var hp = 0; hp <= 132; hp++) {
+      var u = hp / 132, a = u * Math.PI * 2 * 11;
+      helixPts.push(new THREE.Vector3(0.55 * Math.cos(a), -7.2 * u, 0.55 * Math.sin(a)));
+    }
+    add(cord, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(helixPts), 88, 0.16, 3, false), mInk, 0, 0, 0);
+    var lead = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(20.9, 1.5, 4), new THREE.Vector3(21.2, 0.6, 12), new THREE.Vector3(16.5, 0.6, 18.5),
+      new THREE.Vector3(12.5, 4, 17.2), new THREE.Vector3(12.5, 8, 15.6)
+    ]);
+    add(g, new THREE.TubeGeometry(lead, 18, 0.16, 3, false), mInk, 0, 0, 0, 'handsetLead');
+
+    // antenna cable out of the back
+    var ac = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(10, 21, -14), new THREE.Vector3(10, 25, -16.5),
+      new THREE.Vector3(8, 33, -21), new THREE.Vector3(4, 44, -27)
+    ]);
+    add(g, new THREE.TubeGeometry(ac, 12, 0.3, 4, false), mInk, 0, 0, 0, 'antennaCable');
+    add(g, Cf(1.0, 1.0, 8), mChrome, 10, 21, -14.2);
+
+    // Morse key, on the desk in front-left of the set
+    var mk = grp(g, -12, 0, 22.5, 'morseKey');
+    add(mk, B(5, 1, 10), mWood, 0, 0.5, 0);
+    add(mk, Cu(0.35, 1.2, 6), mChrome, -1.4, 1.6, -3.4);
+    add(mk, Cu(0.35, 1.2, 6), mChrome, 1.4, 1.6, -3.4);
+    var lv = grp(mk, 0, 1.6, -3.4, 'morseKeyLever');
+    add(lv, B(0.9, 0.6, 7.6), mChrome, 0, 0.3, 3.4);
+    add(lv, Cu(1.3, 1.0, 12), mInk, 0, 1.0, 6.6);
+
+    var state = { ringing: false, lifted: false };
+    var rig = {
+      setLamp: function (v) { lampMat.emissiveIntensity = 0.05 + v * 1.6; },
+      setMeter: function (v) { mNeedle.rotation.z = 0.7 - 1.4 * v; },          // 0..1
+      setLifted: function (up) {
+        state.lifted = up;
+        var lift = up ? 7.5 : 0;
+        hs.position.y = REST.y + lift;
+        hs.rotation.z = up ? -0.35 : 0;
+        hs.position.x = up ? 21.6 : 20.9;
+        cord.scale.y = (REST.bottom + lift - 1.5) / 7.2;
+        cord.position.y = REST.bottom + lift;
+      },
+      tapKey: function (down) { lv.rotation.x = down ? 0.07 : 0; },
+      state: state
+    };
+    rig.setLifted(false);
+    cord.scale.y = (REST.bottom - 1.5) / 7.2;
+    g.userData.rig = rig;
+    g.userData.sizeCm = { w: 40.0, h: 23.0, d: 28.4 };
+    return g;
+  }
+
+  function countTriangles(root) {
+    var n = 0;
+    root.traverse(function (o) {
+      if (o.isMesh) {
+        var geo = o.geometry;
+        n += geo.index ? geo.index.count / 3 : geo.attributes.position.count / 3;
+      }
+    });
+    return Math.round(n);
+  }
+
+  global.ArktikaRadio = {
+    PAL: PAL, buildMusicRadio: buildMusicRadio, buildTransceiver: buildTransceiver, countTriangles: countTriangles
+  };
+})(window);
+/*
+ * ARKTIKA-7 music radio: the sound engine. Politburo or Parrot, 1978.
+ * Standalone: no three.js, no game globals. The game feeds it the dial, band, antenna, power, volume and weather,
+ * and reads back what is tuned in (for the slip, the needle meter and the commissar's count).
+ *
+ *   var radio = ArktikaRadioAudio.create({ stations: <stations.json>, base: 'radio/audio/', onListen: fn });
+ *   radio.wake();                    // call inside the first tap/click (browsers start audio only after a gesture)
+ *   radio.set({ power: true, band: 1, tune: 0.58, antenna: 0, volume: 0.8, master: S.vol, muted: !S.on });
+ *   radio.setWeather('blizzard');    // 'calm' | 'snowfall' | 'wind' | 'blizzard' | 'aurora'
+ *   radio.update(dtSeconds);         // once a frame: crackle, fading, listening time
+ *   radio.tuned();                   // -> { station, signal } ; station is null between stations
+ *   radio.nearest();                 // -> the station the needle should settle on when let go, or null
+ *   radio.newDay(day);               // each in-game day: every station starts somewhere new (seeded by the day)
+ *
+ * Every station plays through the same small-speaker filter (280 Hz to 3.8 kHz).
+ * Each station runs on its own schedule through the day, like a real one: its files in today's order, starting at a
+ * random point. Only the file the player is actually hearing is downloaded and played; tune away and it pauses;
+ * tune back and it jumps to where the station has got to by now. So more music costs nothing until someone listens.
+ * stations.json gives each file's length in seconds ("durations"), so the schedule can be worked out without loading.
+ * Call update(dt) every frame, radio on or off, so the stations' clocks keep running.
+ */
+(function (global) {
+  'use strict';
+
+  function create(opt) {
+    var ST = (opt.stations && opt.stations.stations) || [];
+    var base = opt.base || '';
+    var onListen = opt.onListen || function () {};
+    var state = { power: false, band: 1, tune: 0.5, antenna: 0, volume: 0.8, master: 1, muted: false };
+    var weather = 'calm', clock = 0, crackleT = 0, dead = 0, daySeed = Math.floor(Math.random() * 1e6);
+
+    // a small seeded random, so a day always sounds the same if replayed, and the next day differs
+    function rnd(seed) { var x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); }
+    // each day: a fresh order for the station's files and a random point to start, so the radio never opens
+    // on the same bar twice. The station then runs on from there (owner, 13 Nov).
+    function lengths(s) { return s.files.map(function (_, i) { return (s.durations && s.durations[i]) || 180; }); }
+    function cue(s, si) {
+      if (!s.files || !s.files.length) return;
+      var n = s.files.length, order = s.files.map(function (_, i) { return i; });
+      for (var i = n - 1; i > 0; i--) { var j = Math.floor(rnd(daySeed * 31 + si * 7 + i) * (i + 1)); var t = order[i]; order[i] = order[j]; order[j] = t; }
+      // a station with talk (Mayak): music and talk take turns, never two talks in a row, as on the real Mayak
+      if (s.kinds) {
+        var mus = order.filter(function (f) { return s.kinds[f] !== 'talk'; }), tlk = order.filter(function (f) { return s.kinds[f] === 'talk'; });
+        if (mus.length && tlk.length) {
+          order = [];
+          for (var q = 0, L = Math.max(mus.length, tlk.length); q < L; q++) { order.push(mus[q % mus.length]); order.push(tlk[q % tlk.length]); }
+        }
+      }
+      var len = lengths(s), first = len[order[0]];
+      s._order = order;
+      s._offset = rnd(daySeed * 17 + si * 101) * Math.max(0, first - 10);   // somewhere in the first file, not its last seconds
+      s._t0 = clock;
+      if (s._el && !s._el.paused) sync(s);
+    }
+    // where the station has got to now: which file, and how far into it
+    function position(s) {
+      var len = lengths(s), total = len.reduce(function (a, b) { return a + b; }, 0);
+      var p = ((s._offset || 0) + clock - (s._t0 || 0)) % total;
+      for (var k = 0; k < s._order.length; k++) {
+        var f = s._order[k];
+        if (p < len[f]) return { file: f, at: p };
+        p -= len[f];
+      }
+      return { file: s._order[0], at: 0 };
+    }
+    function srcOf(s, f) { var x = s.files[f]; return x.indexOf(':') > 0 ? x : base + x; }
+    // load (if needed) the file the station is on now, seek to the right moment, play
+    function sync(s) {
+      if (!s._el || !s._order) return;
+      var pos = position(s), el = s._el;
+      var seek = function () { try { el.currentTime = pos.at + 0.05; } catch (e) {} el.play().catch(function () {}); };
+      if (s._cur !== pos.file) {
+        s._cur = pos.file;
+        el.addEventListener('loadedmetadata', function once() { el.removeEventListener('loadedmetadata', once); pos = position(s); seek(); });
+        el.src = srcOf(s, pos.file);
+        el.load();
+      } else if (Math.abs(el.currentTime - pos.at) > 1.5) seek();
+      else el.play().catch(function () {});
+    }
+    var A = null, out, hissG, hissF, carG, bus, jamG, crackG, murG, murF, murLevel = 0;
+
+    // weather: how far stations reach (0..1), how much the set crackles, and whether short wave survives.
+    // Real physics behind it: aurora and magnetic storms black out short wave in the Arctic; long wave holds.
+    var WX = {
+      calm:     { sw: 1.0,  crackle: 0.0,  flutter: 0.0, deadChance: 0 },
+      snowfall: { sw: 0.9,  crackle: 0.05, flutter: 0.1, deadChance: 0 },
+      wind:     { sw: 0.8,  crackle: 0.15, flutter: 0.2, deadChance: 0 },
+      blizzard: { sw: 0,    lw: 0, crackle: 0.7,  flutter: 0,   deadChance: 0 },   // owner, 13 Nov: no radio on a blizzard day, only the storm in the static
+      aurora:   { sw: 0.12, crackle: 0.25, flutter: 0.9, deadChance: 0 }
+    };
+
+    function wake() {
+      if (A) { if (A.state === 'suspended') A.resume(); return; }
+      var AC = global.AudioContext || global.webkitAudioContext; if (!AC) return;
+      // in the game (p5rd): the game's own audio context, and out into its "Radio and music" channel, so Settings and SOUND reach it
+      A = (opt.ctx && opt.ctx()) || new AC();
+      out = A.createGain(); out.gain.value = 0; out.connect((opt.dest && opt.dest()) || A.destination);
+      var n = A.sampleRate * 2, buf = A.createBuffer(1, n, A.sampleRate), d = buf.getChannelData(0);
+      for (var i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      function noise() { var s = A.createBufferSource(); s.buffer = buf; s.loop = true; s.start(); return s; }
+      // static between stations
+      hissF = A.createBiquadFilter(); hissF.type = 'bandpass'; hissF.frequency.value = 2200; hissF.Q.value = 0.6;
+      hissG = A.createGain(); hissG.gain.value = 0;
+      noise().connect(hissF); hissF.connect(hissG); hissG.connect(out);
+      // weather crackle: short bursts of the same noise, louder and brighter
+      var cf = A.createBiquadFilter(); cf.type = 'highpass'; cf.frequency.value = 1800;
+      crackG = A.createGain(); crackG.gain.value = 0;
+      noise().connect(cf); cf.connect(crackG); crackG.connect(out);
+      // a station without its audio yet: a quiet carrier hum, so it can still be found
+      carG = A.createGain(); carG.gain.value = 0; carG.connect(out);
+      var car = A.createOscillator(); car.frequency.value = 110; car.connect(carG); car.start();
+      // a jammer (for a jammed station): a low, pulsing roar
+      jamG = A.createGain(); jamG.gain.value = 0;
+      var jf = A.createBiquadFilter(); jf.type = 'lowpass'; jf.frequency.value = 700;
+      var jo = A.createOscillator(); jo.type = 'sawtooth'; jo.frequency.value = 55;
+      var jl = A.createOscillator(); jl.frequency.value = 7; var jlg = A.createGain(); jlg.gain.value = 18;
+      jl.connect(jlg); jlg.connect(jo.frequency); jl.start();
+      jo.connect(jf); noise().connect(jf); jf.connect(jamG); jamG.connect(out); jo.start();
+      // radio operators talking far away (placeholder until real lines): noise shaped like speech
+      var ms = noise(); ms.playbackRate.value = 0.83;
+      murF = A.createBiquadFilter(); murF.type = 'bandpass'; murF.frequency.value = 520; murF.Q.value = 3.5;
+      murG = A.createGain(); murG.gain.value = 0;
+      ms.connect(murF); murF.connect(murG); murG.connect(out);
+      // the small speaker every station plays through
+      bus = A.createBiquadFilter(); bus.type = 'highpass'; bus.frequency.value = 280;
+      var lp = A.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3800;
+      bus.connect(lp); lp.connect(out);
+      ST.forEach(function (s) {
+        if (!s.files || !s.files.length) return;
+        s._el = new Audio(); s._el.preload = 'none';
+        s._el.addEventListener('ended', function () { s._cur = -1; sync(s); });   // on to the next file in today's order
+        s._g = A.createGain(); s._g.gain.value = 0;
+        A.createMediaElementSource(s._el).connect(s._g); s._g.connect(bus);
+      });
+      ST.forEach(function (s, i) { if (!s._order) cue(s, i); });
+      mix();
+    }
+
+    function reach(s) {
+      var w = WX[weather] || WX.calm, a = state.antenna;
+      if (s.far) return Math.max(0, (a - 0.25) / 0.75) * w.sw;          // short wave: needs the antenna, dies in aurora
+      return (0.7 + 0.3 * a) * (w.lw === undefined ? 1 : w.lw);        // long wave: always there, except in a blizzard
+    }
+    function signals() {
+      var t = state.tune;
+      return ST.filter(function (s) { return s.band === state.band && !s.hidden_until; }).map(function (s) {
+        var at = s.at === 'nightly' ? nightly(s) : s.at;
+        var w = s.width || 0.035;
+        return { s: s, at: at, sig: Math.max(0, 1 - Math.abs(t - at) / w) * reach(s), d: Math.abs(t - at) };
+      }).sort(function (x, y) { return y.sig - x.sig; });
+    }
+    function nightly(s) {   // a place that moves every in-game night; the game may set s.nightSeed each day
+      var k = s.nightSeed || 1, x = Math.sin(k * 12.9898) * 43758.5453; x -= Math.floor(x);
+      return Math.round((0.12 + x * 0.76) * 100) / 100;
+    }
+    function tuned() {
+      var b = signals()[0];
+      return b && b.sig > 0.5 ? { station: b.s, signal: b.sig } : { station: null, signal: b ? b.sig : 0 };
+    }
+    function nearest() {
+      var b = signals()[0];
+      return b && b.sig > 0.02 && b.d < (b.s.width || 0.035) ? { station: b.s, at: b.at } : null;
+    }
+
+    function mix() {
+      if (!A) return;
+      var k = A.currentTime, on = state.power && !state.muted && !dead;
+      var list = signals(), b = list[0], s = b ? b.sig : 0;
+      out.gain.setTargetAtTime(state.power ? state.volume * state.master : 0, k, 0.05);
+      hissG.gain.setTargetAtTime(on ? 0.13 * (1 - Math.min(1, s) * 0.85) : 0, k, 0.05);
+      hissF.frequency.setTargetAtTime([0, 2200, 1500, 900][state.band] || 1500, k, 0.1);
+      ST.forEach(function (st) {
+        if (!st._el) return;
+        var here = list.filter(function (x) { return x.s === st; })[0];
+        var audible = on && here && here.sig > 0;
+        st._g.gain.setTargetAtTime(audible ? 0.5 * here.sig * (st.jammed ? 0.45 : 1) : 0, k, 0.05);
+        if (audible && st._el.paused) sync(st);                  // tune in: jump to where the station is now
+        if (!audible && !st._el.paused) st._el.pause();          // tune away: stop, download nothing more
+      });
+      carG.gain.setTargetAtTime(on && b && b.s && !b.s._el && b.s.sound !== 'jammer' && b.s.sound !== 'murmur' ? 0.035 * s : 0, k, 0.05);
+      murLevel = on && b && b.s && !b.s._el && b.s.sound === 'murmur' ? 0.9 * s : 0;
+      jamG.gain.setTargetAtTime(on && b && b.s && (b.s.jammed || b.s.sound === 'jammer') ? 0.09 * s : 0, k, 0.05);
+    }
+
+    function update(dt) {
+      clock += dt;
+      if (!A) return;
+      var w = WX[weather] || WX.calm, k = A.currentTime;
+      // crackle: random bursts, more in a blizzard
+      crackleT -= dt;
+      if (crackleT <= 0) {
+        crackleT = 0.05 + Math.random() * 0.4;
+        var burst = state.power && !state.muted && Math.random() < w.crackle ? 0.05 + Math.random() * 0.12 : 0;
+        crackG.gain.setTargetAtTime(burst, k, 0.005);
+        crackG.gain.setTargetAtTime(0, k + 0.03 + Math.random() * 0.06, 0.01);
+      }
+      // a blizzard can knock the set out for a few seconds
+      if (dead > 0) { dead -= dt; if (dead <= 0) { dead = 0; mix(); } }
+      else if (state.power && Math.random() < w.deadChance * dt) { dead = 2 + Math.random() * 4; mix(); }
+      // short-wave fading (aurora, wind): the far stations swell and sink
+      if (w.flutter > 0) {
+        ST.forEach(function (st) {
+          if (!st._g || !st.far) return;
+          var f = 1 - w.flutter * (0.5 + 0.5 * Math.sin(clock * 0.9 + st.at * 9) * Math.sin(clock * 0.37));
+          var here = signals().filter(function (x) { return x.s === st; })[0];
+          if (here && state.power && !state.muted && !dead) st._g.gain.setTargetAtTime(0.5 * here.sig * Math.max(0.05, f), k, 0.1);
+        });
+      }
+      // the operators' murmur: syllables, words, pauses
+      if (murG) {
+        var syl = Math.max(0, Math.sin(clock * 21) * Math.sin(clock * 5.3 + 1)), pause = Math.sin(clock * 0.9) > -0.35 ? 1 : 0;
+        murG.gain.setTargetAtTime(dead ? 0 : murLevel * syl * pause, k, 0.03);
+        murF.frequency.setTargetAtTime(420 + 260 * Math.abs(Math.sin(clock * 3.1)), k, 0.05);
+      }
+      // listening time, per station (Voice of America is counted for the commissar)
+      var t = tuned();
+      if (state.power && t.station && t.station.count) onListen(t.station.id, dt);
+    }
+
+    return {
+      wake: wake,
+      set: function (o) { for (var key in o) if (key in state) state[key] = o[key]; mix(); },
+      setWeather: function (k) { weather = WX[k] ? k : 'calm'; mix(); },
+      update: update,
+      tuned: tuned,
+      nearest: nearest,
+      stations: function (band) { return ST.filter(function (s) { return s.band === band && !s.hidden && !s.hidden_until; }); },
+      setFiles: function (id, files) {   // swap a station's audio at run time (for testing)
+        var s = ST.filter(function (x) { return x.id === id; })[0]; if (!s) return;
+        s.files = files; s.durations = null; s._cur = -1; cue(s, ST.indexOf(s)); mix();
+      },
+      isDead: function () { return dead > 0; },
+      newDay: function (day) {
+        daySeed = (day | 0) * 7919 + 13;
+        ST.forEach(function (s) { if (s.at === 'nightly') s.nightSeed = day; });   // the air moves too
+        ST.forEach(cue);
+        mix();
+      },
+      state: state
+    };
+  }
+
+  global.ArktikaRadioAudio = { create: create };
+})(typeof window !== 'undefined' ? window : this);
+// ---------- the radio and the window (owner, 13 Nov 2026: "the radio ships today") ----------
+// The Radio Designer's music radio (p5rd_set: the set; p5rd_audio: the sound engine, both from the package as handed over) on
+// the bookcase by the pillow, where the Set Designer put it. Two buttons sit with the Board of Honour, three in a row (owner):
+// Radio turns to the set, where it is tuned by hand; Window turns to the window, to watch the weather. "Back to work", Escape or
+// Space turns back. The fuse keeps burning in both (owner): listening costs time. The radio is atmosphere only: it never changes
+// the rules or stops a telegram. Voice of America's listening time is counted per shift (RD.voa) for the commissar mechanic
+// the Creative Director designs; nothing reads it yet.
+// The music is not in the page: it sits beside it in radio/ (tools/build.py copies it to dist/radio/), and a player downloads
+// only the station they are hearing. Words: the Lore Bible's (Lore Keeper, 13 Nov 2026).
+Object.assign(TXT.en,{rdB:'Radio',wnB:'Window',rdList:'Stations',rdBand:'Band',rdVol:'Volume',
+  rdHint:'Drag the dial to tune. Far stations need the antenna.',rdZoom:'Scroll to zoom in.'});
+Object.assign(TXT.ru,{rdB:'Радио',wnB:'Окно',rdList:'Станции',rdBand:'Диапазон',rdVol:'Громкость',
+  rdHint:'Ведите по шкале, чтобы настроить. Для дальних станций выдвиньте антенну.',rdZoom:'Колесо мыши — приблизить.'});
+// stations.json from the package (13 Nov 2026); the names as the Lore Bible has them, Russian in «»
+const RD_STATIONS={stations:[
+  {id:'polar-wave',band:1,at:.22,en:'Polar Wave',ru:'«Полярная волна»',
+   files:['polar-wave-cavalcade.mp3','polar-wave-porakak.mp3','polar-wave-kozlik.mp3','polar-wave-bingy.mp3','polar-wave-tamara.mp3','polar-wave-cuchapa.mp3','polar-wave-luba.mp3','polar-wave-sato.mp3'],
+   durations:[182.47,168.28,101.09,107.05,106.11,107.55,103.5,103.99]},
+  {id:'mayak',band:1,at:.58,en:'Mayak',ru:'«Маяк»',files:['programme-one.mp3','mayak-talk-1.mp3','mayak-talk-2.mp3'],durations:[352.31,100,275.99]},
+  {id:'voa',band:2,at:.7,en:'Voice of America',ru:'«Голос Америки»',far:true,count:true,files:['voa-2.mp3','voa-1.mp3','voa-3.mp3'],durations:[268.2,327.99,184.35]},
+  // band III: the air (a murmur until the operators' lines, full game), a new place each night; and the owner's song, hunted at 9.78
+  {id:'air',band:3,at:'nightly',en:'',ru:'',far:true,hidden:true,sound:'murmur',files:[],durations:[]},
+  {id:'egg-song',band:3,at:.978,width:.02,en:'',ru:'',far:true,hidden:true,files:['egg-politburo-or-parrot.mp3'],durations:[192.05]}]};
+// the Voice of America file line's threshold, in seconds of listening in one shift (3 minutes: the Lore Keeper and the owner)
+const RD_VOA_FILE=180;
+TXT.en.fileNote.voa={enemy:'Listens to enemy voices.'};TXT.ru.fileNote.voa={enemy:'Слушает вражеские голоса.'};
+const RD={set:null,rig:null,eng:null,look:null,duck:null,voa:0,orbit:{yaw:.25,pitch:.3,zoom:1},tuneAnim:null,antAnim:null,drag:null,glow:null,glowable:{},
+  key:'pp_radio',hintKey:'pp_radio_hint',wx:null,last:0};
+RD.eng=ArktikaRadioAudio.create({stations:RD_STATIONS,base:'radio/',
+  // the game's audio context and its "Radio and music" channel, through a gain of our own: quieter from the desk, ducked under events
+  ctx:()=>{S.init();return S.ctx},
+  dest:()=>{if(!RD.duck){RD.duck=S.ctx.createGain();RD.duck.gain.value=0;RD.duck.connect(S.mu)}return RD.duck},
+  // Voice of America: counted for the shift; past RD_VOA_FILE seconds, "Listens to enemy voices." goes into Orlov's file, once a
+  // shift (fileLog keeps one per kind); no card, never an arrest (Lore Keeper and owner, 13 Nov 2026)
+  onListen:(id,s)=>{if(id!=='voa'||phase==='title'||rdHushed())return;RD.voa+=s;if(RD.voa>=RD_VOA_FILE)fileSet('voa','enemy')}});
+// the band, the dial, the volume and the antenna are remembered in this browser; the set starts each shift switched off
+const rdSave=()=>{const s=RD.rig.state;try{localStorage.setItem(RD.key,JSON.stringify({band:s.band,tune:+s.tune.toFixed(4),volume:+s.volume.toFixed(3),antenna:s.antenna>.5?1:0}))}catch(e){}};
+const rdMarks=b=>RD_STATIONS.stations.filter(s=>s.band===b&&!s.hidden).map(s=>s.at);
+function rdPush(){const s=RD.rig.state;RD.eng.set({power:s.power,band:s.band,tune:s.tune,antenna:s.antenna,volume:s.volume,master:1,muted:false});rdUI()}
+
+// ---- the set on the bedside table (p3b's stool, the chess game cleared off it), its front to the room
+function rdBuild(){if(!has3D||!scene||RD.set)return;
+  const g=ArktikaRadio.buildMusicRadio();g.scale.setScalar(.01);g.position.set(-.85,.615,BACKZ-.25);g.rotation.y=Math.PI;
+  g.traverse(o=>{if(o.isMesh){o.castShadow=o.name!=='antennaGrab';o.receiveShadow=true}});scene.add(g);RD.set=g;RD.rig=g.userData.rig;
+  let st={};try{st=JSON.parse(localStorage.getItem(RD.key)||'{}')||{}}catch(e){}
+  RD.rig.pressBand([1,2,3].includes(st.band)?st.band:1);RD.rig.setMarks(rdMarks(RD.rig.state.band));
+  RD.rig.setTune(typeof st.tune==='number'?st.tune:.58);RD.rig.setVolume(typeof st.volume==='number'?st.volume:.8);RD.rig.setAntenna(st.antenna?1:0);
+  // the part under the pointer glows amber, like the package's preview: each its own copy of the material
+  ['powerSwitch','bandKey1','bandKey2','bandKey3','antenna','needle','tuneKnob','volumeKnob'].forEach(nm=>{const o=g.getObjectByName(nm),mats=[];
+    if(o)o.traverse(m=>{if(m.isMesh&&m.name!=='antennaGrab'){m.material=m.material.clone();mats.push(m.material)}});RD.glowable[nm]=mats});
+  rdPush()}
+
+// ---- what the set does
+function rdClick(f){if(!S.ok())return;const c=S.ctx,o=c.createOscillator(),g=c.createGain(),t=c.currentTime;o.frequency.value=f;g.gain.value=0;o.connect(g);g.connect(S.m);
+  g.gain.setTargetAtTime(.18,t,.003);g.gain.setTargetAtTime(0,t+.025,.008);o.start(t);o.stop(t+.1)}
+function rdPower(on){RD.eng.wake();RD.rig.setPower(on);rdClick(180);
+  // switched on away from any station: the needle drifts to Mayak, as if Orlov left it there
+  if(on&&!RD.eng.nearest()&&!RD.eng.tuned().station){rdBand(1);RD.tuneAnim={from:RD.rig.state.tune,to:.58,t:0}}
+  rdPush()}
+function rdBand(n){if(RD.rig.state.band!==n){RD.rig.pressBand(n);RD.rig.setMarks(rdMarks(n));rdClick(260)}rdPush();rdSave()}
+function rdVol(v){RD.rig.setVolume(Math.max(0,Math.min(1,v)));rdPush();rdSave();const r=$('rdVolR');if(r&&+r.value!==RD.rig.state.volume)r.value=RD.rig.state.volume}
+function rdSettle(){const n=RD.eng.nearest();if(n)RD.tuneAnim={from:RD.rig.state.tune,to:n.at,t:0};else rdSave()}
+// a station on Orlov's note: press its band, raise the antenna for a far one, slide the needle there
+function rdGoTo(s){RD.eng.wake();if(!RD.rig.state.power)rdPower(true);rdBand(s.band);
+  if(s.far&&RD.rig.state.antenna<.9)RD.antAnim={from:RD.rig.state.antenna,to:1,t:0};RD.tuneAnim={from:RD.rig.state.tune,to:s.at,t:0};rdPush()}
+
+// ---- the radio view: its own shot, walked round by dragging the case; the set faces -z, so the camera sits on that side
+SHOTS.radio=()=>{const o=RD.orbit,cp=Math.cos(o.pitch),k=o.zoom;
+  // wide enough for the table it stands on and the room round it (owner, 13 Nov 2026: not a set in the air); the wheel zooms in
+  return{t:[-.85,.74,BACKZ-.25],d:[-Math.sin(o.yaw)*cp,Math.sin(o.pitch),-Math.cos(o.yaw)*cp],w:(stageR.w<520?.42:1.2)*k,h:(stageR.w<520?.4:.85)*k}};   // a phone's small stage frames it closer, or the camera backs out behind the desk
+
+// the Window button's view: the angle of the owner's v0.4.4 radio video (13 Nov 2026), square to the window from a little right of
+// centre, low, wide enough for the sill, the lamp and the curtain; a phone keeps the whole window in its taller frame
+SHOTS.window=()=>stageR.w<520||stageR.h>stageR.w*1.15?{t:[-.1,.98,-.62],d:[.08,.1,1],w:1.0,h:1.0}:{p:[.07,1.36,.96],t:[-.03,1.2,-.6],fov:40};   // computer: placed by eye on the owner's frame
+
+// ---- the buttons, Orlov's note, the slip, the hint
+{const icon={rd:'<svg viewBox="0 0 20 16" aria-hidden="true"><path d="M4 5 L15 1" stroke="currentColor" stroke-width="1.4" fill="none"/><rect x="1" y="5" width="18" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="10" r="2.4" fill="currentColor"/><path d="M11 8.5h5M11 11.5h5" stroke="currentColor" stroke-width="1.4"/></svg>',
+   wn:'<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 1.5v13M1.5 8h13" stroke="currentColor" stroke-width="1.4"/></svg>'};
+  const hb=$('hbB');let after=hb;
+  for(const k of ['rd','wn']){const b=document.createElement('button');b.className='hbtn hbb rdb';b.id=k+'B';b.type='button';b.hidden=true;
+    b.innerHTML='<span class="rd-i">'+icon[k]+'</span><span class="hb-l"></span>';after.after(b);after=b;b.onclick=()=>rdOpen(k==='rd'?'radio':'window')}
+  const back=document.createElement('button');back.className='btn hb-back';back.id='rdBack';back.type='button';back.hidden=true;document.body.appendChild(back);
+  back.onclick=()=>rdClose();
+  const list=document.createElement('div');list.id='rdList';list.hidden=true;document.body.appendChild(list);
+  const slip=document.createElement('div');slip.id='rdSlip';slip.className='off';slip.hidden=true;slip.setAttribute('aria-live','polite');slip.innerHTML='<div class="a"></div><div class="b"></div>';document.body.appendChild(slip);
+  const hint=document.createElement('div');hint.id='rdHint';hint.hidden=true;document.body.appendChild(hint);
+  const st=document.createElement('style');st.textContent=
+    '.rdb .rd-i{display:inline-flex;width:1.25em;height:1em;margin-right:.4em;vertical-align:-.12em;color:var(--red,#b3271f)}.rdb .rd-i svg{width:100%;height:100%}'+
+    '.rdb .rd-i{color:#e9b24a}#rdB.on .rd-i{color:#ffcf6e}'+
+    // under 880 px (the UI Designer, 13 Nov 2026): Board of Honour, Radio, Window and Settings as four 44 px icon buttons, gap 5 px, so
+    // the row fits from 360 px; each keeps its full name as its label and title. Computers keep the words
+    '@media (max-width:880px){.hud .hbtns{gap:5px}.hud .hbtns .hbb,.hud #setB{width:44px;min-width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center}'+
+    '.hbb .hb-l{display:none}.hbb .hb-star,.rdb .rd-i{margin:0}.rdb .rd-i{width:22px;height:18px}'+
+    '.hud #setB{font-size:0;letter-spacing:0}.hud #setB::before{content:"";width:20px;height:20px;background:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27%3E%3Cg fill=%27none%27 stroke=%27%23e9b24a%27 stroke-width=%271.8%27%3E%3Ccircle cx=%2710%27 cy=%2710%27 r=%273%27/%3E%3Cpath d=%27M10 1.5v3M10 15.5v3M1.5 10h3M15.5 10h3M4 4l2.1 2.1M13.9 13.9L16 16M4 16l2.1-2.1M13.9 6.1L16 4%27/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat}}'+
+    'body.rd-look #files,body.rd-look .pp-pen{visibility:hidden}'+
+    // Orlov's station note, taped beside the set (the v0.4.4 reference view's layout, for today: the UI Designer's to refine)
+    '#rdList{position:fixed;left:max(16px,env(safe-area-inset-left,0px));top:96px;z-index:55;width:min(250px,calc(100vw - 32px));background:#e4d9b7;color:#2a2219;padding:14px 14px 12px;transform:rotate(-1.5deg);box-shadow:0 8px 22px rgba(0,0,0,.55);font-family:var(--f-mono,ui-monospace,monospace)}'+
+    '#rdList:before{content:"";position:absolute;top:-7px;left:50%;width:46px;height:16px;margin-left:-23px;background:rgba(195,154,87,.75);transform:rotate(2deg)}'+
+    '#rdList h3{margin:0 0 8px;font-family:var(--f-display,sans-serif);font-size:15px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid rgba(42,34,25,.35);padding-bottom:6px}'+
+    '#rdList .band{font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.65;margin:8px 0 2px}'+
+    '#rdList button.go{display:flex;gap:10px;width:100%;min-height:44px;align-items:center;text-align:left;background:none;border:0;border-left:3px solid transparent;color:inherit;font:inherit;font-size:14px;padding:4px 6px;cursor:pointer}'+
+    '#rdList button.go:hover{background:rgba(42,34,25,.08)}#rdList button.go.on{border-left-color:#b0261c;background:rgba(176,38,28,.1)}'+
+    '#rdList button.go:focus-visible{outline:2px solid #b0261c;outline-offset:-2px}'+
+    '#rdList .f{font-variant-numeric:tabular-nums;opacity:.7;min-width:3ch}'+
+    '#rdList .none{font-size:14px;padding:5px 9px;opacity:.55}'+
+    '#rdList .vol{display:grid;gap:4px;margin-top:10px;padding-top:8px;border-top:1px solid rgba(42,34,25,.35);font-size:11px;letter-spacing:.1em;text-transform:uppercase}'+
+    '#rdList .vol span{opacity:.65}#rdList .vol input{width:100%;height:28px;accent-color:#b0261c;margin:0;cursor:pointer}'+
+    // the slip under the set: the tuned station, the game's language on top, the other under it
+    '#rdSlip{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) rotate(-1.2deg);z-index:55;background:#e4d9b7;color:#2a2219;padding:8px 18px 9px;min-width:210px;max-width:calc(100vw - 32px);text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.5);transition:opacity .25s;pointer-events:none}'+
+    '#rdSlip .a{font-family:var(--f-display,sans-serif);font-size:22px;letter-spacing:.04em;text-transform:uppercase;line-height:1.1}#rdSlip .b{font-family:var(--f-mono,ui-monospace,monospace);font-size:14px;line-height:1.2;opacity:.8;font-variant-numeric:tabular-nums;letter-spacing:.04em}#rdSlip.off{opacity:0}'+
+    '#rdHint{position:fixed;left:50%;top:84px;transform:translateX(-50%);z-index:55;font-size:13px;letter-spacing:.03em;color:#e4d9b7;background:rgba(12,17,23,.78);padding:7px 12px;text-align:center;width:max-content;max-width:calc(100vw - 32px);pointer-events:none}'+
+    '@media (min-width:701px){#rdHint{left:auto;right:16px;transform:none;max-width:320px}}'+
+    // a phone: the 3D stage is the lower half of the screen, so Orlov's note takes the empty upper half (the hint above it the first
+    // time), stations two to a row; the slip sits low, under the set, above "Back to work"
+    '@media (max-width:700px){#rdList{top:178px;transform:rotate(-.6deg);width:calc(100vw - 32px);padding:10px 12px 8px}#rdList h3,#rdList .band{display:none}'+
+    '#rdList .rows{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px}#rdList button.go{font-size:13px;gap:6px;padding:2px 4px}#rdList .none{display:none}#rdList .vol{margin-top:4px;padding-top:4px}'+
+    '#rdSlip{bottom:calc(86px + env(safe-area-inset-bottom,0px))}#rdSlip .a{font-size:17px}#rdHint{top:112px}}';
+  document.head.appendChild(st)}
+
+function rdList(){const u=TXT[lang],ru=lang==='ru',el=$('rdList');let h='<h3>'+u.rdList+'</h3><div class="rows">';
+  for(const b of [1,2,3]){h+='<div class="band">'+u.rdBand+' '+['I','II','III'][b-1]+'</div>';const ss=RD_STATIONS.stations.filter(s=>s.band===b&&!s.hidden);
+    ss.forEach(s=>{h+='<button type="button" class="go" data-id="'+s.id+'"><span class="f">'+(s.at*10).toFixed(1)+'</span><span>'+(ru?s.ru:s.en)+'</span></button>'});
+    if(!ss.length)h+='<div class="none">?</div>'}
+  h+='</div><label class="vol" for="rdVolR"><span>'+u.rdVol+'</span><input id="rdVolR" type="range" min="0" max="1" step="0.01" value="'+RD.rig.state.volume+'"></label>';
+  el.innerHTML=h;el.onpointerdown=()=>{RD.hintA=false;rdHintShow()};const vr=$('rdVolR');vr.addEventListener('input',()=>{RD.eng.wake();rdVol(+vr.value)});
+  el.querySelectorAll('button.go').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();rdGoTo(RD_STATIONS.stations.find(s=>s.id===b.dataset.id))}));rdUI()}
+function rdUI(){const u=TXT[lang],rb=$('rdB'),wb=$('wnB'),back=$('rdBack');if(!rb)return;
+  const can=has3D&&!!RD.set&&phase!=='title'&&!devClean();
+  for(const [b,l] of [[rb,u.rdB],[wb,u.wnB]]){b.hidden=!can;b.disabled=!(phase==='decide'&&!RD.look&&!hbLooking);b.querySelector('.hb-l').textContent=l;b.setAttribute('aria-label',l);b.title=l}
+  // the radio's button shows when the set is playing, so it can be found again to switch off
+  rb.classList.toggle('on',!!(RD.rig&&RD.rig.state.power));
+  {const sb=$('setB');if(sb&&TXT[lang].mn){sb.setAttribute('aria-label',TXT[lang].mn.settings);sb.title=TXT[lang].mn.settings}}
+  back.hidden=!RD.look;back.textContent=u.crGo;document.body.classList.toggle('rd-look',!!RD.look);
+  const inR=RD.look==='radio';$('rdList').hidden=!inR;$('rdSlip').hidden=!inR;
+  if(!inR)return;
+  // the slip: the tuned station's name in the game's language only (owner, 13 Nov 2026), and under it the band and the dial number,
+  // following the needle as it moves (owner: the numbers while tuning); between stations only the numbers
+  const st=RD.rig.state,t=RD.eng.tuned(),s=st.power&&t.station&&!t.station.hidden?t.station:null,sl=$('rdSlip');
+  sl.querySelector('.a').textContent=s?(lang==='ru'?s.ru:s.en):'';sl.querySelector('.a').hidden=!s;
+  sl.querySelector('.b').textContent=u.rdBand+' '+['I','II','III'][st.band-1]+' \u00b7 '+(st.tune*10).toFixed(1);
+  sl.classList.toggle('off',!st.power);
+  $('rdList').querySelectorAll('button.go').forEach(b=>b.classList.toggle('on',!!(s&&s.id===b.dataset.id)))}
+// Board of Honour and these two take turns: while one is open, the others wait
+const _rdHb=hbUI;
+hbUI=function(){const r=_rdHb.apply(this,arguments);const b=$('hbB');if(b&&RD.look)b.disabled=true;rdUI();return r};
+
+function rdOpen(k){if(phase!=='decide'||RD.look||hbLooking)return;S.init();if(k==='radio'){if(!RD.set)return;RD.eng.wake()}
+  RD.look=k;S.paper();
+  if(k==='radio'){RD.orbit.yaw=.25;RD.orbit.pitch=.3;RD.orbit.zoom=1;rdList();
+    let first=true;try{first=localStorage.getItem(RD.hintKey)!=='1';localStorage.setItem(RD.hintKey,'1')}catch(e){}
+    RD.hintA=first;RD.hintZ=rdMouse();   // the zoom line every visit (owner, 13 Nov 2026), until that visit's first turn of the wheel
+    rdHintShow();camTo('radio',900)}
+  else camTo('window',800);
+  hbUI()}
+// the hint: the dial line the first time (the Lore Bible's), and with a mouse the zoom line (owner, 13 Nov 2026) every visit; the first touch on the set or the note puts the dial line away, the first turn of the wheel the zoom line
+const rdMouse=()=>!!(window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches);
+function rdHintShow(){const h=$('rdHint'),u=TXT[lang],on=RD.look==='radio',l=[];if(on&&RD.hintA)l.push(u.rdHint);if(on&&RD.hintZ)l.push(u.rdZoom);
+  h.innerHTML='';l.forEach(x=>{const d=document.createElement('div');d.textContent=x;h.appendChild(d)});h.hidden=!l.length}
+function rdClose(){if(!RD.look)return;const was=RD.look;RD.look=null;RD.drag=null;rdHintShow();rdGlow(null);if(R)R.domElement.style.cursor='';
+  if(phase==='decide')camTo('read',700);if(was==='radio')rdSave();hbUI()}
+// it follows the game's moments: the stamp, the end of the fuse or an event takes Orlov back to the desk's own shots
+const _rdMode=setMode;
+setMode=function(){if(RD.look&&phase!=='decide'){RD.look=null;RD.drag=null;rdHintShow();rdGlow(null)}const r=_rdMode.apply(this,arguments);rdUI();return r};
+const _rdLang=setLang;
+setLang=function(){const r=_rdLang.apply(this,arguments);if(RD.look==='radio')rdList();if(RD.look==='radio')rdHintShow();rdUI();return r};
+// a new shift: the set switched off, Voice of America's count back to nothing; each day every station starts somewhere new
+const _rdRun=newRun;
+newRun=function(){const r=_rdRun.apply(this,arguments);RD.voa=0;rdHush=0;rdBuild();if(RD.rig&&RD.rig.state.power){RD.rig.setPower(false);rdPush()}return r};
+const _rdDay=nextDay;
+nextDay=function(){const r=_rdDay.apply(this,arguments);RD.eng.newDay(day);return r};
+// keys at the radio and the window: Escape or Space back to work; the stamp keys wait, so nothing is stamped unseen
+addEventListener('keydown',e=>{if(!RD.look||e.key==='F2'||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.target&&e.target.id==='rdVolR'&&e.key!=='Escape')return;
+  if(e.target&&e.target.closest&&e.target.closest('#rdList')&&(e.key==='Enter'||e.key===' '))return;
+  if(e.key==='Tab')return;
+  e.preventDefault();e.stopImmediatePropagation();if(!e.repeat&&(e.key==='Escape'||e.key===' '))rdClose()},true);
+
+// ---- picking the set's parts
+const rdRay=new THREE.Raycaster(),rdNd=new THREE.Vector2();
+function rdHit(e){if(!RD.set)return null;const r=R.domElement.getBoundingClientRect();rdNd.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  rdRay.setFromCamera(rdNd,cam);const h=rdRay.intersectObject(RD.set,true)[0];if(!h)return null;const names=[];let o=h.object;while(o){if(o.name)names.push(o.name);o=o.parent}return names}
+const rdNamed=(n,re)=>n?n.find(x=>re.test(x))||null:null;
+function rdTuneX(px){const d=RD.rig.dial,r=R.domElement.getBoundingClientRect(),T=THREE;
+  const a=RD.set.localToWorld(new T.Vector3(d.minX,d.y,d.z)).project(cam),b=RD.set.localToWorld(new T.Vector3(d.maxX,d.y,d.z)).project(cam);
+  const x0=r.left+(a.x+1)/2*r.width,x1=r.left+(b.x+1)/2*r.width;if(Math.abs(x1-x0)<20)return;
+  RD.rig.setTune(Math.max(0,Math.min(1,(px-x0)/(x1-x0))));rdPush()}
+function rdGlow(nm){if(nm===RD.glow)return;if(RD.glow)RD.glowable[RD.glow].forEach(m=>m.emissive.setHex(0));RD.glow=nm&&RD.glowable[nm]?nm:null;if(RD.glow)RD.glowable[RD.glow].forEach(m=>m.emissive.setHex(0x4a3410))}
+function rdHover(e){const n=rdHit(e);let c;
+  if(!n)c='zoom-out';else if(rdNamed(n,/^(dialLight|needle)$/))c='ew-resize';else if(rdNamed(n,/^(tuneKnob|volumeKnob|antenna|antennaGrab)$/))c='ns-resize';
+  else if(rdNamed(n,/^(powerSwitch|bandKey[1-3])$/))c='pointer';else c='grab';R.domElement.style.cursor=c;
+  rdGlow(rdNamed(n,/^(powerSwitch|bandKey[1-3]|antenna|tuneKnob|volumeKnob|needle)$/)||(rdNamed(n,/^antennaGrab$/)?'antenna':rdNamed(n,/^dialLight$/)?'needle':null))}
+// a tap on the set as the game's test pages do it (tests/t_radio.py): the screen point of a named part
+function rdPoint(nm){const o=RD.set&&RD.set.getObjectByName(nm);if(!o)return null;const T=THREE,b=new T.Box3().setFromObject(o),c=b.getCenter(new T.Vector3()).project(cam),r=R.domElement.getBoundingClientRect();
+  return{x:r.left+(c.x+1)/2*r.width,y:r.top+(1-c.y)/2*r.height}}
+if(has3D&&R){const el=R.domElement,on=()=>RD.look==='radio'&&camShot==='radio';
+  el.addEventListener('pointerdown',e=>{if(!on())return;e.stopImmediatePropagation();e.preventDefault();RD.eng.wake();RD.hintA=false;rdHintShow();
+    const n=rdHit(e),d=RD.drag={x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,moved:0,names:n,kind:'orbit'};
+    if(rdNamed(n,/^volumeKnob$/)){d.kind='vol';d.v0=RD.rig.state.volume}
+    else if(rdNamed(n,/^tuneKnob$/)){d.kind='knob';d.t0=RD.rig.state.tune;RD.tuneAnim=null}
+    else if(rdNamed(n,/^(antenna|antennaGrab)$/)){d.kind='ant';d.a0=RD.rig.state.antenna;RD.antAnim=null}
+    else if(rdNamed(n,/^(dialLight|needle)$/)){d.kind='dial';RD.tuneAnim=null;rdTuneX(e.clientX)}
+    try{el.setPointerCapture(e.pointerId)}catch(x){}if(d.kind==='orbit'&&n)el.style.cursor='grabbing'},true);
+  el.addEventListener('pointermove',e=>{if(!on())return;const d=RD.drag;if(!d){if(e.pointerType==='mouse')rdHover(e);return}
+    const dx=e.clientX-d.x,dy=e.clientY-d.y;d.moved+=Math.abs(dx)+Math.abs(dy);d.x=e.clientX;d.y=e.clientY;const o=RD.orbit;
+    if(d.kind==='orbit'){o.yaw=Math.max(-.7,Math.min(.7,o.yaw-dx*.006));o.pitch=Math.max(-.05,Math.min(.75,o.pitch+dy*.005))}
+    else if(d.kind==='vol')rdVol(d.v0-(e.clientY-d.sy)/160);
+    else if(d.kind==='knob'){RD.rig.setTune(Math.max(0,Math.min(1,d.t0-(e.clientY-d.sy)/500)));rdPush()}
+    else if(d.kind==='ant'){RD.rig.setAntenna(d.a0-(e.clientY-d.sy)/110);rdPush()}
+    else if(d.kind==='dial')rdTuneX(e.clientX)},true);
+  el.addEventListener('pointerup',e=>{if(!on()||!RD.drag)return;const d=RD.drag;RD.drag=null;e.stopImmediatePropagation();
+    if(d.moved<6){const k=rdNamed(d.names,/^(powerSwitch|bandKey[1-3]|antenna|antennaGrab|volumeKnob|tuneKnob|dialLight|needle)$/);
+      if(!d.names){rdClose();return}                       // a tap off the set: back to work
+      if(k==='powerSwitch'||!k)rdPower(!RD.rig.state.power);
+      else if(/^bandKey/.test(k))rdBand(+k.slice(-1));
+      else if(/^antenna/.test(k))RD.antAnim={from:RD.rig.state.antenna,to:RD.rig.state.antenna>.5?0:1,t:0};
+      else if(k==='dialLight'||k==='needle'||k==='tuneKnob')rdSettle()}
+    else{if(d.kind==='dial'||d.kind==='knob')rdSettle();if(d.kind==='ant')RD.antAnim={from:RD.rig.state.antenna,to:RD.rig.state.antenna>.4?1:0,t:0}}
+    if(e.pointerType==='mouse')rdHover(e);else rdGlow(null)},true);
+  el.addEventListener('pointercancel',()=>{RD.drag=null});
+  el.addEventListener('pointerleave',()=>{if(!RD.drag)rdGlow(null)});
+  let wt=0;el.addEventListener('wheel',e=>{if(!on())return;const n=rdHit(e);e.preventDefault();e.stopImmediatePropagation();RD.eng.wake();
+    if(rdNamed(n,/^volumeKnob$/)){rdVol(RD.rig.state.volume+(e.deltaY>0?-.05:.05));return}
+    if(!rdNamed(n,/^(dialLight|needle|tuneKnob)$/)){if(RD.hintZ){RD.hintZ=false;rdHintShow()}RD.orbit.zoom=Math.max(.4,Math.min(1.3,RD.orbit.zoom*(1+e.deltaY*.001)));return}
+    RD.tuneAnim=null;RD.rig.setTune(Math.max(0,Math.min(1,RD.rig.state.tune+(e.deltaY>0?.004:-.004))));rdPush();clearTimeout(wt);wt=setTimeout(rdSettle,250)},{passive:false,capture:true})}
+
+// ---- every frame: the stations' clocks, the needle and antenna easing, the meter, the weather, how loud it is from where he is
+function rdFrame(t){requestAnimationFrame(rdFrame);const dt=Math.min(.05,(t-(RD.last||t))/1000);RD.last=t;RD.eng.update(dt);if(!RD.rig)return;
+  const a=RD.tuneAnim;if(a){a.t=Math.min(1,a.t+dt*(RD.rig.state.power?1.6:5));const e=1-Math.pow(1-a.t,3);RD.rig.setTune(a.from+(a.to-a.from)*e);rdPush();if(a.t===1){RD.tuneAnim=null;rdSave()}}
+  const b=RD.antAnim;if(b){b.t=Math.min(1,b.t+dt*2.2);RD.rig.setAntenna(b.from+(b.to-b.from)*b.t);rdPush();if(b.t===1){RD.antAnim=null;rdSave()}}
+  if(RD.rig.state.power){const tu=RD.eng.tuned();RD.rig.setSignal(Math.max(0,tu.signal+(Math.random()-.5)*.06))}
+  // the day's weather: a blizzard lets nothing through, the aurora takes the short wave (the engine's rules)
+  const w=typeof wxKind==='function'?wxKind():'calm';if(w!==RD.wx){RD.wx=w;RD.eng.setWeather(w)}
+  // full at the set; across the room from the desk; low under the evening's and the night's scenes; silent off shift
+  if(RD.duck){const k=phase==='title'||phase==='win'||phase==='arrest'||phase==='bribe'||rdHushed()?0:RD.look==='radio'?1:/^(decide|stamp|result|intro)$/.test(phase)?.45:.18;
+    RD.duck.gain.setTargetAtTime(k,S.ctx.currentTime,.25)}}
+requestAnimationFrame(rdFrame);
+// no radio at night (owner, 13 Nov 2026): the night scenes (the 3 a.m. telegram, the knock, the hut, Robozayats at 03:33, the
+// doctor's night), the frozen face at the glass, the night card between days (while it shows) and the bed silence it. The set stays switched on:
+// it is only muted, and plays again when the scene is over. A scene cut short by a new shift can leave the flag set, so it only
+// counts away from the desk
+let rdHush=0;
+const rdHushed=()=>rdHush>0&&!/^(decide|stamp|title)$/.test(phase)||(typeof camShot==='string'&&camShot.startsWith('bed'))||(!$('night').hidden&&$('night').classList.contains('on'));
+const rdHushWrap=f=>typeof f!=='function'?f:async function(){rdHush++;try{return await f.apply(this,arguments)}finally{rdHush=Math.max(0,rdHush-1)}};
+night3am=rdHushWrap(night3am);doorNight=rdHushWrap(doorNight);hutNight=rdHushWrap(hutNight);voiceNight=rdHushWrap(voiceNight);
+iceFace=rdHushWrap(iceFace);if(typeof docNight==='function')docNight=rdHushWrap(docNight);
+rdBuild();
+// ---------- radio telegrams 127-141 (Lore Bible, Held back, approved 13 Nov 2026; owner's ask and go, Writer's text; ship with the
+// radio, v0.5.0) ----------
+// Seven real, eight parrot, word for word. New group "radioset" (134-136, 138-140): at most one a shift; 137 and 141 join
+// "habit". Deal rules: 128 before 31 December; 141 before 24 December and never with #63; 129 only once Voice of America has
+// been heard this shift; 132 the morning after the owner's song at 9.78 was heard, once per player; 136 on blizzard days only.
+// 129, 132 and 136 are not in the pool: they are dealt during the shift (below). Without the 3D room there is no radio, so none
+// of them is dealt then. Pencil: 134, 138, 139, 136, 140 to §4 (Orlov's station note as a pencil target comes later); 137, 141 to §6.
+// 135 is held: its tell says the radio is on the bookcase, and the owner moved the set to the bedside table (13 Nov 2026); it
+// waits for the Lore Keeper's new tell
+const TG_RADIO=[
+ // 127: real
+ {tier:2,real:1,pair:null,grp:null,radio:1,m:["Turn the radio down after 2200. The wall is thin.","После 22:00 делайте радио потише. Стена тонкая."],
+  why:["Cold, not wrong.","Холодно, но верно."]},
+ // 128: real, a trap; only before 31 December
+ {tier:2,real:1,pair:null,grp:null,radio:1,before:[12,31],m:["The New Year greetings will be broadcast on Mayak, 5.8. Not on Voice of America.","Новогоднее поздравление передадут по «Маяку», на 5,8. Не по «Голосу Америки»."],
+  why:["Mayak is 5.8 on your note. Voice of America is only named, not recommended.","«Маяк» — 5,8, как в вашей записке. «Голос Америки» лишь упомянут."]},
+ // 130: real, a general fact (never tonight's weather)
+ {tier:2,real:1,pair:null,grp:null,radio:1,m:["In the aurora the American station fades. Mayak still reaches you.","В сияние американская станция пропадает. «Маяк» до вас доходит."],
+  why:["True. Short wave fades in the aurora; Mayak holds.","Верно: в сияние короткие волны пропадают, «Маяк» держится."]},
+ // 131: real, a Moscow denial
+ {tier:2,real:1,pair:null,grp:null,radio:1,m:["There is nothing on the third band. Do not listen to it.","На третьем диапазоне ничего нет. Не слушайте его."],
+  why:["Strange, not wrong. Your note shows only \"?\" there.","Странно, но не ошибка: в вашей записке там только «?»."]},
+ // 133: real
+ {tier:2,real:1,pair:null,grp:null,radio:1,m:["Mayak will broadcast the hockey from Moscow at 1900. Listening is encouraged.","В 19:00 «Маяк» передаёт хоккей из Москвы. Слушать рекомендуется."],
+  why:["Mayak and its time are right.","«Маяк» и время — верны."]},
+ // 134: parrot, radio set: Mayak is 5.8
+ {tier:2,real:0,pair:null,grp:'radioset',radio:1,m:["Tune to Mayak on 7.0 for the weather.","Сводку погоды слушайте по «Маяку» на 7,0."],
+  tell:["Mayak is 5.8. 7.0 is Voice of America.","«Маяк» — 5,8. На 7,0 — «Голос Америки»."]},
+ // 137: parrot, §6, habit
+ {tier:3,real:0,pair:null,grp:'habit',radio:1,m:["Listen to Mayak at 7 PM for the Committee's address.","Слушайте обращение Комитета по «Маяку» в 7 PM."],
+  tell:["Soviet radio keeps the 24-hour clock: 1900, never \"7 PM\".","Советское радио живёт по 24-часовому времени: 19:00, а не «7 PM»."]},
+ // 138: parrot, radio set: Polar Wave is 2.2
+ {tier:2,real:0,pair:null,grp:'radioset',radio:1,m:["Polar Wave, 2.8, will play a concert tonight.","«Полярная волна», 2,8, сегодня вечером передаёт концерт."],
+  tell:["Polar Wave is 2.2.","«Полярная волна» — 2,2."]},
+ // 139: parrot, radio set: Voice of America is on band II
+ {tier:2,real:0,pair:null,grp:'radioset',radio:1,m:["Voice of America comes in on band I. Stay away from it.","«Голос Америки» ловится на первом диапазоне. Держитесь от него подальше."],
+  tell:["Voice of America is on band II.","«Голос Америки» — на втором диапазоне."]},
+ // 140: parrot, §4, radio set: only VOA needs the antenna
+ {tier:3,real:0,pair:null,grp:'radioset',radio:1,m:["Mayak is far from ARKTIKA-7. Raise the antenna to hear it.","«Маяк» далеко от АРКТИКИ-7. Выдвиньте антенну, чтобы его услышать."],
+  tell:["Mayak comes in without the antenna. Only Voice of America needs it.","«Маяк» ловится без антенны. Антенна нужна только для «Голоса Америки»."]},
+ // 141: parrot, §6, habit; only before 24 December, never with #63
+ {tier:3,real:0,pair:null,grp:'habit',radio:1,before:[12,24],keys:['notWith63'],m:["Mayak's holiday concert begins on Christmas Eve.","Праздничный концерт «Маяка» начнётся в сочельник, 24 декабря."],
+  tell:["The Soviet holiday is New Year. Christmas Eve is an American habit.","Советский праздник — Новый год. Сочельник — американская привычка."]}];
+// 129: real, once Voice of America has been heard this shift
+const TG129={tier:2,real:1,pair:null,grp:null,radio:1,m:["The Committee knows how long you listened to Voice of America. So does the commissar.","Комитету известно, сколько вы слушали «Голос Америки». Комиссару тоже."],
+  why:["Cold, not wrong.","Холодно, но верно."]};
+// 132: real, the easter egg: the morning after the owner's song was heard, once per player, never explained
+const TG132={tier:3,real:1,pair:null,grp:null,radio:1,m:["The Committee denies the existence of this song.","Комитет отрицает существование этой песни."],
+  why:["The Committee denies what it likes.","Комитет отрицает что хочет."]};
+// 136: parrot, §4, radio set, blizzard days only
+const TG136={tier:2,real:0,pair:null,grp:'radioset',radio:1,m:["Keep listening to Mayak through the blizzard for warnings.","Слушайте «Маяк» всю пургу — будут предупреждения."],
+  tell:["Nothing gets through in a blizzard. Try it.","В пургу ничего не пробивается. Проверьте."]};
+// the pencil: each parrot's slip and the article it breaks
+SLIPS.push(
+ {"n":"134","key":"Tune to Mayak on 7.0 for the weather.","en":["7.0"],"ru":["7,0"],"to":["r4"]},
+ {"n":"136","key":"Keep listening to Mayak through the blizzard","en":["Keep listening to Mayak"],"ru":["Слушайте «Маяк»"],"to":["r4"]},
+ {"n":"137","key":"Listen to Mayak at 7 PM for the Committee's","en":["7 PM"],"ru":["7 PM"],"to":["r6"]},
+ {"n":"138","key":"Polar Wave, 2.8, will play a concert tonight.","en":["2.8"],"ru":["2,8"],"to":["r4"]},
+ {"n":"139","key":"Voice of America comes in on band I.","en":["band I"],"ru":["первом диапазоне"],"to":["r4"]},
+ {"n":"140","key":"Mayak is far from ARKTIKA-7. Raise the antenna","en":["Raise the antenna"],"ru":["Выдвиньте антенну"],"to":["r4"]},
+ {"n":"141","key":"Mayak's holiday concert begins on Christmas Eve.","en":["Christmas Eve"],"ru":["в сочельник, 24 декабря"],"to":["r6"]});
+// 63 (Christmas Day) and 141 never in one shift
+{const p63=POOL.find(p=>p.m[0].startsWith('All six staff may rest on Christmas Day'));if(p63)p63.keys=(p63.keys||[]).concat('notWith63')}
+if(has3D)POOL.push(...TG_RADIO);
+
+// ---- the three dealt during the shift; each takes the place of a telegram of its own kind (real for real, parrot for parrot)
+// that carries no event, so the shift's balance and its events stay as they were
+const RTG={dealt129:false,song:false,key132:'pp_tg132'};
+const rtgFree=(o,real)=>o&&!!o.real===real&&!o.ev&&!o.gv&&!(o.src&&(o.src.drawer||o.src.burin||o.src.fish||o.src.needs||o.src.radio||o.src.before));
+const rtgHasSet=()=>queue.concat(queue2).some(o=>o&&o.src&&o.src.grp==='radioset');
+const _rtgRun=newRun;
+newRun=function(){RTG.dealt129=false;RTG.song=false;const r=_rtgRun.apply(this,arguments);
+  // 136 on a blizzard day of the plan (day 2 on: day 1 is already on the desk), unless the shift has a radio-set telegram
+  if(has3D&&!rtgHasSet()&&Math.random()<.6){const d=shuffle(Array.from({length:DAYS-1},(_,i)=>i+2)).find(d=>WX.plan[d]==='blizzard'&&rtgFree(queue[d-1],false));
+    if(d)queue[d-1]=mk(TG136)}
+  return r};
+const _rtgDay=nextDay;
+nextDay=function(){
+  if(has3D&&day>0&&day<DAYS&&phase!=='title'){
+    // 132: the morning after the song, the next day's first telegram (or its second), once per player
+    let once=false;try{once=localStorage.getItem(RTG.key132)==='1'}catch(e){}
+    // a plain real telegram's place if there is one, else a plain parrot's: the promise is the next morning
+    if(RTG.song&&!once){const q=[[queue,true],[queue2,true],[queue,false],[queue2,false]].map(([q,r])=>rtgFree(q[day],r)?q:null).find(Boolean);
+      if(q){q[day]=mk(TG132);try{localStorage.setItem(RTG.key132,'1')}catch(e){}}}
+    RTG.song=false;
+    // 129: once Voice of America has been heard this shift, now and then, on a later day
+    if(!RTG.dealt129&&RD.voa>0&&Math.random()<.5){RTG.dealt129=true;const j=cfSlot(true);if(j!==undefined)queue[j]=mk(TG129)}}
+  return _rtgDay.apply(this,arguments)};
+// the song is "heard" once it has played tuned in for a few seconds
+{let t=0;(function f(){requestAnimationFrame(f);const tu=RD.rig&&RD.rig.state.power&&RD.eng.tuned();if(tu&&tu.station&&tu.station.id==='egg-song'&&phase!=='title'){t+=1/60;if(t>5)RTG.song=true}else t=0})()}
 
 // ---------- developer panel: test any part of a shift without playing it through ----------
 // it opens only with the right key: in the address (…/?dev=KEY), or typed on the keyboard anywhere in the game (typing it
@@ -6883,9 +7856,13 @@ var devFreeze=false,devUsed=false;
     return H.map(h=>('00000000'+(h>>>0).toString(16)).slice(-8)).join('')}
   const ok=k=>!!k&&sha256(String(k).trim().toLowerCase())===DEV_KEY;
   // events only; the special telegrams (cook, love letter, daughter, question) load from the Telegram list (owner's call)
-  const EV_NAMES=[['bear','Bear'],['night','3 a.m.'],['volkov','Volkov'],['door','Door 02:40'],['hut','Old hut'],['core','Ice core'],['robo','Robozayats'],['voice','03:33 voice'],['ice','Man on ice'],['cake','Cake'],['drawer','Third drawer'],['govorun','Govorun'],['drill','Where to drill'],['doctor',"Doctor's night"],['fish','Ice fishing']].filter(([k])=>k==='robo'||k==='drawer'||k==='govorun'||EVENTS.includes(k)||
+  const EV_NAMES=[['bear','Bear'],['night','3 a.m.'],['volkov','Volkov'],['door','Door 02:40'],['hut','Old hut'],['core','Ice core'],['robo','Robozayats'],['voice','03:33 voice'],['ice','Man on ice'],['cake','Cake'],['drawer','Third drawer'],['govorun','Govorun'],['drill','Where to drill'],['doctor',"Doctor's night"],['fish','Ice fishing'],['concert','Concert'],['concertV','Concert (vodka)'],['tour',"Volkov's tour"],['breakfast',"Sasha's breakfast"],['eye','Eye chart'],['form','Questionnaire']].filter(([k])=>k==='robo'||k==='drawer'||k==='govorun'||EVENTS.includes(k)||
     // the held events, when the build has them
-    (k==='drill'&&typeof wdScene==='function')||(k==='doctor'&&typeof docNight==='function'));
+    (k==='drill'&&typeof wdScene==='function')||(k==='doctor'&&typeof docNight==='function')||
+    // the concert (held for the full game): tonight, the quiet night's or the vodka night's falling asleep
+    ((k==='concert'||k==='concertV')&&typeof concertNight==='function')||
+    // Arrival (held): Volkov's welcome tour, now
+    (['tour','breakfast','eye','form'].includes(k)&&typeof arTour==='function'));
   // the weather buttons' names (developer panel only, English)
   const WX_NAMES={calm:'Calm',snowfall:'Snowfall',wind:'Wind',blizzard:'Blizzard',aurora:'Aurora',diamond:'Diamond dust',icefog:'Ice fog',drift:'Drifting snow',stuck:'Snow on glass'};
   let box=null,note='',noteT=0,bedNight=false;
@@ -6895,6 +7872,9 @@ var devFreeze=false,devUsed=false;
     // the key leaves the address bar at once, so a screenshot or a shared link never carries it
     if(m){try{const u=new URL(location.href);u.searchParams.delete('dev');const h=u.hash.slice(1).split('&').filter(x=>x&&!/^dev=/.test(x)).join('&');u.hash=h;
       history.replaceState(history.state,'',u.toString().replace(/#$/,''))}catch(e){}}
+    // the test pages (tools/testpage.py, private to the owner) open with the panel there, no key needed (owner, 12 Nov 2026);
+    // the game the players get never carries the flag; ?dev=0 still turns it off
+    if(window.PP_TEST_PAGE&&k!=='0')return true;
     try{if(k==='0'){localStorage.removeItem('pp_dev');return false}if(ok(k)){localStorage.setItem('pp_dev',k.trim().toLowerCase());return true}return ok(localStorage.getItem('pp_dev'))}
     catch(e){return ok(k)}};
   function say(t){note=t;noteT=performance.now()}
@@ -6941,6 +7921,10 @@ var devFreeze=false,devUsed=false;
     // Where to Drill tomorrow morning; the doctor's knock tonight
     if(k==='drill'){if(day>=DAYS)day=DAYS-1;events[day+1]='drill';nextDay();return}
     if(k==='doctor'){if(day<1)day=1;docNight();return}
+    // Volkov's tour tomorrow morning (any day, for testing; in play it is day 1's)
+    if(k==='tour'){if(!has3D){say('The tour needs the 3D room.');return}if(day>=DAYS)day=DAYS-1;events[day+1]='tour';nextDay();return}
+    if(['breakfast','eye','form'].includes(k)){if(day>=DAYS)day=DAYS-1;events[day+1]=k;nextDay();return}
+    if(k==='concert'||k==='concertV'){if(day<1)day=1;if(!has3D){say('The concert needs the 3D room.');return}concertNight(k==='concertV'?'vodka':'sleep');return}
     if(k==='govorun'){if(day>=DAYS)day=DAYS-1;gvPlanAt(day+1);nextDay();return}
     if(k==='drawer'){if(day<1)day=1;DW.day=0;DW.pending=day;drawerScene();return}
     if(k==='night'){if(day<1)day=1;night3am();return}
