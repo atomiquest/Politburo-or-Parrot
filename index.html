@@ -391,6 +391,8 @@ body.devclean .hud,body.devclean #files,body.devclean .act{visibility:hidden}
 .vk-btns .btn:disabled,.ch-btns .btn:disabled,.dn-btns .btn:disabled{opacity:.38;box-shadow:none}
 </style>
 
+<script>window.goatcounter={no_onload:(function(){try{return !!localStorage.getItem("pp_dev")}catch(e){return false}})()};</script>
+<script data-goatcounter="https://politburoorparrot.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
 <div id="gl" aria-hidden="true"></div>
@@ -8034,6 +8036,25 @@ function wxtgDeal(){if(!has3D||AUDIT)return;const Q=queue.concat(queue2),has=g=>
     // the weather holds all day on that day: morning, reading time and night alike
     WX.parts[d]={m:WX.plan[d],r:WX.plan[d],n:WX.plan[d]}}}
 const _wxtgRun=newRun;newRun=function(){const r=_wxtgRun.apply(this,arguments);wxtgDeal();return r};
+// ---------- visitor statistics (owner's go, 20 Nov 2026: GoatCounter, free for non-commercial use, no cookies, no personal data) ----------
+// Only the public site counts: tools/mkindex.py puts GoatCounter's script into index.html alone, so on the Claude pages and the
+// test page window.goatcounter never exists and every call here does nothing. Never in a browser where the developer panel has
+// been unlocked (pp_dev, p7), never in a shift that used it (devUsed), never on the test page. Nothing about the player and no
+// free text: the shift's length, the language, phone or computer, how it ended, a poster shared or saved. It must never slow or
+// break the game: the script loads async, every call is wrapped, and a blocked script simply means no counts.
+const stDev=()=>{try{return !!localStorage.getItem('pp_dev')}catch(e){return false}};
+function ppStat(path){try{if(window.PP_TEST_PAGE||stDev()||(typeof devUsed!=='undefined'&&devUsed))return;
+  const g=window.goatcounter;if(!g||typeof g.count!=='function')return;g.count({path,title:path,event:true})}catch(e){}}
+const stDevice=()=>innerWidth<880||matchMedia('(pointer:coarse)').matches?'phone':'computer';
+let stEnded=false;
+// a shift started: its length (or the Audit), the language, phone or computer
+{const f=newRun;newRun=function(){const r=f.apply(this,arguments);stEnded=false;ppStat(`shift-start/${AUDIT?'audit':DAYS}/${lang}/${stDevice()}`);return r}}
+// a shift finished: released (the win card) or arrested (the arrest card), once a shift (a bribe or the cake afterwards does not count again)
+{const f=showCard;showCard=function(k){const r=f.apply(this,arguments);
+  if(!stEnded&&(k==='win'||(k==='bad'&&phase==='arrest'))){stEnded=true;ppStat(`shift-end/${k==='win'?'released':'arrested'}/${AUDIT?'audit':DAYS}`)}return r}}
+// the poster: saved, or shared to X (the copy that goes with sharing is not counted twice)
+{const f=saveShare;saveShare=function(){ppStat('poster/saved');return f.apply(this,arguments)}}
+{const f=postShare;postShare=function(){ppStat('poster/shared');return f.apply(this,arguments)}}
 
 // ---------- developer panel: test any part of a shift without playing it through ----------
 // it opens only with the right key: in the address (…/?dev=KEY), or typed on the keyboard anywhere in the game (typing it
