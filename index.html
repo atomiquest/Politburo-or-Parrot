@@ -3137,7 +3137,11 @@ const BEAR_AT={x:-.36,y:1.25,z:-.867},BEAR_PAW_Z=[.11,.159];
 // an eight-sided loft along +z through a list of rings, optionally closed by a point (the nose) and a back cap
 function loftGeo(rings,tip,capBack){const A=[90,50,0,-40,-90,-140,180,130].map(d=>d*Math.PI/180),P=[];
   const R=rings.map(r=>A.map(a=>[Math.cos(a)*r.rx,Math.sin(a)*r.ry*(Math.sin(a)>0?1:.92)+r.cy,r.z])),tri=(a,b,c)=>P.push(...a,...b,...c);
-  for(let i=0;i<R.length-1;i++)for(let j=0;j<8;j++){const k=(j+1)%8,a=R[i][j],b=R[i][k],c=R[i+1][k],d=R[i+1][j];tri(a,c,b);tri(a,d,c)}
+  // rings listed from front to back (the neck, falling away from the glass) wind the other way round: turned here, or the
+  // faces look inwards, the near side is not drawn and the world shows through the bear (owner, 24 Nov 2026: seen as soon as
+  // there was a bright world behind it; against the old dark view it passed for a solid neck)
+  const back=rings.length>1&&rings[1].z<rings[0].z;
+  for(let i=0;i<R.length-1;i++)for(let j=0;j<8;j++){const k=(j+1)%8,a=R[i][j],b=R[i][k],c=R[i+1][k],d=R[i+1][j];if(back){tri(a,b,c);tri(a,c,d)}else{tri(a,c,b);tri(a,d,c)}}
   if(tip){const L=R[R.length-1];for(let j=0;j<8;j++)tri(L[j],tip,L[(j+1)%8])}
   if(capBack){const F=R[0],c=[0,rings[0].cy,rings[0].z];for(let j=0;j<8;j++)tri(F[j],F[(j+1)%8],c)}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.computeVertexNormals();return g}
